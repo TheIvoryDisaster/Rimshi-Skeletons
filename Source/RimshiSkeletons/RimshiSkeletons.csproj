@@ -1,0 +1,106 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Same setup as Tithe. No NuGet packages locally: everything is referenced from the local RimWorld install and the
+    Harmony workshop mod, and RimWorld's own Managed folder stands in for the .NET Framework 4.7.2 reference assemblies.
+  -->
+
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>RimshiSkeletons</RootNamespace>
+    <AssemblyName>RimshiSkeletons</AssemblyName>
+    <OutputPath>..\..\1.6\Assemblies\</OutputPath>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <DebugType>none</DebugType>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+
+    <!-- Default paths assume this repo lives at RimWorld\Mods\Rimshi-Skeletons in a Steam install. Override with -p:Name=Path. -->
+    <RimWorldManaged Condition="'$(RimWorldManaged)' == ''">$(MSBuildProjectDirectory)\..\..\..\..\RimWorldWin64_Data\Managed</RimWorldManaged>
+    <HarmonyDir Condition="'$(HarmonyDir)' == ''">$(MSBuildProjectDirectory)\..\..\..\..\..\..\workshop\content\294100\2009463077\Current\Assemblies</HarmonyDir>
+
+    <!-- Set by the GitHub Actions build (see .github/workflows/build.yml); a local build leaves them empty. -->
+    <RimshiCI Condition="'$(RimshiCI)' == ''">false</RimshiCI>
+    <RimshiVersion Condition="'$(RimshiVersion)' == ''">dev</RimshiVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(RimshiCI)' != 'true'">
+    <FrameworkPathOverride>$(RimWorldManaged)</FrameworkPathOverride>
+    <AutomaticallyUseReferenceAssemblyPackages>false</AutomaticallyUseReferenceAssemblyPackages>
+  </PropertyGroup>
+
+  <!--
+    GitHub Actions has no RimWorld install, so it compiles against the community reference packages instead
+    (Krafs.Rimworld.Ref for the game and Unity, Lib.Harmony.Ref for Harmony). Local builds never use these.
+  -->
+  <ItemGroup Condition="'$(RimshiCI)' == 'true'">
+    <PackageReference Include="Krafs.Rimworld.Ref" Version="1.6.4871" />
+    <PackageReference Include="Lib.Harmony.Ref" Version="2.4.2" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(RimshiCI)' != 'true'">
+    <Reference Include="0Harmony">
+      <HintPath>$(HarmonyDir)\0Harmony.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <!-- Unity's modules are compiled against netstandard 2.1; the game ships the facade. -->
+    <Reference Include="netstandard">
+      <HintPath>$(RimWorldManaged)\netstandard.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>$(RimWorldManaged)\Assembly-CSharp.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>$(RimWorldManaged)\UnityEngine.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(RimWorldManaged)\UnityEngine.CoreModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.IMGUIModule">
+      <HintPath>$(RimWorldManaged)\UnityEngine.IMGUIModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.TextRenderingModule">
+      <HintPath>$(RimWorldManaged)\UnityEngine.TextRenderingModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <!--
+    Build stamp (as in Tithe). Every local build adds 1 to BuildNumber.txt next to this file (git-ignored, so it is
+    per machine) and writes obj\BuildInfo.g.cs with that number, the machine name and the time. The game logs it at
+    startup ("[Rimshi][T] build"). The GitHub Actions build passes RimshiVersion (e.g. "3" on main,
+    "3-my-branch.20261010.0512" on a branch) and RimshiBuildNumberOverride (the workflow run number) instead; local
+    builds report version "dev".
+  -->
+  <Target Name="RimshiStampBuild" BeforeTargets="CoreCompile">
+    <PropertyGroup>
+      <RimshiBuildNumberFile>$(MSBuildProjectDirectory)\BuildNumber.txt</RimshiBuildNumberFile>
+      <RimshiBuildInfoFile>$(IntermediateOutputPath)BuildInfo.g.cs</RimshiBuildInfoFile>
+    </PropertyGroup>
+    <ReadLinesFromFile File="$(RimshiBuildNumberFile)" Condition="Exists('$(RimshiBuildNumberFile)')">
+      <Output TaskParameter="Lines" PropertyName="RimshiLastBuild" />
+    </ReadLinesFromFile>
+    <PropertyGroup>
+      <RimshiLastBuild Condition="'$(RimshiLastBuild)' == ''">0</RimshiLastBuild>
+      <RimshiBuildNumber>$([MSBuild]::Add($(RimshiLastBuild.Trim()), 1))</RimshiBuildNumber>
+      <RimshiBuiltBy>$([System.Environment]::MachineName) $([System.DateTime]::UtcNow.ToString("yyyy-MM-ddTHH:mmZ"))</RimshiBuiltBy>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(RimshiBuildNumberOverride)' != ''">
+      <RimshiBuildNumber>$(RimshiBuildNumberOverride)</RimshiBuildNumber>
+    </PropertyGroup>
+    <WriteLinesToFile File="$(RimshiBuildNumberFile)" Lines="$(RimshiBuildNumber)" Overwrite="true" Condition="'$(RimshiBuildNumberOverride)' == ''" />
+    <WriteLinesToFile File="$(RimshiBuildInfoFile)" Overwrite="true"
+      Lines="// Generated by the RimshiStampBuild target in RimshiSkeletons.csproj. Do not edit.;namespace RimshiSkeletons { public static class BuildInfo { public const int Number = $(RimshiBuildNumber)%3B public const string Version = &quot;$(RimshiVersion)&quot;%3B public const string BuiltBy = &quot;$(RimshiBuiltBy)&quot;%3B } }" />
+    <ItemGroup>
+      <Compile Include="$(RimshiBuildInfoFile)" />
+    </ItemGroup>
+  </Target>
+
+</Project>
