@@ -64,9 +64,13 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          find About Defs Patches Languages LoadFolders.xml -name '*.xml' 2>/dev/null | while read -r f; do
-            python3 -c 'import sys, xml.etree.ElementTree as ET; ET.parse(sys.argv[1])' "$f" || { echo "Bad XML: $f"; exit 1; }
+          # Only the folders that exist yet (find fails on a missing path).
+          paths=()
+          for p in About Defs Patches Languages Mods LoadFolders.xml; do
+            if [ -e "$p" ]; then paths+=("$p"); fi
           done
+          find "${paths[@]}" -name '*.xml' > xml-files.txt
+          python3 -c 'import sys, xml.etree.ElementTree as ET; fs = open(sys.argv[1]).read().splitlines(); [ET.parse(f) for f in fs]; print(len(fs), "XML files parse")' xml-files.txt
 
       - name: Package the mod
         shell: bash
