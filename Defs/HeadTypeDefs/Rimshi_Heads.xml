@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!-- The six skeleton heads from the original (art by VexedTrees). Only pawns with the skeleton frame gene get them,
+       and no other pawn ever rolls them. -->
+
+  <HeadTypeDef Name="Rimshi_HeadBase" ParentName="AverageBase" Abstract="True">
+    <gender>None</gender>
+    <randomChosen>false</randomChosen>
+    <requiredGenes>
+      <li>Rimshi_SkeletonFrame</li>
+    </requiredGenes>
+  </HeadTypeDef>
+
+  <HeadTypeDef ParentName="Rimshi_HeadBase">
+    <defName>Rimshi_Head_Mki</defName>
+    <graphicPath>Rimshi/Head/Mki</graphicPath>
+  </HeadTypeDef>
+
+  <HeadTypeDef ParentName="Rimshi_HeadBase">
+    <defName>Rimshi_Head_Log</defName>
+    <graphicPath>Rimshi/Head/Log</graphicPath>
+  </HeadTypeDef>
+
+  <HeadTypeDef ParentName="Rimshi_HeadBase">
+    <defName>Rimshi_Head_Lion</defName>
+    <graphicPath>Rimshi/Head/Lion</graphicPath>
+  </HeadTypeDef>
+
+  <HeadTypeDef ParentName="Rimshi_HeadBase">
+    <defName>Rimshi_Head_Scout</defName>
+    <graphicPath>Rimshi/Head/Scout</graphicPath>
+  </HeadTypeDef>
+
+  <HeadTypeDef ParentName="Rimshi_HeadBase">
+    <defName>Rimshi_Head_Catlon</defName>
+    <graphicPath>Rimshi/Head/Catlon</graphicPath>
+  </HeadTypeDef>
+
+  <HeadTypeDef ParentName="Rimshi_HeadBase">
+    <defName>Rimshi_Head_Screamer</defName>
+    <graphicPath>Rimshi/Head/Screamer</graphicPath>
+  </HeadTypeDef>
+
+</Defs>

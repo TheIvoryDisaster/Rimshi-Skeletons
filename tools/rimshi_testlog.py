@@ -20,6 +20,16 @@ BUILD = re.compile(r"build (\d+)")
 # (area, key, label). Keep in the same order as docs/project/test-checklist.md.
 CHECKLIST = [
     ("build", "*", "Build line at startup"),
+    ("defs", "blocked thoughts", "Blocked thoughts linked at startup (lists any not loaded)"),
+    ("defs", "hunger thought", "Vanilla hunger thought nullified by the fuel reactor"),
+    ("defs", "immunities", "Immunity list linked at startup (lists any not loaded)"),
+    ("defs", "fuel", "Chemfuel and uranium tagged as edible fuel"),
+    ("gene", "genderless", "Null chromosome makes a pawn genderless"),
+    ("gene", "frame", "Skeleton frame gives a male, thin or hulk body and a skeleton head"),
+    ("gene", "no relations", "Skeletons generated without family"),
+    ("gene", "gender restored", "Removing the null chromosome gives a gender back"),
+    ("render", "body", "Skeleton body texture drawn"),
+    ("diet", "ate fuel", "Skeleton ate chemfuel or uranium (fails if it ate anything else)"),
 ]
 
 

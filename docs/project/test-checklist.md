@@ -15,3 +15,25 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | Area | Item | Status | Build | Last line |
 | --- | --- | --- | --- | --- |
 | build | Build line at startup | not seen |  |  |
+| defs | Blocked thoughts linked at startup (lists any not loaded) | not seen |  |  |
+| defs | Vanilla hunger thought nullified by the fuel reactor | not seen |  |  |
+| defs | Immunity list linked at startup (lists any not loaded) | not seen |  |  |
+| defs | Chemfuel and uranium tagged as edible fuel | not seen |  |  |
+| gene | Null chromosome makes a pawn genderless | not seen |  |  |
+| gene | Skeleton frame gives a male, thin or hulk body and a skeleton head | not seen |  |  |
+| gene | Skeletons generated without family | not seen |  |  |
+| gene | Removing the null chromosome gives a gender back | not seen |  |  |
+| render | Skeleton body texture drawn | not seen |  |  |
+| diet | Skeleton ate chemfuel or uranium (fails if it ate anything else) | not seen |  |  |
+
+## Manual checks
+
+Things the log cannot show; tick them off by hand after looking in game.
+
+- [ ] A skeleton spawned in dev mode (xenotype Skeleton) looks right: skeleton body and head, steel or rust colour, bald, no beard, no tattoos.
+- [ ] A skeleton is genderless in its info card and has the Asexual trait.
+- [ ] A hungry skeleton walks to chemfuel or uranium and eats it ("Fueling reactor with chemfuel").
+- [ ] A skeleton refuses ordinary meals (right-click shows "not suitable"), and a human or animal refuses chemfuel.
+- [ ] A hungry skeleton gets the "fuel need" thought; the vanilla hunger thought shows as nullified.
+- [ ] Naked, dark, wet and pain thoughts show as nullified by mechanical nature.
+- [ ] A skeleton never needs sleep (no rest bar).

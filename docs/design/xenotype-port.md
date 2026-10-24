@@ -1,6 +1,6 @@
 # Rimshi Skeletons: design
 
-Status: (draft) 2026-10-11, revised 2026-10-24 with Matthew's answers. Nothing here is built yet; this is the plan for review.
+Status: (draft) 2026-10-11, revised 2026-10-24 with Matthew's answers. Build steps 1 and 2 (core xenotype, diet) implemented 2026-10-24; see Implemented below.
 
 ## Goal
 
@@ -41,18 +41,18 @@ Checked against the decompiled 1.6 source on 2026-10-24: `GeneDef` has `disables
 | Original feature | Plan | Mechanism |
 | --- | --- | --- |
 | No sleep | Vanilla Never sleep gene behaviour. | Gene `disablesNeeds: Rest` (as vanilla `Neversleep`). |
-| Fuel diet | Food need stays, at a much lower rate, and skeletons only eat chemfuel and uranium. Humans and others will not eat them. | Gene stat factor on hunger rate; patch making chemfuel and uranium ingestible (as the original, with PatchOperationTest guards); Harmony postfix on `FoodUtility.WillEat` (both overloads) checking the gene both ways. **verify** method names. |
+| Fuel diet | Food need stays, at a much lower rate, and skeletons only eat chemfuel and uranium. Humans and others will not eat them. | Patch making chemfuel and uranium ingestible and tagging them with `FuelExtension` (as the original, with PatchOperationTest guards); Harmony postfix on `FoodUtility.FoodIsSuitable` (what `WillEat`, food search and the ingest menu ask) checking the tag against the gene both ways; postfix on `Need_Food.FoodFallPerTickAssumingCategory` for the hunger rate (x0.1), since no gene stat covers hunger. |
 | Fuel thoughts | Hunger thoughts read as "fuel need" for skeletons only. | New ThoughtDef using `ThoughtWorker_NeedFood` with `requiredGenes`; vanilla `NeedFood` gets `nullifyingGenes`. |
-| Blocked thoughts | Same list, where the thought still exists in 1.6. | Patch each ThoughtDef's `nullifyingGenes` to add the marker gene `Rimshi_MechanicalNature`. |
-| Disease and chemical immunity | Same immunity list. | `makeImmuneTo` on the marker gene with the original's list (no hidden hediff needed). |
+| Blocked thoughts | Same list, where the thought still exists in 1.6. | At startup, add the marker gene `Rimshi_MechanicalNature` to each ThoughtDef's `nullifyingGenes`, looked up by name so a missing DLC or mod is skipped and logged. |
+| Disease and chemical immunity | Same immunity list. | `makeImmuneTo` on the marker gene with the original's list, filled at startup by name the same way (no hidden hediff needed). |
 | Drugs | Cannot take the same drugs; addiction immune. | Vanilla `AddictionImmune_*` style chemical genes plus a Harmony check in the ingest path for the blocked chemicals. **verify** where ingest is decided. |
 | Stats | Same values where a gene can express them. | `statOffsets` / `statFactors` on several genes so the gene list reads well in the xenotype editor (armour, temperature, toxic, psychic, work speeds, movement). Odyssey vacuum resistance under `MayRequire`. |
 | Health scale 1.8, body size 1.1 | Body size stays human. Health scale via a gene. | No vanilla gene stat for health scale; Harmony postfix on `Pawn.HealthScale`. **verify** property name. |
 | Pain | Pain shock threshold 0.5 and no pain thoughts. | Stat factor on pain shock threshold; vanilla `Pain_Reduced` style behaviour optional. |
-| Looks: body | Skeleton body textures replace the human body. | A FurDef in the style of Biotech's furskin: the gene's `fur` points at our body textures, drawn over the body with skin colour. Head drawn by forced head types. **verify** FurDef fields for 1.6 and whether the body node can be hidden. |
-| Looks: body types | Male, Thin and Hulk only. | Gene `bodyType`; no Female body type ever (see genderless). |
+| Looks: body | Skeleton body textures replace the human body. | Harmony postfix on `PawnRenderNode_Body.GraphicFor` returns our body texture (same shader and skin colour) for pawns with `Rimshi_SkeletonFrame`. Not a FurDef: fur is drawn on top of the human body and tinted with hair colour, so the thinner skeleton art would show human skin around it. |
+| Looks: body types | Male, Thin and Hulk only. | The frame gene swaps Female and Fat for Male when added; the body patch also draws Male art for them as a fallback. |
 | Looks: heads | The six skeleton heads. | `forcedHeadTypes` on a gene, HeadTypeDefs with gender Any. |
-| Looks: colour, hair | Steel and rust colours, bald, no beard, no tattoos. | `skinColorOverride` or a few skin colour genes picked by the xenotype; `hairTagFilter` / `beardTagFilter` to none; tattoos blocked by a style patch. |
+| Looks: colour, hair | Steel and rust colours, bald, no beard, no tattoos. | Three plating genes in the xenotype (steel, aged steel, rust; Biotech picks one at random, about two in three steel), plus plasteel and mech black for custom xenotypes; vanilla `Hair_BaldOnly` and `Beard_NoBeardOnly`; `tattoosVisible` false on the frame gene. |
 | Genderless, asexual | Genderless (Gender.None), always Asexual and sterile. | A "null chromosome pattern" gene, done the way Rim-Hivers! - Biotech (VexedTrees, the original skeleton author) does it: Harmony postfixes on `PawnGenerator.GenerateGenes` and `Gene.PostAdd` set `pawn.gender = Gender.None` and swap a Female body type to Male. Our own code, no dependency on Rim-Hivers or its framework. Plus `forcedTraits: Asexual`, fertility stat factor 0. Rim-Hivers also skips relation generation for its pawns; we do the same (the original's relation chances are all 0). |
 | Pessimist / Depressive odds | 45% / 25%. | Harmony postfix on pawn generation for skeletons only (genes cannot force a trait at a chance). |
 | Disallowed traits | Same list. | `suppressedTraits` where it makes sense plus a generation filter. |
@@ -69,6 +69,17 @@ Checked against the decompiled 1.6 source on 2026-10-24: `GeneDef` has `disables
 | Skeleton names | Skeleton name maker. | XenotypeDef `nameMaker` with `chanceToUseNameMaker` 1. |
 | Skeletal imperium faction | Kept, with its roster. | FactionDef with `xenotypeSet` 100% skeleton and pawn kinds that are ordinary humanlike kinds (no race field). |
 | Player faction and scenario | Kept. | Player FactionDef with skeleton xenotype set, ScenarioDef with one skeleton starting pawn. |
+
+## Implemented
+
+Build steps 1 and 2, 2026-10-24:
+
+- Genes (`Defs/GeneDefs/Rimshi_Genes.xml`, category "skeleton"): `Rimshi_SkeletonFrame` (heads, body art, no tattoos), `Rimshi_MetalChassis` (armour, temperature, fire, speed, carrying, dodge, pain shock, Odyssey vacuum), `Rimshi_MechanicalNature` (immunities, toxins, darkness, psychic sensitivity, blocked thoughts), `Rimshi_ArchaicMind` (mental break, social, research, plants, mining), `Rimshi_FuelReactor` (diet), `Rimshi_NullChromosome` (genderless, Asexual, fertility 0), five plating colours.
+- Xenotype `Rimshi_Skeleton` with those genes plus vanilla `Neversleep`, `Ageless`, `Hair_BaldOnly`, `Beard_NoBeardOnly`. `factionlessGenerationWeight` 0 until step 3 sets the rarity.
+- Six head types `Rimshi_Head_*` (`requiredGenes` the frame gene, never random). Textures under `Textures/Rimshi`; the original lacked `Naked_Thin_southm`, so a copy of its stand-in file is used.
+- Fuel: `Rimshi_FuelNeed` thought (seven stages, as `ThoughtWorker_NeedFood` needs), vanilla `NeedFood` nullified by the fuel reactor.
+- Known side effect, as in the original: chemfuel and uranium count toward the colony's food total, because they are ingestible with a human food type.
+- Not yet: health scale 1.8 and the fist attacks (no gene field; step 4), trait odds, disallowed traits, drugs and age (step 6), names and backstories (step 3).
 
 ## Anatomy
 
