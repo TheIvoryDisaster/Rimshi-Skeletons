@@ -1,12 +1,13 @@
 """Def cross-references and textures, checked without the game.
 
 Names from vanilla or DLCs that our defs use are listed in VANILLA so a typo in one of ours still fails."""
-import re, unittest, xml.etree.ElementTree as ET
+import os, re, unittest, xml.etree.ElementTree as ET
 from helpers import ROOT, SOURCE, concrete, defs, def_names, source_text, texture_exists, xml_files
 
 VANILLA = {
     "GeneDef": {"Neversleep", "Ageless", "Hair_BaldOnly", "Beard_NoBeardOnly"},
-    "parents": {"GeneSkinColorOverride", "AverageBase"},
+    "parents": {"GeneSkinColorOverride", "AverageBase", "FactionBase", "PlayerFactionBase", "BasePlayerPawnKind", "ScenarioBase"},
+    "PawnKindDef": {"Villager", "Town_Guard", "Miner", "Farmer"},
 }
 DIRECTIONS = ("south", "north", "east")
 
@@ -103,6 +104,39 @@ class DefTests(unittest.TestCase):
         for _, t in concrete("ThoughtDef"):
             if t.findtext("workerClass") == "ThoughtWorker_NeedFood":
                 self.assertEqual(len(t.find("stages")), 7, t.findtext("defName"))
+
+    def test_faction_pawn_kinds_exist(self):
+        kinds = def_names("PawnKindDef") | VANILLA["PawnKindDef"]
+        for f, faction in concrete("FactionDef"):
+            for kind in [faction.findtext("basicMemberKind")] + [o.tag for g in (faction.find("pawnGroupMakers") or []) for o in (g.find("options") or [])]:
+                if kind:
+                    with self.subTest(faction=faction.findtext("defName"), kind=kind):
+                        self.assertIn(kind, kinds)
+
+    def test_own_references_exist(self):
+        """Every Rimshi_ name used inside a def or patch (comments aside) is one of our defs or abstract parents."""
+        names = {el.findtext("defName") for _, el in concrete()} | {el.get("Name") for _, el in defs() if el.get("Name")}
+        for path in xml_files("Defs", "Patches"):
+            text = re.sub(r"<!--.*?-->", "", open(path).read(), flags=re.S)
+            for name in set(re.findall(r"\b(Rimshi_[A-Za-z0-9_]+)\b", text)):
+                with self.subTest(file=path, name=name):
+                    self.assertIn(name, names)
+
+    def test_skeleton_backstories(self):
+        stories = [el for _, el in concrete("BackstoryDef") if "Rimshi_Skeleton" in [li.text for li in el.find("spawnCategories")]]
+        slots = {el.findtext("slot") for el in stories}
+        self.assertEqual(slots, {"Childhood", "Adulthood"}, "skeletons need both childhood and adulthood backstories")
+
+    def test_name_files_exist(self):
+        for _, rp in concrete("RulePackDef"):
+            for path in [li.findtext("path") for li in rp.iter("li") if li.get("Class") == "Rule_File"]:
+                with self.subTest(rulePack=rp.findtext("defName"), path=path):
+                    self.assertTrue(os.path.isfile(os.path.join(ROOT, "Languages", "English", "Strings", path + ".txt")))
+
+    def test_faction_icons_exist(self):
+        for _, faction in concrete("FactionDef"):
+            with self.subTest(faction=faction.findtext("defName")):
+                self.assertTrue(texture_exists(faction.findtext("factionIconPath")))
 
 
 if __name__ == "__main__":

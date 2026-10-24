@@ -52,6 +52,7 @@ namespace RimshiSkeletons
                 SkeletonChecks(skeleton, human);
                 HumanChecks(human);
                 GeneRemovalCheck(skeleton);
+                FactionChecks(pawns);
             }
             catch (Exception e)
             {
@@ -109,6 +110,22 @@ namespace RimshiSkeletons
             ThoughtDef fuelNeed = DefDatabase<ThoughtDef>.GetNamedSilentFail("Rimshi_FuelNeed");
             Check("fuel thought", fuelNeed != null && ThoughtUtility.CanGetThought(s, fuelNeed), "Rimshi_FuelNeed can apply");
             Check("blocked thought", ThoughtUtility.ThoughtNullified(s, ThoughtDefOf.Naked), "Naked nullified");
+
+            Check("backstory", s.story.Adulthood != null && s.story.Adulthood.spawnCategories.Contains(SkeletonUtility.BackstoryCategory),
+                "backstories " + s.story.Childhood?.defName + ", " + s.story.Adulthood?.defName);
+        }
+
+        private static void FactionChecks(List<Pawn> pawns)
+        {
+            FactionDef imperium = RimshiDefOf.Rimshi_SkeletalImperium;
+            Check("faction def", imperium.pawnGroupMakers != null && imperium.pawnGroupMakers.Count > 0 && RimshiDefOf.Rimshi_PlayerSkeletons.isPlayer,
+                imperium.defName + " with " + (imperium.pawnGroupMakers?.Count ?? 0) + " pawn groups, player faction " + RimshiDefOf.Rimshi_PlayerSkeletons.defName);
+            PawnKindDef guardKind = DefDatabase<PawnKindDef>.GetNamed("Rimshi_TownGuard");
+            Pawn guard = PawnGenerator.GeneratePawn(new PawnGenerationRequest(guardKind, null, forceGenerateNewPawn: true, forceNoGear: true));
+            pawns.Add(guard);
+            Check("faction kind", guard.genes.Xenotype == RimshiDefOf.Rimshi_Skeleton, guardKind.defName + ": xenotype " + guard.genes.XenotypeLabel + ", name " + guard.Name?.ToStringFull);
+            Faction inWorld = Find.FactionManager.FirstFactionOfDef(imperium);
+            RimshiLog.Test("faction", "in world", inWorld != null ? inWorld.Name : "none (world made without this mod; see Debug actions > Rimshi Skeletons)");
         }
 
         private static void HumanChecks(Pawn h)
@@ -167,21 +184,30 @@ namespace RimshiSkeletons
         }
     }
 
-    /// <summary>Runs the self-tests once per session when a game loads or starts with Development mode on.</summary>
+    /// <summary>
+    /// When a save loads: replaces the old mod's factions if the mod setting is on. When a game loads or starts: runs the
+    /// self-tests once per session with Development mode on.
+    /// </summary>
     public class RimshiGameComponent : GameComponent
     {
         public RimshiGameComponent(Game game)
         {
         }
 
+        // Both run inside the loading long event, off the main thread; textures can only be read on the main thread, so
+        // the tests wait until loading is finished.
         public override void LoadedGame()
         {
-            SelfTests.RunIfDevMode();
+            if (RimshiMod.Settings.replaceOldFactions)
+            {
+                SkeletonFactions.ReplaceOldFactions();
+            }
+            LongEventHandler.ExecuteWhenFinished(SelfTests.RunIfDevMode);
         }
 
         public override void StartedNewGame()
         {
-            SelfTests.RunIfDevMode();
+            LongEventHandler.ExecuteWhenFinished(SelfTests.RunIfDevMode);
         }
     }
 }

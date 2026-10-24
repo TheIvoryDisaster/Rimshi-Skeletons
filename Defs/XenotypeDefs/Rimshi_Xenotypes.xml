@@ -2,7 +2,9 @@
 <Defs>
 
   <!-- Inheritable so the genes are germline and survive Biotech's xenotype rules (skeletons cannot reproduce anyway).
-       factionlessGenerationWeight is 0 until the spawning step sets the original's rarity (build order step 3). -->
+       factionlessGenerationWeight 0.5 against the vanilla total of about 50 (baseliner 40) makes about 1 in 100
+       factionless pawns a skeleton, close to the original's 0.9% wanderer chance. Faction rarity is in
+       Patches/Rimshi_FactionXenotypes.xml. -->
   <XenotypeDef>
     <defName>Rimshi_Skeleton</defName>
     <label>skeleton</label>
@@ -10,7 +12,9 @@
     <descriptionShort>Ancient proto-mechanical persona in plated metal frames. They never sleep or fall ill, run on chemfuel and uranium, and have no sex.</descriptionShort>
     <iconPath>Rimshi/Head/Mki_south</iconPath>
     <inheritable>true</inheritable>
-    <factionlessGenerationWeight>0</factionlessGenerationWeight>
+    <factionlessGenerationWeight>0.5</factionlessGenerationWeight>
+    <nameMaker>Rimshi_NamerPersonSkeleton</nameMaker>
+    <chanceToUseNameMaker>1</chanceToUseNameMaker>
     <displayPriority>-500</displayPriority>
     <genes>
       <li>Rimshi_SkeletonFrame</li>
