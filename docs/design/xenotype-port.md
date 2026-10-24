@@ -1,6 +1,6 @@
 # Rimshi Skeletons: design
 
-Status: (draft) 2026-10-11. Nothing here is built yet; this is the plan for review.
+Status: (draft) 2026-10-11, revised 2026-10-24 with Matthew's answers. Nothing here is built yet; this is the plan for review.
 
 ## Goal
 
@@ -36,28 +36,28 @@ Read from the original's files (local folder "3674548651", 1.6 only):
 
 The xenotype is `Rimshi_Skeleton` (all our defs use the `Rimshi_` prefix). It is **inheritable** (germline) so it survives Biotech's xenotype rules, though skeletons cannot reproduce anyway.
 
-Facts about vanilla fields below are from memory and must be checked against the decompiled source (`<save data folder>\Decompiled\Assembly-CSharp`) before building. Rows marked **verify** are the ones most likely to be wrong.
+Checked against the decompiled 1.6 source on 2026-10-24: `GeneDef` has `disablesNeeds`, `makeImmuneTo`, `fur`, `bodyType`, `forcedHeadTypes`, `hairTagFilter`, `skinColorOverride`, `forcedTraits`, `suppressedTraits`, `statFactors`; `XenotypeDef` has `nameMaker` / `nameMakerFemale`; `ThoughtDef` has `nullifyingGenes` and `requiredGenes`; `Hediff_Injury.BleedRate` is 0 on a part covered by a non-organic added part. Rows still marked **verify** were not checked yet.
 
 | Original feature | Plan | Mechanism |
 | --- | --- | --- |
 | No sleep | Vanilla Never sleep gene behaviour. | Gene `disablesNeeds: Rest` (as vanilla `Neversleep`). |
 | Fuel diet | Food need stays, at a much lower rate, and skeletons only eat chemfuel and uranium. Humans and others will not eat them. | Gene stat factor on hunger rate; patch making chemfuel and uranium ingestible (as the original, with PatchOperationTest guards); Harmony postfix on `FoodUtility.WillEat` (both overloads) checking the gene both ways. **verify** method names. |
-| Fuel thoughts | Hunger thoughts read as "fuel need" for skeletons only. | New ThoughtDef using `ThoughtWorker_NeedFood`, `requiredGenes`; vanilla `NeedFood` gets `nullifyingGenes`. **verify** `requiredGenes` on ThoughtDef; else a 10 line ThoughtWorker subclass. |
+| Fuel thoughts | Hunger thoughts read as "fuel need" for skeletons only. | New ThoughtDef using `ThoughtWorker_NeedFood` with `requiredGenes`; vanilla `NeedFood` gets `nullifyingGenes`. |
 | Blocked thoughts | Same list, where the thought still exists in 1.6. | Patch each ThoughtDef's `nullifyingGenes` to add the marker gene `Rimshi_MechanicalNature`. |
-| Disease and chemical immunity | Same immunity list. | Marker gene's custom `Gene` class adds the hidden `Rimshi_MechanicalNature` hediff in `PostAdd` and removes it in `PostRemove`. The hediff keeps the original's `makeImmuneTo` list. |
+| Disease and chemical immunity | Same immunity list. | `makeImmuneTo` on the marker gene with the original's list (no hidden hediff needed). |
 | Drugs | Cannot take the same drugs; addiction immune. | Vanilla `AddictionImmune_*` style chemical genes plus a Harmony check in the ingest path for the blocked chemicals. **verify** where ingest is decided. |
 | Stats | Same values where a gene can express them. | `statOffsets` / `statFactors` on several genes so the gene list reads well in the xenotype editor (armour, temperature, toxic, psychic, work speeds, movement). Odyssey vacuum resistance under `MayRequire`. |
 | Health scale 1.8, body size 1.1 | Body size stays human. Health scale via a gene. | No vanilla gene stat for health scale; Harmony postfix on `Pawn.HealthScale`. **verify** property name. |
 | Pain | Pain shock threshold 0.5 and no pain thoughts. | Stat factor on pain shock threshold; vanilla `Pain_Reduced` style behaviour optional. |
 | Looks: body | Skeleton body textures replace the human body. | A FurDef in the style of Biotech's furskin: the gene's `fur` points at our body textures, drawn over the body with skin colour. Head drawn by forced head types. **verify** FurDef fields for 1.6 and whether the body node can be hidden. |
-| Looks: body types | Male, Thin and Hulk only. | Gene `bodyType`. Female pawns use the Male textures (a copy at the Female path) so nothing renders blank. |
+| Looks: body types | Male, Thin and Hulk only. | Gene `bodyType`; no Female body type ever (see genderless). |
 | Looks: heads | The six skeleton heads. | `forcedHeadTypes` on a gene, HeadTypeDefs with gender Any. |
 | Looks: colour, hair | Steel and rust colours, bald, no beard, no tattoos. | `skinColorOverride` or a few skin colour genes picked by the xenotype; `hairTagFilter` / `beardTagFilter` to none; tattoos blocked by a style patch. |
-| Genderless, asexual | Pawns keep a gender (vanilla needs one) but are always Asexual and sterile. | Gene `forcedTraits: Asexual`, fertility stat factor 0, reproduction blocked. Gender is cosmetic only. |
+| Genderless, asexual | Genderless (Gender.None), always Asexual and sterile. | A "null chromosome pattern" gene, done the way Rim-Hivers! - Biotech (VexedTrees, the original skeleton author) does it: Harmony postfixes on `PawnGenerator.GenerateGenes` and `Gene.PostAdd` set `pawn.gender = Gender.None` and swap a Female body type to Male. Our own code, no dependency on Rim-Hivers or its framework. Plus `forcedTraits: Asexual`, fertility stat factor 0. Rim-Hivers also skips relation generation for its pawns; we do the same (the original's relation chances are all 0). |
 | Pessimist / Depressive odds | 45% / 25%. | Harmony postfix on pawn generation for skeletons only (genes cannot force a trait at a chance). |
 | Disallowed traits | Same list. | `suppressedTraits` where it makes sense plus a generation filter. |
 | Age | Thousands of years old, ageless. | Vanilla Ageless behaviour, and a generation postfix that sets a chronological age between 480 and 2500. |
-| Mechanical body | Keep the human BodyDef (a xenotype cannot change it). No bleeding, machine-bit "blood", mechanical wound overlays and hit sound, no organ harvesting. | Harmony: bleed rate to 0, blood filth def, fleshtype-style wound graphics. Organ harvest recipes blocked on skeletons. |
+| Mechanical body | Keep the human BodyDef (a xenotype cannot change it) and rename the parts, see Anatomy below. No bleeding, machine-bit "blood", mechanical wound overlays and hit sound. | See Anatomy. |
 | Surgery | Vanilla prosthetic and bionic surgery works unchanged on the human body, so the original's re-targeted recipes are not needed. | None. Optional later: crafting skill instead of medicine for skeleton surgery. |
 | Sever AI core | Kept as a recipe for skeletons only. | RecipeDef with `Recipe_ExecuteByCut`, `recipeUsers` Human, hidden unless the patient has the gene (custom worker `AvailableOnNow`). |
 | Corpses | Never rot, inedible, shred / smash for steel, plasteel, uranium. | Harmony on rot and `IngestibleNow`; butcher products swapped when the corpse's pawn is a skeleton; shred and smash recipes use a `SpecialThingFilterWorker` "skeleton corpse". |
@@ -66,9 +66,19 @@ Facts about vanilla fields below are from memory and must be checked against the
 | Spawning in other factions | Same rarity: skeletons appear among outlanders, pirates, tribes and the Empire. | Patch each FactionDef's `xenotypeSet` to add `Rimshi_Skeleton` at a small chance (instead of injecting pawn kinds). Empire patch only if Royalty is active. |
 | Starting pawn and wanderer chance | 0.1% / 0.9%. | Player faction `xenotypeSet`; wanderer joins inherit it. **verify** which faction wanderers draw from. |
 | Skeleton backstories | Skeletons always get skeleton backstories. | Convert the 74 `AlienBackstoryDef`s to vanilla `BackstoryDef` (category `Rimshi_Skeleton`), and a generation postfix that rerolls backstories for skeleton pawns. |
-| Skeleton names | Skeleton name maker. | XenotypeDef `nameMaker` / `nameMakerFemale`. **verify**. |
+| Skeleton names | Skeleton name maker. | XenotypeDef `nameMaker` with `chanceToUseNameMaker` 1. |
 | Skeletal imperium faction | Kept, with its roster. | FactionDef with `xenotypeSet` 100% skeleton and pawn kinds that are ordinary humanlike kinds (no race field). |
 | Player faction and scenario | Kept. | Player FactionDef with skeleton xenotype set, ScenarioDef with one skeleton starting pawn. |
+
+## Anatomy
+
+Matthew chose renaming (2026-10-24). A xenotype cannot have its own BodyDef: the body comes from the race, and every pawn of the Human race shares one. Two ways to make the human body read as a skeleton:
+
+**A. Rename only (small).** One Harmony postfix on the body part label (`BodyPartRecord.Label` / `LabelCap`, **verify** names) that maps human names to the original's for skeleton pawns: brain to AI core, heart to reactor, lungs and kidneys to fluid reprocessors, stomach to fuel intake, eyes to visual sensors, ears to sound analyzers, nose to chemical analyzer, jaw to linguistics operator, and so on. Plus the bleed rate and blood patches from the table. Organs still behave as organs: organ harvesting gives human organs, and a destroyed reactor is a destroyed heart.
+
+**B. Android-style parts (medium).** What Vanilla Races Expanded - Android does (checked in its 1.6 files): androids keep the human body, and every organ carries an "android part" hediff (a `Hediff_AddedPart` subclass with `countsAsAddedPartOrImplant` and its own label: neuropump, reactor, air filter...), with their own items and install recipes. Vanilla then does a lot by itself: injuries on a non-organic added part never bleed (`Hediff_Injury.BleedRate`), no infection, the health tab shows the part's name, and removing it yields our item instead of a human organ. VRE Android adds about 40 Harmony patches on top for polish (health tab, surgery options, death and downed checks, anaesthesia). For us the core is: a gene that adds the part hediffs on `PostAdd`, about 12 part hediffs with matching items (salvaged reactor, fluid reprocessor...), crafting-skill install recipes, `countsAsAddedPartOrImplant` false so transhumanist and body purist thoughts ignore them, and a handful of patches (no anaesthesia, hide the medical options that make no sense). Bionics still install over them as usual.
+
+Recommendation: B, built after the core xenotype works, with A's label patch as a fallback for anything not covered by a part hediff (head, torso, limbs).
 
 ## Soft dependencies
 
@@ -91,24 +101,44 @@ The rule: anything that needs another mod either loads only when that mod is act
 | EPOE, VTE, VBE, VFE Insectoids, CE, VAE, Kenshi Armory | Recipes, disallowed traits, chemicals, blocked apparel. | Same items under `MayRequire`. EPOE recipes are not needed. | Items skipped. |
 | Rim-Robots, androids mods | `notXenophobistTowards`. | HAR only; no Biotech equivalent. Dropped. | None. |
 
+## Converting saves from Rim-Skeletons (Continued)
+
+Matthew asked (2026-10-24) for a mod option that converts the old mod's skeletons in a save into ours, so the old mod can then be removed. He has both loaded and reports the old mod's skeletons show up as plain humans.
+
+Mod settings get a checkbox, **Convert Rim-Skeletons (Continued) pawns when a save loads** (off by default). With it on, after a save finishes loading (`GameComponent.LoadedGame`) we walk every pawn the game knows (maps, caravans, world pawns, corpses, pawns in containers such as cryptosleep caskets and transport pods) and convert each one that is an old skeleton:
+
+- **Detect:** race defName `Skeleton_`, or one of the old pawn kinds (`Skeleton_Colonist`, `Skeleton_Drifter`, `Town_Guard_Skele`, `Tribal_Skeleton`, `Pirate_Skele`, `Skele_Spacer_Reaper`, the `Skeleton_*` military kinds), or an old `MechanicalNature_Hediff`. Matching on kind and hediff as well as race also catches skeletons that already show up as humans.
+- **Convert:** race to Human (if it is still `Skeleton_`), clearing health first because the old body's parts do not map onto the human body (permanent injuries and old prosthetics are listed in the log and a letter, since they cannot carry over); set the xenotype to `Rimshi_Skeleton` (which applies the genes, genderless, looks and anatomy); map old backstories, head types and pawn kinds to ours by defName; remove the old hidden hediff.
+- **Factions:** pawns of the old skeletal imperium and old skeleton player faction move to ours by FactionDef where the faction itself can be switched; otherwise they keep their faction and only the pawn changes.
+- **Log:** one `[Rimshi][T] migrate | <pawn> | from ... to ...` line per pawn and a summary letter ("Converted N skeletons; you can now save, quit and remove Rim-Skeletons (Continued)").
+
+The safe order for the player is: keep both mods, turn the option on, load, check the letter, save, quit, remove the old mod, load again. The conversion only works while the old mod is loaded, because once it is gone RimWorld drops any pawn whose race def is missing.
+
+Stretch, if needed: also handle saves where the old mod was already removed, by remapping its defNames on load (`BackCompatibility.BackCompatibleDefName`, `GetBackCompatibleBodyPartIndex`, both present in 1.6) to Human and our defs. More fragile, so only if Matthew needs it.
+
+Why the old skeletons show up as humans is worth a look in his Player.log while building this (it could be Humanoid Alien Races loading after it, an error in the old mod's patches, or a load order problem); the converter does not depend on the answer.
+
 ## Assets
 
-The textures (body, heads, world icon) and the backstory and name text come from the original mod. The original is by VexedTrees, continued by Zaljerem, and the Workshop page does not state a licence. **Before publishing, get permission from the authors or replace the art.** Using them for private testing is fine; the repo is set up so textures can be swapped without code changes.
+The textures (body, heads, world icon) and the backstory and name text come from the original mod, by VexedTrees (Rim-Skeletons, Workshop 2577145706), continued by Zaljerem (Workshop 3674548651). Matthew decided (2026-10-24) to use them with credit, as is usual for continuations of mods whose author has stopped updating. The About.xml description and a CREDITS section in the README name both authors and link both Workshop pages.
 
-## Open questions for Matthew
+## Decisions
 
-1. Should skeletons keep a vanilla gender (pronouns only), or should we try to force genderless (riskier: many vanilla paths assume male or female)? Recommendation: keep gender, cosmetic only.
-2. Is "human body, mechanical behaviour" acceptable (human organs show in the health tab, but bleeding, organ harvest and wounds act mechanical), or do you want the parts relabelled too? Relabelling needs a Harmony patch on part labels and is cosmetic.
-3. Should the mod declare itself incompatible with Rim-Skeletons (Continued)? They do not clash on defNames, but running both gives two kinds of skeleton.
-4. Asset permission (above).
+Answered 2026-10-24:
+
+1. Gender: genderless, the Rim-Hivers way.
+2. Body: rename; anatomy approach A or B still to pick (see Anatomy).
+3. Compatibility with Rim-Skeletons (Continued): no incompatibility flag and no compatibility work; this mod is for people who cannot use the other one. The only overlap is the save converter.
+4. Assets: use the original art with credit.
 
 ## Build order (proposed)
 
-1. Xenotype with genes for needs, stats, immunity, looks (no C#), checked in game.
+1. Xenotype with genes for needs, stats, immunity, looks, and the genderless patch, checked in game.
 2. Diet patches and fuel thoughts.
 3. Spawning: faction xenotype sets, player faction, scenario, backstories, names.
-4. Mechanical body behaviour, corpses, shred / smash, sever AI core.
-5. Trait odds, blocked apparel and actions, age.
-6. Soft dependency patches (Royalty, Ideology, Odyssey, then DBH, AC, QE after decompiling them).
+4. Mechanical body behaviour and anatomy, corpses, shred / smash, sever AI core.
+5. Save converter from Rim-Skeletons (Continued).
+6. Trait odds, blocked apparel and actions, age.
+7. Soft dependency patches (Royalty, Ideology, Odyssey, then DBH, AC, QE after decompiling them).
 
 Each step adds `[Rimshi][T]` log lines and rows to the test checklist.

@@ -27,3 +27,7 @@ GitHub Actions builds every push (see `.github/workflows/build.yml`):
 - **other branches:** `<last main version>-<branch>.<yyyyMMdd>.<HHmm>` (UTC), uploaded as a workflow artifact.
 
 The version is compiled into the DLL and logged at startup as `[Rimshi][T] build | <version> | ...`. Local builds report version `dev` with a per-machine build number.
+
+## Credits
+
+Skeletons, their art, backstories and names come from **Rim-Skeletons** by VexedTrees ([Workshop 2577145706](https://steamcommunity.com/sharedfiles/filedetails/?id=2577145706)), continued for 1.6 by Zaljerem as **Rim-Skeletons (Continued)** ([Workshop 3674548651](https://steamcommunity.com/sharedfiles/filedetails/?id=3674548651)). The genderless gene follows the approach of VexedTrees' **Rim-Hivers! - Biotech**.
