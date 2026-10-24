@@ -81,9 +81,15 @@ jobs:
           set -euo pipefail
           out=package/RimshiSkeletons
           mkdir -p "$out"
-          for d in About Defs Patches Languages Textures Sounds LoadFolders.xml 1.6; do
+          for d in About Defs Patches Languages Textures Sounds LoadFolders.xml 1.6 1.7; do
             [ -e "$d" ] && cp -r "$d" "$out"/
           done
+          # CI can only compile the 1.6 DLL (there is no 1.7 reference package), so the zip does not claim 1.7 support
+          # unless a 1.7 DLL is in it. Local clones keep 1.7 in About.xml and build it with build.ps1.
+          if [ ! -e "$out/1.7/Assemblies/RimshiSkeletons.dll" ]; then
+            sed -i '/<li>1\.7<\/li>/d' "$out/About/About.xml"
+            sed -i '/<v1\.7>/,/<\/v1\.7>/d' "$out/LoadFolders.xml"
+          fi
           # After the mod's own packageId (the first one; the rest belong to dependencies).
           sed -i "0,/<\/packageId>/s||</packageId>\n  <modVersion>${{ steps.version.outputs.version }}</modVersion>|" "$out/About/About.xml"
           [ "$(grep -c '<modVersion>' "$out/About/About.xml")" = 1 ]
