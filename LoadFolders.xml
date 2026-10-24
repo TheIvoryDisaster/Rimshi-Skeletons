@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- The root and 1.6 load for RimWorld 1.6. Content that needs another mod goes in Mods/<ModName> and is listed here
-     with IfModActive, so it only loads when that mod is active (see Soft dependencies in docs/design/xenotype-port.md). -->
+<!-- The root plus the game version's folder (1.6 or 1.7, each with its own RimshiSkeletons.dll) load. Content that needs
+     another mod goes in Mods/<ModName> and is listed here with IfModActive, so it only loads when that mod is active (see
+     Soft dependencies in docs/design/xenotype-port.md). -->
 <loadFolders>
   <v1.6>
     <li>/</li>
     <li>1.6</li>
   </v1.6>
+  <v1.7>
+    <li>/</li>
+    <li>1.7</li>
+  </v1.7>
 </loadFolders>

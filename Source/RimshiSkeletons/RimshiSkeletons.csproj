@@ -2,15 +2,20 @@
 
   <!--
     Same setup as Tithe. No NuGet packages locally: everything is referenced from the local RimWorld install and the
-    Harmony workshop mod, and RimWorld's own Managed folder stands in for the .NET Framework 4.7.2 reference assemblies.
+    Harmony workshop mod. Two game versions build from the same source, chosen with -p:RimWorldVersion (default 1.6):
+      1.6  .NET Framework 4.7.2 + Unity, from RimWorldWin64_Data\Managed (which stands in for the framework reference assemblies)
+      1.7  .NET 10 on the Waylith engine, from the game folder itself; Unity's API comes from UnityStubs.dll
+    Each writes its own <version>\Assemblies\RimshiSkeletons.dll, which LoadFolders.xml picks per game version.
   -->
 
   <PropertyGroup>
-    <TargetFramework>net472</TargetFramework>
+    <RimWorldVersion Condition="'$(RimWorldVersion)' == ''">1.6</RimWorldVersion>
+    <TargetFramework Condition="'$(RimWorldVersion)' == '1.7'">net10.0</TargetFramework>
+    <TargetFramework Condition="'$(RimWorldVersion)' != '1.7'">net472</TargetFramework>
     <LangVersion>latest</LangVersion>
     <RootNamespace>RimshiSkeletons</RootNamespace>
     <AssemblyName>RimshiSkeletons</AssemblyName>
-    <OutputPath>..\..\1.6\Assemblies\</OutputPath>
+    <OutputPath>..\..\$(RimWorldVersion)\Assemblies\</OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <DebugType>none</DebugType>
     <Nullable>disable</Nullable>
@@ -18,15 +23,20 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 
     <!-- Default paths assume this repo lives at RimWorld\Mods\Rimshi-Skeletons in a Steam install. Override with -p:Name=Path. -->
-    <RimWorldManaged Condition="'$(RimWorldManaged)' == ''">$(MSBuildProjectDirectory)\..\..\..\..\RimWorldWin64_Data\Managed</RimWorldManaged>
-    <HarmonyDir Condition="'$(HarmonyDir)' == ''">$(MSBuildProjectDirectory)\..\..\..\..\..\..\workshop\content\294100\2009463077\Current\Assemblies</HarmonyDir>
+    <RimWorldDir Condition="'$(RimWorldDir)' == ''">$(MSBuildProjectDirectory)\..\..\..\..</RimWorldDir>
+    <RimWorldManaged Condition="'$(RimWorldManaged)' == '' And '$(RimWorldVersion)' == '1.7'">$(RimWorldDir)</RimWorldManaged>
+    <RimWorldManaged Condition="'$(RimWorldManaged)' == ''">$(RimWorldDir)\RimWorldWin64_Data\Managed</RimWorldManaged>
+    <!-- The Harmony mod keeps one folder per game version (it dropped its old Current folder in October 2026); older copies may still have Current. -->
+    <HarmonyMod>$(MSBuildProjectDirectory)\..\..\..\..\..\..\workshop\content\294100\2009463077</HarmonyMod>
+    <HarmonyDir Condition="'$(HarmonyDir)' == '' And Exists('$(HarmonyMod)\$(RimWorldVersion)\Assemblies\0Harmony.dll')">$(HarmonyMod)\$(RimWorldVersion)\Assemblies</HarmonyDir>
+    <HarmonyDir Condition="'$(HarmonyDir)' == ''">$(HarmonyMod)\Current\Assemblies</HarmonyDir>
 
     <!-- Set by the GitHub Actions build (see .github/workflows/build.yml); a local build leaves them empty. -->
     <RimshiCI Condition="'$(RimshiCI)' == ''">false</RimshiCI>
     <RimshiVersion Condition="'$(RimshiVersion)' == ''">dev</RimshiVersion>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(RimshiCI)' != 'true'">
+  <PropertyGroup Condition="'$(RimshiCI)' != 'true' And '$(RimWorldVersion)' != '1.7'">
     <FrameworkPathOverride>$(RimWorldManaged)</FrameworkPathOverride>
     <AutomaticallyUseReferenceAssemblyPackages>false</AutomaticallyUseReferenceAssemblyPackages>
   </PropertyGroup>
@@ -45,13 +55,29 @@
       <HintPath>$(HarmonyDir)\0Harmony.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>$(RimWorldManaged)\Assembly-CSharp.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <!-- 1.7: the game redirects every UnityEngine* reference to UnityStubs at load time, so compile against it directly. -->
+  <ItemGroup Condition="'$(RimshiCI)' != 'true' And '$(RimWorldVersion)' == '1.7'">
+    <Reference Include="UnityStubs">
+      <HintPath>$(RimWorldManaged)\UnityStubs.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <!-- Some game signatures use engine types directly (Tithe hit this with Graphics.DrawMesh). -->
+    <Reference Include="Waylith">
+      <HintPath>$(RimWorldManaged)\Waylith.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(RimshiCI)' != 'true' And '$(RimWorldVersion)' != '1.7'">
     <!-- Unity's modules are compiled against netstandard 2.1; the game ships the facade. -->
     <Reference Include="netstandard">
       <HintPath>$(RimWorldManaged)\netstandard.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="Assembly-CSharp">
-      <HintPath>$(RimWorldManaged)\Assembly-CSharp.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine">
