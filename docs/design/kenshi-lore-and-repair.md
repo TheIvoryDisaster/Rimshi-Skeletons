@@ -1,6 +1,6 @@
 # Rimshi Skeletons: Kenshi lore, repair kits and repair bed
 
-Status: (draft) 2026-10-24, revised the same day with Matthew's answer on the Crafting skill. Nothing here is built yet. This sits beside [xenotype-port.md](xenotype-port.md) and adds three things Matthew asked for: Kenshi lore to theme the mod, **skeleton repair kits**, and a **skeleton repair bed** that costs an AI persona core.
+Status: (draft) 2026-10-24, revised the same day with Matthew's answer on the Crafting skill. Partly built 2026-10-24: research gating, one repair kit (industrial tier), the kit/medicine filter and the repair bed with its repair comp and bed restriction (see Build status at the end). The rest is not built yet. This sits beside [xenotype-port.md](xenotype-port.md) and adds three things Matthew asked for: Kenshi lore to theme the mod, **skeleton repair kits**, and a **skeleton repair bed** that costs an AI persona core.
 
 Code hooks below were checked against the decompiled 1.6 source on 2026-10-24 (`TendUtility`, `Toils_Tend`, `JobDriver_TendPatient`, `HealthAIUtility`, `MedicalCareUtility`, `Pawn_HealthTracker`, `Hediff_Injury`, `RestUtility`, `Building_Bed`, `MechRepairUtility`, `JobGiver_PatientGoToBed`, `Toils_LayDown`). Items marked **verify** were not.
 
@@ -183,3 +183,14 @@ After the core xenotype (xenotype-port.md build steps 1 to 3):
 3. Repair bed: def, research, comp, bed restriction.
 4. Overnight job giver.
 5. Lore: faction rename, new backstories, name list additions.
+
+## Build status
+
+Built 2026-10-24 (Matthew asked for both to be gated behind research that needs Basic mechtech, and for the kit to be industrial medicine tinted grey for now):
+
+- Research `Rimshi_SkeletonRepairKits` (600) and `Rimshi_SkeletonRepairBeds` (1200, hi-tech bench), both after `BasicMechtech` on the Main tab at (10.00, 6.00) and (10.00, 6.60). Not parented to `MechtechBase`, so no mechanitor needed. These replace the Machining and Fabrication gates in the tables above.
+- One kit, `Rimshi_RepairKit`, the industrial tier only (the scrap and advanced tiers are not built). Vanilla industrial medicine texture tinted grey until a sprite is picked.
+- Medicine filter: `HealthAIUtility.FindBestMedicine` notes the patient and `MedicalCareUtility.AllowsMedicine` refuses mismatches; the result is checked too. Surgery bills (`WorkGiver_DoBill` medicine search) are not filtered yet.
+- Repair bed with `CompRimshi_RepairBed` (40 severity per day, scars too, no regrowth) and the `RestUtility.CanUseBedEver` restriction. Hospital bed art tinted grey until a sprite is picked. `resourcesFractionWhenDeconstructed` 1 so the core comes back.
+
+Not built yet: repair work givers and the Crafting skill, no natural healing, the overnight job giver, the separate work type option, the other kit tiers, lore changes.

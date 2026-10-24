@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!-- Both sit right of Basic mechtech (9.00, 5.40) on the Main tab, below Standard mechtech (11.00, 5.40), where the
+       grid is free with every DLC. Not parented to MechtechBase, which would make them need a mechanitor. -->
+  <ResearchProjectDef>
+    <defName>Rimshi_SkeletonRepairKits</defName>
+    <label>skeleton repair kits</label>
+    <description>Work out how the ancient skeleton frames were patched up in the field, and make repair kits for them. Skeletons can only be tended with repair kits, and repair kits only work on skeletons.</description>
+    <baseCost>600</baseCost>
+    <techLevel>Industrial</techLevel>
+    <prerequisites>
+      <li>BasicMechtech</li>
+    </prerequisites>
+    <researchViewX>10.00</researchViewX>
+    <researchViewY>6.00</researchViewY>
+  </ResearchProjectDef>
+
+  <ResearchProjectDef>
+    <defName>Rimshi_SkeletonRepairBeds</defName>
+    <label>skeleton repair beds</label>
+    <description>Rebuild the repair cradles the old empire kept for its skeletons. A powered repair bed slowly mends a skeleton lying in it, scars included. Its control system needs an AI persona core.</description>
+    <baseCost>1200</baseCost>
+    <techLevel>Industrial</techLevel>
+    <prerequisites>
+      <li>BasicMechtech</li>
+    </prerequisites>
+    <requiredResearchBuilding>HiTechResearchBench</requiredResearchBuilding>
+    <researchViewX>10.00</researchViewX>
+    <researchViewY>6.60</researchViewY>
+  </ResearchProjectDef>
+
+</Defs>

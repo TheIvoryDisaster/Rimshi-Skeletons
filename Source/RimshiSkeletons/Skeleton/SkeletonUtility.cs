@@ -16,6 +16,11 @@ namespace RimshiSkeletons
         public static FactionDef Rimshi_SkeletalImperium;
         public static FactionDef Rimshi_PlayerSkeletons;
 
+        public static ThingDef Rimshi_RepairKit;
+        public static ThingDef Rimshi_SkeletonRepairBed;
+        public static ResearchProjectDef Rimshi_SkeletonRepairKits;
+        public static ResearchProjectDef Rimshi_SkeletonRepairBeds;
+
         static RimshiDefOf()
         {
             DefOfHelper.EnsureInitializedInCtor(typeof(RimshiDefOf));

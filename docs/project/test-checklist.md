@@ -36,6 +36,10 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | faction | Debug action added the skeletal imperium to the world | not seen |  |  |
 | faction | Skeletal imperium present in the loaded world (or says none) | not seen |  |  |
 | render | Skeleton body texture drawn | not seen |  |  |
+| kit | Medicine skipped for a skeleton, or a repair kit skipped for a non-skeleton | not seen |  |  |
+| bed | Non-skeleton kept out of a skeleton repair bed | not seen |  |  |
+| bed | Repair bed repairing a skeleton's injury | not seen |  |  |
+| bed | Skeleton fully repaired in a repair bed | not seen |  |  |
 | diet | Skeleton ate chemfuel or uranium (fails if it ate anything else) | not seen |  |  |
 | selftest | Self-tests: all passed (summary line) | failed | 7 | FAILED: 21 passed, 4 failed |
 | selftest | Self-test: skeleton and baseliner generate | passed | 7 | skeleton Acid, baseliner Norman |
@@ -63,6 +67,12 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | selftest | Self-test: human refuses chemfuel | passed | 7 | chemfuel suitable False |
 | selftest | Self-test: human still eats meals | passed | 7 | simple meal suitable True |
 | selftest | Self-test: human keeps gender and hunger thought | passed | 7 | gender Male, hunger thought nullified False |
+| selftest | Self-test: both repair research projects need Basic mechtech | not seen |  |  |
+| selftest | Self-test: repair kit recipe needs the repair kit research | not seen |  |  |
+| selftest | Self-test: repair bed needs the repair bed research and an AI persona core | not seen |  |  |
+| selftest | Self-test: repair kit is medicine as strong as industrial medicine | not seen |  |  |
+| selftest | Self-test: repair kits only for skeletons, medicine only for non-skeletons | not seen |  |  |
+| selftest | Self-test: only skeletons can use a repair bed; skeletons can still use hospital beds | not seen |  |  |
 | selftest | Self-test: removing the null chromosome restores a gender | passed | 7 | gender after removing null chromosome Male |
 | selftest | Self-test: skeleton has a skeleton adulthood backstory | not seen |  |  |
 | selftest | Self-test: skeletal imperium and skeleton player faction loaded | not seen |  |  |
@@ -84,3 +94,8 @@ Things the log cannot show; tick them off by hand after looking in game.
 - [ ] The "Embarking 'Skeleton'" scenario starts with one skeleton in the Skeleton Foundation faction.
 - [ ] Mod settings show "Replace Rim-Skeletons (Continued) factions when a save loads"; with it on and the old mod loaded, an old save's skeletal imperium shows our faction icon and keeps its name and goodwill.
 - [ ] In a world made before this mod, Debug actions > Rimshi Skeletons > Add the skeletal imperium adds the faction with one settlement.
+- [ ] Research tab: "skeleton repair kits" and "skeleton repair beds" sit right of Basic mechtech and need it; neither needs a mechanitor.
+- [ ] After the kit research, the machining table has "make skeleton repair kit"; kits look like grey industrial medicine.
+- [ ] A doctor tends a hurt skeleton with a repair kit (not medicine), and a hurt human with medicine (not a kit). With no kits, the skeleton is tended without medicine.
+- [ ] After the bed research, the skeleton repair bed is in Furniture and costs an AI persona core; deconstructing it gives the core back.
+- [ ] A human cannot be assigned to or rest in the repair bed; a hurt skeleton resting in a powered one is repaired, scars included, and gets a "fully repaired" message. Unpowered, the bed says so and does nothing.

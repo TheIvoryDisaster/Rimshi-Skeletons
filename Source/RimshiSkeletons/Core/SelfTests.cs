@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using LudeonTK;
 using RimWorld;
 using RimWorld.Planet;
@@ -51,6 +52,7 @@ namespace RimshiSkeletons
                 pawns.Add(human);
                 SkeletonChecks(skeleton, human);
                 HumanChecks(human);
+                RepairChecks(skeleton, human);
                 GeneRemovalCheck(skeleton);
                 FactionChecks(pawns);
             }
@@ -134,6 +136,29 @@ namespace RimshiSkeletons
             Check("human eats meals", h.FoodIsSuitable(ThingDefOf.MealSimple), "simple meal suitable " + h.FoodIsSuitable(ThingDefOf.MealSimple));
             Check("human unchanged", h.gender != Gender.None && !ThoughtUtility.ThoughtNullified(h, NeedFood),
                 "gender " + h.gender + ", hunger thought nullified " + ThoughtUtility.ThoughtNullified(h, NeedFood));
+        }
+
+        private static void RepairChecks(Pawn s, Pawn h)
+        {
+            ThingDef kit = RimshiDefOf.Rimshi_RepairKit;
+            ThingDef bed = RimshiDefOf.Rimshi_SkeletonRepairBed;
+            ThingDef hospitalBed = DefDatabase<ThingDef>.GetNamed("HospitalBed");
+            ResearchProjectDef kitResearch = RimshiDefOf.Rimshi_SkeletonRepairKits;
+            ResearchProjectDef bedResearch = RimshiDefOf.Rimshi_SkeletonRepairBeds;
+            ResearchProjectDef mechtech = DefDatabase<ResearchProjectDef>.GetNamedSilentFail("BasicMechtech");
+            Check("repair research", mechtech != null && kitResearch.prerequisites.Contains(mechtech) && bedResearch.prerequisites.Contains(mechtech),
+                kitResearch.defName + " and " + bedResearch.defName + " need " + mechtech?.defName);
+            RecipeDef kitRecipe = DefDatabase<RecipeDef>.AllDefs.FirstOrDefault(r => r.ProducedThingDef == kit);
+            Check("kit gated", kitRecipe != null && kitRecipe.researchPrerequisite == kitResearch,
+                "recipe " + kitRecipe?.defName + " needs " + kitRecipe?.researchPrerequisite?.defName);
+            Check("bed gated", bed.researchPrerequisites != null && bed.researchPrerequisites.Contains(bedResearch)
+                && bed.CostList.Any(c => c.thingDef == DefDatabase<ThingDef>.GetNamed("AIPersonaCore")), "bed needs " + string.Join(", ", bed.researchPrerequisites?.ConvertAll(r => r.defName) ?? new List<string>()));
+            Check("kit medicine", kit.IsMedicine && kit.GetStatValueAbstract(StatDefOf.MedicalPotency) == ThingDefOf.MedicineIndustrial.GetStatValueAbstract(StatDefOf.MedicalPotency),
+                "potency " + kit.GetStatValueAbstract(StatDefOf.MedicalPotency));
+            Check("kit filter", RepairKits.Suits(s, kit) && !RepairKits.Suits(s, ThingDefOf.MedicineIndustrial) && !RepairKits.Suits(h, kit) && RepairKits.Suits(h, ThingDefOf.MedicineIndustrial),
+                "kits for skeletons only, medicine for humans only");
+            Check("bed users", RestUtility.CanUseBedEver(s, bed) && !RestUtility.CanUseBedEver(h, bed) && RestUtility.CanUseBedEver(s, hospitalBed),
+                "skeleton " + RestUtility.CanUseBedEver(s, bed) + ", human " + RestUtility.CanUseBedEver(h, bed) + ", skeleton in hospital bed " + RestUtility.CanUseBedEver(s, hospitalBed));
         }
 
         private static void GeneRemovalCheck(Pawn s)

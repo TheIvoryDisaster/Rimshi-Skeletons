@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!-- The skeleton repair bed (docs/design/kenshi-lore-and-repair.md, section 3). Built like the hospital bed, drawn
+       with the hospital bed's art tinted grey until it has its own texture. Only skeletons can use it
+       (Patch_RepairBedOnlySkeletons); while powered, CompRimshi_RepairBed mends whoever lies in it. -->
+  <ThingDef ParentName="BedWithQualityBase">
+    <defName>Rimshi_SkeletonRepairBed</defName>
+    <label>skeleton repair bed</label>
+    <description>A powered cradle of clamps, tool arms and diagnostic cables, run by an AI persona core, of the kind the old empire kept for its skeletons. A skeleton lying in it is slowly repaired back to full health, scars and all, though lost parts still need a prosthetic. Only skeletons can use it. Without power it is just a hard bed.</description>
+    <graphicData>
+      <texPath>Things/Building/Furniture/Bed/HospitalBed</texPath>
+      <graphicClass>Graphic_Multi</graphicClass>
+      <shaderType>CutoutComplex</shaderType>
+      <drawSize>(2,2)</drawSize>
+      <color>(125,130,138)</color>
+      <colorTwo>(90,94,100)</colorTwo>
+    </graphicData>
+    <castEdgeShadows>True</castEdgeShadows>
+    <tickerType>Rare</tickerType>
+    <statBases>
+      <MaxHitPoints>200</MaxHitPoints>
+      <WorkToBuild>9000</WorkToBuild>
+      <Mass>60</Mass>
+      <Flammability>0</Flammability>
+      <Beauty>0</Beauty>
+      <BedRestEffectiveness>1</BedRestEffectiveness>
+      <Comfort>0.5</Comfort>
+      <MedicalTendQualityOffset>0.12</MedicalTendQualityOffset>
+      <SurgerySuccessChanceFactor>1.1</SurgerySuccessChanceFactor>
+    </statBases>
+    <comps>
+      <li Class="CompProperties_Power">
+        <compClass>CompPowerTrader</compClass>
+        <basePowerConsumption>400</basePowerConsumption>
+      </li>
+      <li Class="CompProperties_Flickable"/>
+      <li Class="RimshiSkeletons.CompProperties_Rimshi_RepairBed">
+        <repairPerDay>40</repairPerDay>
+        <repairsScars>true</repairsScars>
+      </li>
+    </comps>
+    <size>(1,2)</size>
+    <costList>
+      <AIPersonaCore>1</AIPersonaCore>
+      <Plasteel>50</Plasteel>
+      <Steel>80</Steel>
+      <ComponentIndustrial>6</ComponentIndustrial>
+    </costList>
+    <!-- All of it back on deconstruct, so the single AI persona core is never rounded away. -->
+    <resourcesFractionWhenDeconstructed>1</resourcesFractionWhenDeconstructed>
+    <building>
+      <bed_showSleeperBody>False</bed_showSleeperBody>
+      <bed_healPerDay>0</bed_healPerDay>
+      <bed_defaultMedical>false</bed_defaultMedical>
+      <buildingSizeCategory>Small</buildingSizeCategory>
+    </building>
+    <fillPercent>0.4</fillPercent>
+    <pathCost>42</pathCost>
+    <staticSunShadowHeight>0.17</staticSunShadowHeight>
+    <researchPrerequisites>
+      <li>Rimshi_SkeletonRepairBeds</li>
+    </researchPrerequisites>
+    <constructionSkillPrerequisite>8</constructionSkillPrerequisite>
+    <techLevel>Industrial</techLevel>
+    <uiIconScale>0.90</uiIconScale>
+  </ThingDef>
+
+</Defs>

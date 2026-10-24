@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!-- Industrial medicine for skeletons (docs/design/kenshi-lore-and-repair.md, section 2). Same potency, quality and
+       stack art as vanilla industrial medicine, tinted grey until it has its own texture. RepairKits.Suits keeps kits
+       for skeletons and medicine for everyone else. -->
+  <ThingDef ParentName="MedicineBase">
+    <defName>Rimshi_RepairKit</defName>
+    <label>skeleton repair kit</label>
+    <description>A kit of tools, spare plating, servo grease and patch wiring for repairing skeletons. It can be used to repair a skeleton's injuries the way medicine is used to tend a human's, and is useless on anything made of flesh.</description>
+    <possessionCount>3</possessionCount>
+    <graphicData>
+      <texPath>Things/Item/Resource/Medicine/MedicineIndustrial</texPath>
+      <graphicClass>Graphic_StackCount</graphicClass>
+      <drawSize>0.85</drawSize>
+      <color>(150,152,158)</color>
+    </graphicData>
+    <techLevel>Industrial</techLevel>
+    <statBases>
+      <MarketValue>18</MarketValue>
+      <Mass>0.50</Mass>
+      <Flammability>0.2</Flammability>
+      <MedicalPotency>1.00</MedicalPotency>
+      <MedicalQualityMax>1.00</MedicalQualityMax>
+      <DeteriorationRate>1</DeteriorationRate>
+      <WorkToMake>700</WorkToMake>
+    </statBases>
+    <costList>
+      <Steel>5</Steel>
+      <ComponentIndustrial>1</ComponentIndustrial>
+    </costList>
+    <recipeMaker>
+      <workSpeedStat>GeneralLaborSpeed</workSpeedStat>
+      <workSkill>Crafting</workSkill>
+      <effectWorking>Smith</effectWorking>
+      <soundWorking>Recipe_Machining</soundWorking>
+      <recipeUsers>
+        <li>TableMachining</li>
+      </recipeUsers>
+      <researchPrerequisite>Rimshi_SkeletonRepairKits</researchPrerequisite>
+      <skillRequirements>
+        <Crafting>4</Crafting>
+      </skillRequirements>
+      <bulkRecipeCount>4</bulkRecipeCount>
+      <displayPriority>2000</displayPriority>
+    </recipeMaker>
+  </ThingDef>
+
+</Defs>
