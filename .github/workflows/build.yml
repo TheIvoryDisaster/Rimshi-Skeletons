@@ -72,6 +72,9 @@ jobs:
           find "${paths[@]}" -name '*.xml' > xml-files.txt
           python3 -c 'import sys, xml.etree.ElementTree as ET; fs = open(sys.argv[1]).read().splitlines(); [ET.parse(f) for f in fs]; print(len(fs), "XML files parse")' xml-files.txt
 
+      - name: Unit tests
+        run: python3 -m unittest discover -s tests -v
+
       - name: Package the mod
         shell: bash
         run: |

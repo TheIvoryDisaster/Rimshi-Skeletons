@@ -14,6 +14,7 @@ Requires Harmony and Biotech.
 | Source/RimshiSkeletons/ | C# source. Builds to `1.6/Assemblies/RimshiSkeletons.dll` (git-ignored). |
 | docs/ | Design and test checklist. Start with docs/README.md. |
 | tools/rimshi_testlog.py | Reads `[Rimshi][T]` lines from Player.log and ticks off the test checklist. |
+| tests/ | Offline unit tests (def cross-references, textures, checklist coverage, log reader, style); run `python3 -m unittest discover -s tests`. CI runs them. |
 
 ## Building
 

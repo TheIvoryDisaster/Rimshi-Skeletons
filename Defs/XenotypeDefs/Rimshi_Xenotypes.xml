@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!-- Inheritable so the genes are germline and survive Biotech's xenotype rules (skeletons cannot reproduce anyway).
+       factionlessGenerationWeight is 0 until the spawning step sets the original's rarity (build order step 3). -->
+  <XenotypeDef>
+    <defName>Rimshi_Skeleton</defName>
+    <label>skeleton</label>
+    <description>A reclusive and diminishing race of proto-mechanical persona, skeletons are fully sentient and feeling mechanical entities. They were built thousands of years ago as stand-ins for humans during lengthy processes such as space flight, and have since been replaced by the far more complex mechanoids and AI persona.\n\nBeing mechanical, skeletons do not sleep, never fall ill and run on chemfuel and uranium instead of food. Their incredibly long lives weigh on them, and many are depressed or dreadfully pessimistic.</description>
+    <descriptionShort>Ancient proto-mechanical persona in plated metal frames. They never sleep or fall ill, run on chemfuel and uranium, and have no sex.</descriptionShort>
+    <iconPath>Rimshi/Head/Mki_south</iconPath>
+    <inheritable>true</inheritable>
+    <factionlessGenerationWeight>0</factionlessGenerationWeight>
+    <displayPriority>-500</displayPriority>
+    <genes>
+      <li>Rimshi_SkeletonFrame</li>
+      <li>Rimshi_MetalChassis</li>
+      <li>Rimshi_MechanicalNature</li>
+      <li>Rimshi_ArchaicMind</li>
+      <li>Rimshi_FuelReactor</li>
+      <li>Rimshi_NullChromosome</li>
+      <li>Rimshi_Plating_Steel</li>
+      <li>Rimshi_Plating_AgedSteel</li>
+      <li>Rimshi_Plating_Rust</li>
+      <li>Neversleep</li>
+      <li>Ageless</li>
+      <li>Hair_BaldOnly</li>
+      <li>Beard_NoBeardOnly</li>
+    </genes>
+  </XenotypeDef>
+
+</Defs>

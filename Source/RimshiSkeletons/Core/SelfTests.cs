@@ -1,0 +1,187 @@
+using System;
+using System.Collections.Generic;
+using LudeonTK;
+using RimWorld;
+using RimWorld.Planet;
+using UnityEngine;
+using Verse;
+
+namespace RimshiSkeletons
+{
+    /// <summary>
+    /// In-game self-tests. They generate a skeleton and a baseliner off-map (never spawned, discarded afterwards), check
+    /// what the mod promises, and write one line per check:
+    ///   [Rimshi][T] selftest | name | detail          (pass)
+    ///   [Rimshi][T] selftest | name | FAILED: detail  (fail)
+    /// then a summary line. They run once per session when a game is loaded or started with Development mode on, and on
+    /// demand from the debug actions menu (Rimshi Skeletons > Run self-tests). Every check name needs a row in
+    /// tools/rimshi_testlog.py; tests/test_checklist.py fails CI if one is missing.
+    /// </summary>
+    public static class SelfTests
+    {
+        private static bool ranThisSession;
+        private static int passed;
+        private static int failed;
+
+        public static void RunIfDevMode()
+        {
+            if (Prefs.DevMode && !ranThisSession)
+            {
+                Run();
+            }
+        }
+
+        [DebugAction("Rimshi Skeletons", "Run self-tests", allowedGameStates = AllowedGameStates.Playing)]
+        public static void Run()
+        {
+            ranThisSession = true;
+            passed = 0;
+            failed = 0;
+            var pawns = new List<Pawn>();
+            try
+            {
+                Pawn skeleton = Generate(RimshiDefOf.Rimshi_Skeleton);
+                Pawn human = Generate(XenotypeDefOf.Baseliner);
+                Check("generate", skeleton != null && human != null, "skeleton " + skeleton?.LabelShort + ", baseliner " + human?.LabelShort);
+                if (skeleton == null || human == null)
+                {
+                    return;
+                }
+                pawns.Add(skeleton);
+                pawns.Add(human);
+                SkeletonChecks(skeleton, human);
+                HumanChecks(human);
+                GeneRemovalCheck(skeleton);
+            }
+            catch (Exception e)
+            {
+                Check("no exceptions", false, e.GetType().Name + ": " + e.Message);
+            }
+            finally
+            {
+                foreach (Pawn pawn in pawns)
+                {
+                    Discard(pawn);
+                }
+                string summary = passed + " passed, " + failed + " failed";
+                if (failed == 0)
+                {
+                    RimshiLog.Test("selftest", "summary", summary);
+                }
+                else
+                {
+                    RimshiLog.Fail("selftest", "summary", summary);
+                }
+            }
+        }
+
+        private static void SkeletonChecks(Pawn s, Pawn human)
+        {
+            Check("xenotype", s.genes.Xenotype == RimshiDefOf.Rimshi_Skeleton, "xenotype " + s.genes.XenotypeLabel);
+            Check("genderless", s.gender == Gender.None, "gender " + s.gender);
+            Check("asexual", s.story.traits.HasTrait(TraitDefOf.Asexual), "traits " + string.Join(", ", s.story.traits.allTraits.ConvertAll(t => t.def.defName)));
+            Check("body type", SkeletonUtility.IsSkeletonBodyType(s.story.bodyType), "body " + s.story.bodyType?.defName);
+            Check("head", s.story.headType != null && s.story.headType.defName.StartsWith("Rimshi_Head_"), "head " + s.story.headType?.defName);
+            Check("plating", s.story.skinColorOverride.HasValue, "skin " + s.story.SkinColor);
+            Check("bald", s.story.hairDef == null || s.story.hairDef == HairDefOf.Bald, "hair " + s.story.hairDef?.defName);
+
+            string bodyPath = SkeletonUtility.BodyGraphicPathFor(s.story.bodyType);
+            Check("body texture", bodyPath != null && ContentFinder<Texture2D>.Get(bodyPath + "_south", false) != null, "path " + bodyPath);
+            string headPath = s.story.headType?.graphicPath;
+            Check("head texture", headPath != null && ContentFinder<Texture2D>.Get(headPath + "_south", false) != null, "path " + headPath);
+
+            Check("no rest need", s.needs.rest == null, "rest need " + (s.needs.rest == null ? "absent" : "present"));
+            Check("no relations", s.relations == null || s.relations.DirectRelations.Count == 0, "direct relations " + (s.relations?.DirectRelations.Count ?? 0));
+            Check("fertility", s.GetStatValue(StatDefOf.Fertility) == 0f, "fertility " + s.GetStatValue(StatDefOf.Fertility));
+            Check("toxic resistance", s.GetStatValue(StatDefOf.ToxicResistance) >= 1f, "toxic resistance " + s.GetStatValue(StatDefOf.ToxicResistance));
+            HediffDef flu = DefDatabase<HediffDef>.GetNamedSilentFail("Flu");
+            Check("immunity", flu != null && s.health.immunity.AnyGeneMakesFullyImmuneTo(flu), "immune to flu");
+
+            Check("eats fuel", s.FoodIsSuitable(ThingDefOf.Chemfuel) && s.FoodIsSuitable(ThingDefOf.Uranium), "chemfuel and uranium suitable");
+            Check("refuses meals", !s.FoodIsSuitable(ThingDefOf.MealSimple), "simple meal suitable " + s.FoodIsSuitable(ThingDefOf.MealSimple));
+
+            float skeletonRate = s.needs.food.FoodFallPerTickAssumingCategory(HungerCategory.Fed);
+            float humanRate = human.needs.food.FoodFallPerTickAssumingCategory(HungerCategory.Fed);
+            float ratio = humanRate > 0f ? skeletonRate / humanRate : -1f;
+            Check("hunger rate", ratio > 0f && ratio < 0.25f, "skeleton/human hunger " + ratio.ToString("0.000"));
+
+            Check("hunger thought", ThoughtUtility.ThoughtNullified(s, NeedFood), "NeedFood nullified");
+            ThoughtDef fuelNeed = DefDatabase<ThoughtDef>.GetNamedSilentFail("Rimshi_FuelNeed");
+            Check("fuel thought", fuelNeed != null && ThoughtUtility.CanGetThought(s, fuelNeed), "Rimshi_FuelNeed can apply");
+            Check("blocked thought", ThoughtUtility.ThoughtNullified(s, ThoughtDefOf.Naked), "Naked nullified");
+        }
+
+        private static void HumanChecks(Pawn h)
+        {
+            Check("human refuses fuel", !h.FoodIsSuitable(ThingDefOf.Chemfuel), "chemfuel suitable " + h.FoodIsSuitable(ThingDefOf.Chemfuel));
+            Check("human eats meals", h.FoodIsSuitable(ThingDefOf.MealSimple), "simple meal suitable " + h.FoodIsSuitable(ThingDefOf.MealSimple));
+            Check("human unchanged", h.gender != Gender.None && !ThoughtUtility.ThoughtNullified(h, NeedFood),
+                "gender " + h.gender + ", hunger thought nullified " + ThoughtUtility.ThoughtNullified(h, NeedFood));
+        }
+
+        private static void GeneRemovalCheck(Pawn s)
+        {
+            Gene gene = s.genes.GetGene(RimshiDefOf.Rimshi_NullChromosome);
+            if (gene != null)
+            {
+                s.genes.RemoveGene(gene);
+            }
+            Check("gene removal", gene != null && s.gender != Gender.None, "gender after removing null chromosome " + s.gender);
+        }
+
+        private static Pawn Generate(XenotypeDef xenotype)
+        {
+            return PawnGenerator.GeneratePawn(new PawnGenerationRequest(PawnKindDefOf.Colonist, null, forceGenerateNewPawn: true,
+                forcedXenotype: xenotype, forceNoGear: true));
+        }
+
+        private static ThoughtDef NeedFood => DefDatabase<ThoughtDef>.GetNamed("NeedFood");
+
+        private static void Discard(Pawn pawn)
+        {
+            try
+            {
+                if (!pawn.Discarded)
+                {
+                    Find.WorldPawns.PassToWorld(pawn, PawnDiscardDecideMode.Discard);
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Warning("[Rimshi] self-test could not discard " + pawn.LabelShort + ": " + e.Message);
+            }
+        }
+
+        private static void Check(string name, bool ok, string detail)
+        {
+            if (ok)
+            {
+                passed++;
+                RimshiLog.Test("selftest", name, detail);
+            }
+            else
+            {
+                failed++;
+                RimshiLog.Fail("selftest", name, detail);
+            }
+        }
+    }
+
+    /// <summary>Runs the self-tests once per session when a game loads or starts with Development mode on.</summary>
+    public class RimshiGameComponent : GameComponent
+    {
+        public RimshiGameComponent(Game game)
+        {
+        }
+
+        public override void LoadedGame()
+        {
+            SelfTests.RunIfDevMode();
+        }
+
+        public override void StartedNewGame()
+        {
+            SelfTests.RunIfDevMode();
+        }
+    }
+}
