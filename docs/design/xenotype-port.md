@@ -78,7 +78,7 @@ Matthew chose renaming (2026-10-24). A xenotype cannot have its own BodyDef: the
 
 **B. Android-style parts (medium).** What Vanilla Races Expanded - Android does (checked in its 1.6 files): androids keep the human body, and every organ carries an "android part" hediff (a `Hediff_AddedPart` subclass with `countsAsAddedPartOrImplant` and its own label: neuropump, reactor, air filter...), with their own items and install recipes. Vanilla then does a lot by itself: injuries on a non-organic added part never bleed (`Hediff_Injury.BleedRate`), no infection, the health tab shows the part's name, and removing it yields our item instead of a human organ. VRE Android adds about 40 Harmony patches on top for polish (health tab, surgery options, death and downed checks, anaesthesia). For us the core is: a gene that adds the part hediffs on `PostAdd`, about 12 part hediffs with matching items (salvaged reactor, fluid reprocessor...), crafting-skill install recipes, `countsAsAddedPartOrImplant` false so transhumanist and body purist thoughts ignore them, and a handful of patches (no anaesthesia, hide the medical options that make no sense). Bionics still install over them as usual.
 
-Recommendation: B, built after the core xenotype works, with A's label patch as a fallback for anything not covered by a part hediff (head, torso, limbs).
+Decided 2026-10-24: B (android-style parts), built after the core xenotype works, with A's label patch as a fallback for anything not covered by a part hediff (head, torso, limbs).
 
 ## Soft dependencies
 
@@ -127,7 +127,7 @@ The textures (body, heads, world icon) and the backstory and name text come from
 Answered 2026-10-24:
 
 1. Gender: genderless, the Rim-Hivers way.
-2. Body: rename; anatomy approach A or B still to pick (see Anatomy).
+2. Body: android-style mechanical parts (Anatomy option B).
 3. Compatibility with Rim-Skeletons (Continued): no incompatibility flag and no compatibility work; this mod is for people who cannot use the other one. The only overlap is the save converter.
 4. Assets: use the original art with credit.
 
