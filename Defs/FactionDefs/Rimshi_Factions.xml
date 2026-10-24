@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!-- The skeletal imperium and the skeleton player faction, ported from Rim-Skeletons (Continued) (Skele_Factions_NPC,
+       Faction_Player_Skele). The roster is the original's: skeleton kinds (Defs/PawnKindDefs) alongside vanilla human
+       villagers, guards, miners and farmers. Changes: one imperium is generated with a new world (the original's
+       default was none), and the imperium's backstories come from the pawn kinds and Patch_SkeletonBackstories. -->
+
+  <FactionDef ParentName="FactionBase">
+    <defName>Rimshi_SkeletalImperium</defName>
+    <label>skeletal imperium</label>
+    <description>These ancient robotic-sentients used to reign over a massive imperium that spanned across many planets, however after many years of slow decay they're a shadow of their former self. However they are still technologically advanced; working with advanced machinery, robotics, and spacer weaponry.\n\nThis empire has stagnated and fallen from its former glory after centuries of a dwindling population, and out-competition with other factions - despite this they are still a major empire on this planet, and thus are often included amongst diplomatic actions.\n\nThey will never send trade caravans to outsider colonies, but are open for trade with neighbors who are willing to act civilly.</description>
+    <pawnSingular>skeleton</pawnSingular>
+    <pawnsPlural>skeletons</pawnsPlural>
+    <categoryTag>Outlander</categoryTag>
+    <listOrderPriority>36</listOrderPriority>
+    <settlementGenerationWeight>1</settlementGenerationWeight>
+    <requiredCountAtGameStart>0</requiredCountAtGameStart>
+    <startingCountAtWorldCreation>1</startingCountAtWorldCreation>
+    <maxConfigurableAtWorldCreation>9999</maxConfigurableAtWorldCreation>
+    <configurationListOrderPriority>36</configurationListOrderPriority>
+    <canMakeRandomly>true</canMakeRandomly>
+    <canSiege>true</canSiege>
+    <canStageAttacks>true</canStageAttacks>
+    <leaderTitle>emperor</leaderTitle>
+    <factionIconPath>Rimshi/World/SkeletonFaction</factionIconPath>
+    <factionNameMaker>Rimshi_NamerFactionSkeletalImperium</factionNameMaker>
+    <settlementNameMaker>NamerSettlementOutlander</settlementNameMaker>
+    <allowedCultures><li>Astropolitan</li></allowedCultures>
+    <colorSpectrum>
+      <li>(139, 122, 109)</li>
+      <li>(79, 70, 62)</li>
+    </colorSpectrum>
+    <disallowedMemes>
+      <li MayRequire="Ludeon.RimWorld.Ideology">Nudism</li>
+      <li MayRequire="Ludeon.RimWorld.Ideology">Blindsight</li>
+      <li MayRequire="Ludeon.RimWorld.Ideology">FemaleSupremacy</li>
+      <li MayRequire="Ludeon.RimWorld.Ideology">MaleSupremacy</li>
+      <li MayRequire="Ludeon.RimWorld.Ideology">AnimalPersonhood</li>
+      <li MayRequire="Ludeon.RimWorld.Ideology">PainIsVirtue</li>
+      <li MayRequire="Ludeon.RimWorld.Ideology">Cannibal</li>
+      <li MayRequire="Ludeon.RimWorld.Ideology">Darkness</li>
+      <li MayRequire="Ludeon.RimWorld.Ideology">Tunneler</li>
+      <li MayRequire="Ludeon.RimWorld.Ideology">TreeConnection</li>
+      <li MayRequire="VanillaExpanded.VMemesE">VME_HolyDiseases</li>
+      <li MayRequire="VanillaExpanded.VMemesE">VME_Fleshcrafters</li>
+      <li MayRequire="VanillaExpanded.VMemesE">VME_Scrapper</li>
+      <li MayRequire="VanillaExpanded.VMemesE">VME_Vegan</li>
+      <li MayRequire="VanillaExpanded.VMemesE">VME_FireWorship</li>
+      <li MayRequire="VanillaExpanded.VMemesE">VME_Nomad</li>
+    </disallowedMemes>
+    <disallowedPrecepts>
+      <li MayRequire="Ludeon.RimWorld.Ideology">Nudity_Male_CoveringAnythingButGroinDisapproved</li>
+      <li MayRequire="Ludeon.RimWorld.Ideology">Nudity_Female_CoveringAnythingButGroinDisapproved</li>
+    </disallowedPrecepts>
+    <structureMemeWeights>
+      <Structure_TheistEmbodied MayRequire="Ludeon.RimWorld.Ideology">0</Structure_TheistEmbodied>
+      <Structure_TheistAbstract MayRequire="Ludeon.RimWorld.Ideology">0</Structure_TheistAbstract>
+      <Structure_Ideological MayRequire="Ludeon.RimWorld.Ideology">6</Structure_Ideological>
+      <Structure_Archist MayRequire="Ludeon.RimWorld.Ideology">1</Structure_Archist>
+      <Structure_OriginChristian MayRequire="Ludeon.RimWorld.Ideology">0</Structure_OriginChristian>
+      <Structure_OriginIslamic MayRequire="Ludeon.RimWorld.Ideology">0</Structure_OriginIslamic>
+      <Structure_OriginHindu MayRequire="Ludeon.RimWorld.Ideology">0</Structure_OriginHindu>
+      <Structure_OriginBuddhist MayRequire="Ludeon.RimWorld.Ideology">0</Structure_OriginBuddhist>
+    </structureMemeWeights>
+    <techLevel>Industrial</techLevel>
+    <backstoryFilters>
+      <li>
+        <categories>
+          <li>Rimshi_Skeleton</li>
+        </categories>
+      </li>
+    </backstoryFilters>
+    <caravanTraderKinds>
+      <li>Caravan_Outlander_BulkGoods</li>
+      <li>Caravan_Outlander_CombatSupplier</li>
+      <li>Caravan_Outlander_Exotic</li>
+    </caravanTraderKinds>
+    <visitorTraderKinds>
+      <li>Visitor_Outlander_Standard</li>
+    </visitorTraderKinds>
+    <baseTraderKinds>
+      <li>Base_Outlander_Standard</li>
+    </baseTraderKinds>
+    <allowedArrivalTemperatureRange>-70~75</allowedArrivalTemperatureRange>
+    <raidLootMaker>Rimshi_RaidLoot</raidLootMaker>
+    <maxPawnCostPerTotalPointsCurve>
+      <points>
+        <li>(0, 35)</li>
+        <li>(70, 50)</li>
+        <li>(700, 100)</li>
+        <li>(1300, 150)</li>
+        <li>(100000, 10000)</li>
+      </points>
+    </maxPawnCostPerTotalPointsCurve>
+    <pawnGroupMakers>
+      <li>
+        <!-- Normal fight, standard mix. -->
+        <kindDef>Combat</kindDef>
+        <options>
+          <Town_Guard>5</Town_Guard>
+          <Rimshi_Drifter>1</Rimshi_Drifter>
+          <Rimshi_Duelist>4</Rimshi_Duelist>
+          <Rimshi_TownGuard>8</Rimshi_TownGuard>
+          <Rimshi_Gunner>7</Rimshi_Gunner>
+          <Rimshi_Grenadier>4</Rimshi_Grenadier>
+          <Rimshi_Heavy>3</Rimshi_Heavy>
+          <Rimshi_Sniper>2</Rimshi_Sniper>
+          <Rimshi_HydraulicKnight>2</Rimshi_HydraulicKnight>
+          <Rimshi_General>1</Rimshi_General>
+          <Rimshi_Elite>1</Rimshi_Elite>
+          <Rimshi_Emperor>0.4</Rimshi_Emperor>
+        </options>
+      </li>
+      <li>
+        <kindDef>Peaceful</kindDef>
+        <options>
+          <Villager>10</Villager>
+          <Town_Guard>5</Town_Guard>
+          <Rimshi_Sniper>0.2</Rimshi_Sniper>
+          <Rimshi_Villager>6</Rimshi_Villager>
+          <Rimshi_Drifter>2</Rimshi_Drifter>
+          <Rimshi_HydraulicKnight>2</Rimshi_HydraulicKnight>
+          <Rimshi_TownGuard>2</Rimshi_TownGuard>
+        </options>
+      </li>
+      <li>
+        <kindDef>Settlement</kindDef>
+        <options>
+          <Villager>10</Villager>
+          <Town_Guard>5</Town_Guard>
+          <Rimshi_Drifter>1</Rimshi_Drifter>
+          <Rimshi_Villager>2</Rimshi_Villager>
+          <Rimshi_Duelist>5</Rimshi_Duelist>
+          <Rimshi_TownGuard>10</Rimshi_TownGuard>
+          <Rimshi_Gunner>7</Rimshi_Gunner>
+          <Rimshi_Grenadier>0.7</Rimshi_Grenadier>
+          <Rimshi_Heavy>5</Rimshi_Heavy>
+          <Rimshi_Sniper>3</Rimshi_Sniper>
+          <Rimshi_HydraulicKnight>8</Rimshi_HydraulicKnight>
+          <Rimshi_General>3</Rimshi_General>
+          <Rimshi_Elite>6</Rimshi_Elite>
+          <Rimshi_Emperor>1.5</Rimshi_Emperor>
+        </options>
+      </li>
+      <li MayRequire="Ludeon.RimWorld.Ideology">
+        <kindDef>Miners</kindDef>
+        <commonality>1</commonality>
+        <options>
+          <Rimshi_TownGuard>2</Rimshi_TownGuard>
+          <Miner>1</Miner>
+        </options>
+      </li>
+      <li MayRequire="Ludeon.RimWorld.Ideology">
+        <kindDef>Farmers</kindDef>
+        <commonality>1</commonality>
+        <options>
+          <Rimshi_TownGuard>2</Rimshi_TownGuard>
+          <Farmer>1</Farmer>
+        </options>
+      </li>
+    </pawnGroupMakers>
+    <settlementTexturePath>World/WorldObjects/DefaultSettlement</settlementTexturePath>
+  </FactionDef>
+
+  <ThingSetMakerDef>
+    <defName>Rimshi_RaidLoot</defName>
+    <root Class="ThingSetMaker_MarketValue">
+      <fixedParams>
+        <filter>
+          <thingDefs>
+            <li>Uranium</li>
+            <li>Steel</li>
+            <li>Silver</li>
+            <li>ComponentIndustrial</li>
+            <li>Chemfuel</li>
+          </thingDefs>
+        </filter>
+      </fixedParams>
+    </root>
+  </ThingSetMakerDef>
+
+  <FactionDef ParentName="PlayerFactionBase">
+    <defName>Rimshi_PlayerSkeletons</defName>
+    <label>Skeleton Foundation</label>
+    <description>A small nation founded by a 'skeleton'.</description>
+    <isPlayer>true</isPlayer>
+    <basicMemberKind>Rimshi_Colonist</basicMemberKind>
+    <pawnSingular>colonist</pawnSingular>
+    <pawnsPlural>colonists</pawnsPlural>
+    <techLevel>Industrial</techLevel>
+    <factionIconPath>Rimshi/World/SkeletonFaction</factionIconPath>
+    <factionNameMaker>NamerFactionOutlander</factionNameMaker>
+    <settlementNameMaker>NamerSettlementOutlander</settlementNameMaker>
+    <allowedCultures><li>Astropolitan</li></allowedCultures>
+    <backstoryFilters>
+      <li>
+        <categories>
+          <li>Rimshi_Skeleton</li>
+        </categories>
+      </li>
+    </backstoryFilters>
+    <startingResearchTags>
+      <li>ClassicStart</li>
+    </startingResearchTags>
+    <startingTechprintsResearchTags>
+      <li>ClassicStart</li>
+      <li>ClassicStartTechprints</li>
+    </startingTechprintsResearchTags>
+    <apparelStuffFilter>
+      <thingDefs>
+        <li>Cloth</li>
+      </thingDefs>
+    </apparelStuffFilter>
+  </FactionDef>
+
+</Defs>

@@ -8,7 +8,7 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 
 **How to use it:** play with Development mode on, then tell Claude to check the logs. Claude pulls Player.log and Player-prev.log from `C:\Users\Matthew\AppData\LocalLow\Ludeon Studios\RimWorld by Ludeon Studios`, runs `tools/rimshi_testlog.py` over them and updates this table. Results add up across sessions; any exception that mentions the mod is reported too. A PR that only updates this file is merged by Claude without asking, and its description lists every test that ran and its outcome.
 
-**Self-tests:** with Development mode on, loading or starting a game runs the in-game self-tests once per session (also on demand: Debug actions > Rimshi Skeletons > Run self-tests). They generate a skeleton and a baseliner off the map, check genes, looks, diet, thoughts and immunity, discard both pawns, and log one `selftest` line per check plus a summary.
+**Self-tests:** with Development mode on, loading or starting a game runs the in-game self-tests once per session (also on demand: Debug actions > Rimshi Skeletons > Run self-tests). They generate a skeleton, a baseliner and a skeletal imperium town guard off the map, check genes, looks, diet, thoughts, immunity, backstory and faction, discard the pawns, and log one `selftest` line per check plus a summary.
 
 **Unit tests:** `python3 -m unittest discover -s tests` runs the offline tests (def cross-references, textures, checklist coverage, the log reader, house style). CI runs them on every push.
 
@@ -18,44 +18,55 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 
 | Area | Item | Status | Build | Last line |
 | --- | --- | --- | --- | --- |
-| build | Build line at startup | not seen |  |  |
-| defs | Blocked thoughts linked at startup (lists any not loaded) | not seen |  |  |
-| defs | Vanilla hunger thought nullified by the fuel reactor | not seen |  |  |
-| defs | Immunity list linked at startup (lists any not loaded) | not seen |  |  |
-| defs | Chemfuel and uranium tagged as edible fuel | not seen |  |  |
-| gene | Null chromosome makes a pawn genderless | not seen |  |  |
-| gene | Skeleton frame gives a male, thin or hulk body and a skeleton head | not seen |  |  |
-| gene | Skeletons generated without family | not seen |  |  |
-| gene | Removing the null chromosome gives a gender back | not seen |  |  |
+| build | Build line at startup | passed | 7 | version dev, build 7 (DESKTOP-ESRRCQ3 2026-10-24T18:45Z), dll written 2026-10-24 18:45 UTC; biotech True, royalty True, ideology True, odyssey True |
+| defs | Blocked thoughts linked at startup (lists any not loaded) | passed | 7 | 27 of 30 blocked; not loaded: RG_Wet, RG_ExtremelyWet, RG_HotSpringWet |
+| defs | Vanilla hunger thought nullified by the fuel reactor | passed | 7 | NeedFood nullified by Rimshi_FuelReactor |
+| defs | Immunity list linked at startup (lists any not loaded) | passed | 7 | 23 of 23 immunities |
+| defs | Chemfuel and uranium tagged as edible fuel | passed | 7 | Uranium: nutrition 0.5, food type Fluid |
+| defs | Skeleton backstories loaded | not seen |  |  |
+| defs | Outlander, pirate, tribe and Empire xenotype sets include skeletons | not seen |  |  |
+| patch | Every patched private method found (this line only appears when one is missing) | not seen |  |  |
+| gene | Null chromosome makes a pawn genderless | passed | 7 | Acid: Female to None, body Thin |
+| gene | Skeleton frame gives a male, thin or hulk body and a skeleton head | passed | 7 | Acid: body Thin, head Rimshi_Head_Screamer |
+| gene | Skeletons generated without family | passed | 7 | Acid: relation generation skipped |
+| gene | Removing the null chromosome gives a gender back | passed | 7 | Acid: now Male |
+| gene | Relations a new genderless pawn got another way were removed (names them) | not seen |  |  |
+| faction | Mod setting on: old Rim-Skeletons faction replaced by ours on load | not seen |  |  |
+| faction | Mod setting on: save had no old Rim-Skeletons factions | not seen |  |  |
+| faction | Debug action added the skeletal imperium to the world | not seen |  |  |
+| faction | Skeletal imperium present in the loaded world (or says none) | not seen |  |  |
 | render | Skeleton body texture drawn | not seen |  |  |
 | diet | Skeleton ate chemfuel or uranium (fails if it ate anything else) | not seen |  |  |
-| selftest | Self-tests: all passed (summary line) | not seen |  |  |
-| selftest | Self-test: skeleton and baseliner generate | not seen |  |  |
+| selftest | Self-tests: all passed (summary line) | failed | 7 | FAILED: 21 passed, 4 failed |
+| selftest | Self-test: skeleton and baseliner generate | passed | 7 | skeleton Acid, baseliner Norman |
 | selftest | Self-test: no exceptions while testing | not seen |  |  |
-| selftest | Self-test: skeleton has the Skeleton xenotype | not seen |  |  |
-| selftest | Self-test: skeleton is genderless | not seen |  |  |
-| selftest | Self-test: skeleton is Asexual | not seen |  |  |
-| selftest | Self-test: skeleton body is male, thin or hulk | not seen |  |  |
-| selftest | Self-test: skeleton has a skeleton head | not seen |  |  |
-| selftest | Self-test: skeleton has a plating colour | not seen |  |  |
-| selftest | Self-test: skeleton is bald | not seen |  |  |
-| selftest | Self-test: skeleton body texture found | not seen |  |  |
-| selftest | Self-test: skeleton head texture found | not seen |  |  |
-| selftest | Self-test: skeleton has no rest need | not seen |  |  |
-| selftest | Self-test: skeleton generated without family | not seen |  |  |
-| selftest | Self-test: skeleton fertility is 0 | not seen |  |  |
-| selftest | Self-test: skeleton toxic resistance 100% | not seen |  |  |
-| selftest | Self-test: skeleton immune to flu | not seen |  |  |
-| selftest | Self-test: skeleton can eat chemfuel and uranium | not seen |  |  |
-| selftest | Self-test: skeleton refuses meals | not seen |  |  |
-| selftest | Self-test: skeleton hunger well below human | not seen |  |  |
-| selftest | Self-test: vanilla hunger thought nullified for skeleton | not seen |  |  |
-| selftest | Self-test: fuel need thought can apply to skeleton | not seen |  |  |
-| selftest | Self-test: naked thought nullified for skeleton | not seen |  |  |
-| selftest | Self-test: human refuses chemfuel | not seen |  |  |
-| selftest | Self-test: human still eats meals | not seen |  |  |
-| selftest | Self-test: human keeps gender and hunger thought | not seen |  |  |
-| selftest | Self-test: removing the null chromosome restores a gender | not seen |  |  |
+| selftest | Self-test: skeleton has the Skeleton xenotype | passed | 7 | xenotype skeleton |
+| selftest | Self-test: skeleton is genderless | passed | 7 | gender None |
+| selftest | Self-test: skeleton is Asexual | passed | 7 | traits VTE_RefinedPalate, VTE_Insatiable, RT_TalentJackOfAllTrades, Asexual |
+| selftest | Self-test: skeleton body is male, thin or hulk | passed | 7 | body Thin |
+| selftest | Self-test: skeleton has a skeleton head | passed | 7 | head Rimshi_Head_Screamer |
+| selftest | Self-test: skeleton has a plating colour | passed | 7 | skin RGBA(0.294, 0.294, 0.294, 1.000) |
+| selftest | Self-test: skeleton is bald | passed | 7 | hair Bald |
+| selftest | Self-test: skeleton body texture found | failed | 7 | FAILED: path Rimshi/Body/Naked_Thin |
+| selftest | Self-test: skeleton head texture found | failed | 7 | FAILED: path Rimshi/Head/Screamer |
+| selftest | Self-test: skeleton has no rest need | passed | 7 | rest need absent |
+| selftest | Self-test: skeleton generated without family | failed | 7 | FAILED: direct relations 2 |
+| selftest | Self-test: skeleton fertility is 0 | passed | 7 | fertility 0 |
+| selftest | Self-test: skeleton toxic resistance 100% | passed | 7 | toxic resistance 1 |
+| selftest | Self-test: skeleton immune to flu | passed | 7 | immune to flu |
+| selftest | Self-test: skeleton can eat chemfuel and uranium | failed | 7 | FAILED: chemfuel and uranium suitable |
+| selftest | Self-test: skeleton refuses meals | passed | 7 | simple meal suitable False |
+| selftest | Self-test: skeleton hunger well below human | passed | 7 | skeleton/human hunger 0.225 |
+| selftest | Self-test: vanilla hunger thought nullified for skeleton | passed | 7 | NeedFood nullified |
+| selftest | Self-test: fuel need thought can apply to skeleton | passed | 7 | Rimshi_FuelNeed can apply |
+| selftest | Self-test: naked thought nullified for skeleton | passed | 7 | Naked nullified |
+| selftest | Self-test: human refuses chemfuel | passed | 7 | chemfuel suitable False |
+| selftest | Self-test: human still eats meals | passed | 7 | simple meal suitable True |
+| selftest | Self-test: human keeps gender and hunger thought | passed | 7 | gender Male, hunger thought nullified False |
+| selftest | Self-test: removing the null chromosome restores a gender | passed | 7 | gender after removing null chromosome Male |
+| selftest | Self-test: skeleton has a skeleton adulthood backstory | not seen |  |  |
+| selftest | Self-test: skeletal imperium and skeleton player faction loaded | not seen |  |  |
+| selftest | Self-test: a skeletal imperium pawn kind generates a skeleton | not seen |  |  |
 
 ## Manual checks
 
@@ -68,3 +79,8 @@ Things the log cannot show; tick them off by hand after looking in game.
 - [ ] A hungry skeleton gets the "fuel need" thought; the vanilla hunger thought shows as nullified.
 - [ ] Naked, dark, wet and pain thoughts show as nullified by mechanical nature.
 - [ ] A skeleton never needs sleep (no rest bar).
+- [ ] A new world lists the skeletal imperium in the faction setup (one by default) and it appears on the world map.
+- [ ] Skeletal imperium visitors, traders and raids are mostly skeletons (with some human villagers and guards), with skeleton names and backstories.
+- [ ] The "Embarking 'Skeleton'" scenario starts with one skeleton in the Skeleton Foundation faction.
+- [ ] Mod settings show "Replace Rim-Skeletons (Continued) factions when a save loads"; with it on and the old mod loaded, an old save's skeletal imperium shows our faction icon and keeps its name and goodwill.
+- [ ] In a world made before this mod, Debug actions > Rimshi Skeletons > Add the skeletal imperium adds the faction with one settlement.

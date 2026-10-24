@@ -79,7 +79,19 @@ Build steps 1 and 2, 2026-10-24:
 - Six head types `Rimshi_Head_*` (`requiredGenes` the frame gene, never random). Textures under `Textures/Rimshi`; the original lacked `Naked_Thin_southm`, so a copy of its stand-in file is used.
 - Fuel: `Rimshi_FuelNeed` thought (seven stages, as `ThoughtWorker_NeedFood` needs), vanilla `NeedFood` nullified by the fuel reactor.
 - Known side effect, as in the original: chemfuel and uranium count toward the colony's food total, because they are ingestible with a human food type.
-- Not yet: health scale 1.8 and the fist attacks (no gene field; step 4), trait odds, disallowed traits, drugs and age (step 6), names and backstories (step 3).
+- Not yet: health scale 1.8 and the fist attacks (no gene field; step 4), trait odds, disallowed traits, drugs and age (step 6).
+
+Build step 3 (spawning), 2026-10-24, with the faction part of the save converter because Matthew asked for both together:
+
+- Skeletal imperium `Rimshi_SkeletalImperium` (`Defs/FactionDefs`): the original's FactionDef, roster, traders, memes and raid loot. One is generated with a new world (the original's default was none; up to 9999 in the faction setup). Its roster is the original's mix of skeleton kinds and vanilla human villagers and guards, so the faction has no xenotype set; each skeleton kind carries its own (`xenotypeSet` 100% `Rimshi_Skeleton`, `useFactionXenotypes` false). This replaces the "100% skeleton xenotype set" plan above, which would have turned the human villagers into skeletons.
+- Pawn kinds (`Defs/PawnKindDefs`): the original's imperium kinds (villager to emperor, hydraulic knight), town guard, drifter and colonist on race Human. Its tribal, pirate and Empire skeleton kinds are not ported. Packed meals dropped (`invNutrition` 0).
+- Spawning elsewhere (`Patches/Rimshi_FactionXenotypes.xml`): skeleton xenotype chance 1% for outlanders, pirates and the Empire (Royalty, found by mod name), 0.5% for tribes. Biotech factions with their own xenotype sets (`Inherit="False"`) get none. Factionless pawns: `factionlessGenerationWeight` 0.5 (about 1%). The player faction has no xenotype set (vanilla player factions have none either), so the original's 0.1% starting colonist chance is not reproduced.
+- Player faction `Rimshi_PlayerSkeletons` and scenario `Rimshi_SkeletonDrifter` ("Embarking 'Skeleton'": one skeleton, picked with the vanilla xenotype starting-pawn part). The Empire is not a permanent enemy of the skeleton player faction, as for vanilla player factions.
+- Backstories (`Defs/BackstoryDefs`): the original's 37 (5 childhood, 32 adulthood) as vanilla `BackstoryDef`, category `Rimshi_Skeleton`. `Patch_SkeletonBackstories` gives every adult skeleton these, in any faction. Vanilla has no trait chances, so only the certain traits are kept (FastLearner and Psychopath disallowed, Undergrounder forced); the 50%-or-less ones wait for step 6.
+- Names (`Defs/RulePackDefs`, word lists in `Languages/English/Strings/Rimshi`): skeleton person names through the xenotype's `nameMaker`, always two parts; faction names from the original's namer.
+- Mod settings: **Replace Rim-Skeletons (Continued) factions when a save loads** (off by default). On load it swaps the def of any faction using `Archaic_SkeletonEmpire` or `PlayerColonySkeleton` to ours, keeping the faction (name, goodwill, settlements, members). The old skeleton pawns themselves are still converted in step 5.
+- Debug action **Add the skeletal imperium** for worlds generated before the mod was added.
+- Fixes from Matthew's first self-test run (build 7): skeletons could not eat fuel while Rim-Skeletons (Continued) was loaded, because its Humanoid Alien Races food restriction keeps chemfuel and uranium from every race but its own, humans included; the diet patch now skips the race check for reactor pawns eating fuel. The texture checks ran off the main thread (self-tests now wait until loading finishes). Relations that reach a new genderless pawn by another route than relation generation are removed and logged (`gene | relations cleared`) so the route shows in the next log.
 
 ## Anatomy
 
@@ -116,7 +128,7 @@ The rule: anything that needs another mod either loads only when that mod is act
 
 Matthew asked (2026-10-24) for a mod option that converts the old mod's skeletons in a save into ours, so the old mod can then be removed. He has both loaded and reports the old mod's skeletons show up as plain humans.
 
-Mod settings get a checkbox, **Convert Rim-Skeletons (Continued) pawns when a save loads** (off by default). With it on, after a save finishes loading (`GameComponent.LoadedGame`) we walk every pawn the game knows (maps, caravans, world pawns, corpses, pawns in containers such as cryptosleep caskets and transport pods) and convert each one that is an old skeleton:
+Mod settings get a checkbox (off by default). Its faction part is built (step 3): **Replace Rim-Skeletons (Continued) factions when a save loads**; step 5 extends the same option to the pawns. With it on, after a save finishes loading (`GameComponent.LoadedGame`) we walk every pawn the game knows (maps, caravans, world pawns, corpses, pawns in containers such as cryptosleep caskets and transport pods) and convert each one that is an old skeleton:
 
 - **Detect:** race defName `Skeleton_`, or one of the old pawn kinds (`Skeleton_Colonist`, `Skeleton_Drifter`, `Town_Guard_Skele`, `Tribal_Skeleton`, `Pirate_Skele`, `Skele_Spacer_Reaper`, the `Skeleton_*` military kinds), or an old `MechanicalNature_Hediff`. Matching on kind and hediff as well as race also catches skeletons that already show up as humans.
 - **Convert:** race to Human (if it is still `Skeleton_`), clearing health first because the old body's parts do not map onto the human body (permanent injuries and old prosthetics are listed in the log and a letter, since they cannot carry over); set the xenotype to `Rimshi_Skeleton` (which applies the genes, genderless, looks and anatomy); map old backstories, head types and pawn kinds to ours by defName; remove the old hidden hediff.
@@ -146,7 +158,7 @@ Answered 2026-10-24:
 
 1. Xenotype with genes for needs, stats, immunity, looks, and the genderless patch, checked in game.
 2. Diet patches and fuel thoughts.
-3. Spawning: faction xenotype sets, player faction, scenario, backstories, names.
+3. Spawning: faction xenotype sets, player faction, scenario, backstories, names. Done 2026-10-24, see Implemented.
 4. Mechanical body behaviour and anatomy, corpses, shred / smash, sever AI core.
 5. Save converter from Rim-Skeletons (Continued).
 6. Trait odds, blocked apparel and actions, age.

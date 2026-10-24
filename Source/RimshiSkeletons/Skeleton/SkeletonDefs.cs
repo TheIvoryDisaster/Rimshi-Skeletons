@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using RimWorld;
 using Verse;
 
@@ -88,7 +89,9 @@ namespace RimshiSkeletons
                     }
                     else
                     {
-                        RimshiLog.Test("defs", "fuel", def.defName + ": nutrition " + def.GetStatValueAbstract(StatDefOf.Nutrition) + ", food type " + def.ingestible.foodType);
+                        RimshiLog.Test("defs", "fuel", def.defName + ": nutrition " + def.GetStatValueAbstract(StatDefOf.Nutrition) + ", food type "
+                            + def.ingestible.foodType + ", preferability " + def.ingestible.preferability
+                            + (ThingDefOf.Human.race.CanEverEat(def) ? "" : "; another mod restricts it from humans (the diet patch lets skeletons eat it anyway)"));
                     }
                 }
             }
@@ -96,6 +99,22 @@ namespace RimshiSkeletons
             {
                 RimshiLog.Fail("defs", "fuel", "no ThingDef is tagged as fuel; skeletons cannot eat");
             }
+
+            int backstories = DefDatabase<BackstoryDef>.AllDefsListForReading.Count(b => b.spawnCategories.Contains(SkeletonUtility.BackstoryCategory));
+            RimshiLog.Test("defs", "backstories", backstories + " skeleton backstories");
+
+            var spawning = new List<string>();
+            foreach (FactionDef faction in DefDatabase<FactionDef>.AllDefsListForReading)
+            {
+                for (int i = 0; i < (faction.xenotypeSet?.Count ?? 0); i++)
+                {
+                    if (faction.xenotypeSet[i].xenotype == RimshiDefOf.Rimshi_Skeleton)
+                    {
+                        spawning.Add(faction.defName + " " + faction.xenotypeSet[i].chance.ToStringPercent("0.#"));
+                    }
+                }
+            }
+            RimshiLog.Test("defs", "spawning", spawning.Count > 0 ? string.Join(", ", spawning) : "no faction spawns skeletons");
         }
 
         private static int AddNullifyingGene(IEnumerable<string> thoughtNames, GeneDef gene, out List<string> missing)

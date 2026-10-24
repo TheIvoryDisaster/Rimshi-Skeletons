@@ -24,10 +24,18 @@ CHECKLIST = [
     ("defs", "hunger thought", "Vanilla hunger thought nullified by the fuel reactor"),
     ("defs", "immunities", "Immunity list linked at startup (lists any not loaded)"),
     ("defs", "fuel", "Chemfuel and uranium tagged as edible fuel"),
+    ("defs", "backstories", "Skeleton backstories loaded"),
+    ("defs", "spawning", "Outlander, pirate, tribe and Empire xenotype sets include skeletons"),
+    ("patch", "missing", "Every patched private method found (this line only appears when one is missing)"),
     ("gene", "genderless", "Null chromosome makes a pawn genderless"),
     ("gene", "frame", "Skeleton frame gives a male, thin or hulk body and a skeleton head"),
     ("gene", "no relations", "Skeletons generated without family"),
     ("gene", "gender restored", "Removing the null chromosome gives a gender back"),
+    ("gene", "relations cleared", "Relations a new genderless pawn got another way were removed (names them)"),
+    ("faction", "replace", "Mod setting on: old Rim-Skeletons faction replaced by ours on load"),
+    ("faction", "replace none", "Mod setting on: save had no old Rim-Skeletons factions"),
+    ("faction", "added", "Debug action added the skeletal imperium to the world"),
+    ("faction", "in world", "Skeletal imperium present in the loaded world (or says none)"),
     ("render", "body", "Skeleton body texture drawn"),
     ("diet", "ate fuel", "Skeleton ate chemfuel or uranium (fails if it ate anything else)"),
     ("selftest", "summary", "Self-tests: all passed (summary line)"),
@@ -57,6 +65,9 @@ CHECKLIST = [
     ("selftest", "human eats meals", "Self-test: human still eats meals"),
     ("selftest", "human unchanged", "Self-test: human keeps gender and hunger thought"),
     ("selftest", "gene removal", "Self-test: removing the null chromosome restores a gender"),
+    ("selftest", "backstory", "Self-test: skeleton has a skeleton adulthood backstory"),
+    ("selftest", "faction def", "Self-test: skeletal imperium and skeleton player faction loaded"),
+    ("selftest", "faction kind", "Self-test: a skeletal imperium pawn kind generates a skeleton"),
 ]
 
 

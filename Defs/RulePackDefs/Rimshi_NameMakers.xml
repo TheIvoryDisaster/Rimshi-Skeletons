@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!-- Name makers ported from Rim-Skeletons (Continued) (RulePacks_NameMakers_RimSkeleton, _SecondEmpire); the word lists
+       are its Strings files, renamed, in Languages/English/Strings/Rimshi. Person names always have two parts here
+       (the original also made one-word names, which leave a pawn without a first or last name). -->
+
+  <RulePackDef>
+    <defName>Rimshi_NamerPersonSkeleton</defName>
+    <rulePack>
+      <rulesStrings>
+        <li>name(p=2)->[PersonName] the [PersonEpithet]</li>
+        <li>name->[PersonName] [PersonEpithet]</li>
+      </rulesStrings>
+      <rulesRaw>
+        <li Class="Rule_File">
+          <keyword>PersonName</keyword>
+          <path>Rimshi/PersonNames</path>
+        </li>
+        <li Class="Rule_File">
+          <keyword>PersonEpithet</keyword>
+          <path>Rimshi/PersonEpithets</path>
+        </li>
+      </rulesRaw>
+    </rulePack>
+  </RulePackDef>
+
+  <RulePackDef>
+    <defName>Rimshi_NamerFactionSkeletalImperium</defName>
+    <rulePack>
+      <rulesStrings>
+        <li>r_name(p=3)->The [Ordinal] [FactionPlace]</li>
+        <li>r_name(p=3)->The [Ordinal] [FactionDescriptor] [FactionPlace]</li>
+        <li>r_name(p=3)->The [Ordinal] [FactionAdjective] [FactionPlace]</li>
+        <li>r_name(p=2)->[FactionDescriptor] [FactionPlace]</li>
+        <li>r_name(p=2)->[FactionAdjective]-[FactionDescriptor]</li>
+        <li>r_name(p=2)->[FactionAdjective] [FactionPlace]</li>
+        <li>r_name(p=2)->[skeletal_wordgen]</li>
+        <li>r_name(p=2)->The [skeletal_wordgen] [FactionPlace]</li>
+        <li>r_name(p=2)->The [Ordinal] [skeletal_wordgen] [FactionPlace]</li>
+        <li>r_name->[PersonName]'s [FactionPlace]</li>
+        <li>r_name->[PersonName]'s [FactionAdjective] [FactionDescriptor]</li>
+        <li>skeletal_wordgen->[SyllableStart][SyllableMiddle]</li>
+        <li>skeletal_wordgen->[SyllableStart][SyllableMiddle][SyllableEnd]</li>
+      </rulesStrings>
+      <rulesRaw>
+        <li Class="Rule_File">
+          <keyword>FactionDescriptor</keyword>
+          <path>Rimshi/FactionDescriptors</path>
+        </li>
+        <li Class="Rule_File">
+          <keyword>FactionPlace</keyword>
+          <path>Rimshi/FactionPlaces</path>
+        </li>
+        <li Class="Rule_File">
+          <keyword>FactionAdjective</keyword>
+          <path>Rimshi/FactionAdjectives</path>
+        </li>
+        <li Class="Rule_File">
+          <keyword>Ordinal</keyword>
+          <path>Rimshi/Ordinals</path>
+        </li>
+        <li Class="Rule_File">
+          <keyword>PersonName</keyword>
+          <path>Rimshi/PersonNames</path>
+        </li>
+        <li Class="Rule_File">
+          <keyword>SyllableStart</keyword>
+          <path>Rimshi/SyllablesStart</path>
+        </li>
+        <li Class="Rule_File">
+          <keyword>SyllableMiddle</keyword>
+          <path>Rimshi/SyllablesMiddle</path>
+        </li>
+        <li Class="Rule_File">
+          <keyword>SyllableEnd</keyword>
+          <path>Rimshi/SyllablesEnd</path>
+        </li>
+      </rulesRaw>
+    </rulePack>
+  </RulePackDef>
+
+</Defs>
