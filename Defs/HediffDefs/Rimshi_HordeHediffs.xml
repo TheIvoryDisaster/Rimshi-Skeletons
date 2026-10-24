@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!-- Every skeleton in a recall horde has a corrupted protocol: it keeps the skeleton berserk while it is free,
+       stops it from being recruited the normal way, and is worn down by the Reprogram prisoner interaction. Severity is
+       how much corruption is left; at zero the skeleton joins the colony. -->
+  <HediffDef>
+    <defName>Rimshi_CorruptedProtocol</defName>
+    <label>corrupted recall protocol</label>
+    <description>This skeleton answered a recall broadcast with protocols corrupted by centuries of dormancy. While free it is berserk and attacks anything it finds. As a prisoner it lies dormant, cannot be recruited by talking, and can only be won over by interrogating and reprogramming it (the Reprogram prisoner interaction). Each session wears the corruption down; wardens with higher Intellectual skill make faster progress.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <defaultLabelColor>(0.85, 0.35, 0.3)</defaultLabelColor>
+    <isBad>false</isBad>
+    <initialSeverity>1</initialSeverity>
+    <maxSeverity>1</maxSeverity>
+    <everCurableByItem>false</everCurableByItem>
+    <comps>
+      <li Class="RimshiSkeletons.HediffCompProperties_CorruptedProtocol">
+        <progressBase>0.12</progressBase>
+        <progressPerIntellectual>0.025</progressPerIntellectual>
+      </li>
+    </comps>
+    <stages>
+      <li>
+        <label>barely holding</label>
+        <minSeverity>0</minSeverity>
+      </li>
+      <li>
+        <label>fragmented</label>
+        <minSeverity>0.35</minSeverity>
+      </li>
+      <li>
+        <label>intact</label>
+        <minSeverity>0.7</minSeverity>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <!-- About one in ten horde skeletons carries a failsafe core: when it goes down it is almost never finished off
+       (vanilla's death on downed chance is overridden), it feels damage sooner so it goes down before vital parts are
+       destroyed, and its fluid lines seal so it bleeds slowly. Removed when the skeleton is reprogrammed. -->
+  <HediffDef>
+    <defName>Rimshi_FailsafeCore</defName>
+    <label>failsafe core</label>
+    <description>An old-empire failsafe still runs in this skeleton's core. When the frame is badly damaged it shuts down instead of fighting on, so it is usually brought down intact rather than destroyed, and its fluid lines seal to slow the bleeding.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <defaultLabelColor>(0.55, 0.75, 0.9)</defaultLabelColor>
+    <isBad>false</isBad>
+    <everCurableByItem>false</everCurableByItem>
+    <comps>
+      <li Class="RimshiSkeletons.HediffCompProperties_FailsafeCore">
+        <deathOnDownedChance>0.1</deathOnDownedChance>
+      </li>
+    </comps>
+    <stages>
+      <li>
+        <painFactor>1.5</painFactor>
+        <totalBleedFactor>0.4</totalBleedFactor>
+      </li>
+    </stages>
+  </HediffDef>
+
+</Defs>

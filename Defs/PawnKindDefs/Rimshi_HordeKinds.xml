@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!-- The recall horde: old-empire skeleton legionaries woken by the recall array. They are generated with no faction
+       (SkeletonHorde), so they only ever appear through the array or its debug action. Spacer gear: charge rifles and
+       lances, marine and power armour, and for the bladeguards the best melee weapons going (Royalty's plasmaswords,
+       monoswords and zeushammers) with shield belts. Without Royalty, startup gives bladeguards the best
+       medieval weapons instead ("horde | melee"). -->
+
+  <PawnKindDef Name="Rimshi_HordeKindBase" ParentName="Rimshi_SkeletonKindBase" Abstract="True">
+    <gearHealthRange>0.5~1.6</gearHealthRange>
+    <itemQuality>Good</itemQuality>
+    <apparelTags Inherit="False">
+      <li>IndustrialMilitaryAdvanced</li>
+      <li>SpacerMilitary</li>
+    </apparelTags>
+    <apparelColor>(72,70,78)</apparelColor>
+    <apparelMoney>2500~5000</apparelMoney>
+    <apparelAllowHeadgearChance>0.8</apparelAllowHeadgearChance>
+    <techHediffsChance>0.25</techHediffsChance>
+    <techHediffsMoney>800~1600</techHediffsMoney>
+    <techHediffsTags Inherit="False">
+      <li>Advanced</li>
+      <li>ImplantEmpireCommon</li>
+    </techHediffsTags>
+    <skills>
+      <li>
+        <skill>Shooting</skill>
+        <range>8~16</range>
+      </li>
+      <li>
+        <skill>Melee</skill>
+        <range>8~16</range>
+      </li>
+    </skills>
+  </PawnKindDef>
+
+  <PawnKindDef ParentName="Rimshi_HordeKindBase">
+    <defName>Rimshi_HordeLegionary</defName>
+    <label>ancient legionary</label>
+    <labelPlural>ancient legionaries</labelPlural>
+    <combatPower>130</combatPower>
+    <weaponMoney>1200~2000</weaponMoney>
+    <weaponTags>
+      <li>SpacerGun</li>
+    </weaponTags>
+  </PawnKindDef>
+
+  <PawnKindDef ParentName="Rimshi_HordeKindBase">
+    <defName>Rimshi_HordeBladeguard</defName>
+    <label>ancient bladeguard</label>
+    <labelPlural>ancient bladeguards</labelPlural>
+    <combatPower>150</combatPower>
+    <weaponMoney>2000~4000</weaponMoney>
+    <weaponTags>
+      <li>UltratechMelee</li>
+    </weaponTags>
+    <apparelRequired>
+      <li>Apparel_ShieldBelt</li>
+    </apparelRequired>
+    <disallowedTraits>
+      <li>Wimp</li>
+    </disallowedTraits>
+  </PawnKindDef>
+
+  <PawnKindDef ParentName="Rimshi_HordeKindBase">
+    <defName>Rimshi_HordeCenturion</defName>
+    <label>ancient centurion</label>
+    <labelPlural>ancient centurions</labelPlural>
+    <combatPower>210</combatPower>
+    <itemQuality>Excellent</itemQuality>
+    <weaponMoney>1500~2500</weaponMoney>
+    <weaponTags>
+      <li>SpacerGun</li>
+    </weaponTags>
+    <apparelMoney>5000~8000</apparelMoney>
+    <apparelAllowHeadgearChance>1</apparelAllowHeadgearChance>
+    <skills Inherit="False">
+      <li>
+        <skill>Shooting</skill>
+        <range>12~20</range>
+      </li>
+      <li>
+        <skill>Melee</skill>
+        <range>8~16</range>
+      </li>
+    </skills>
+  </PawnKindDef>
+
+</Defs>

@@ -8,7 +8,7 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 
 **How to use it:** play with Development mode on, then tell Claude to check the logs. Claude pulls Player.log and Player-prev.log from `C:\Users\Matthew\AppData\LocalLow\Ludeon Studios\RimWorld by Ludeon Studios`, runs `tools/rimshi_testlog.py` over them and updates this table. Results add up across sessions; any exception that mentions the mod is reported too. A PR that only updates this file is merged by Claude without asking, and its description lists every test that ran and its outcome.
 
-**Self-tests:** with Development mode on, loading or starting a game runs the in-game self-tests once per session (also on demand: Debug actions > Rimshi Skeletons > Run self-tests). They generate a skeleton, a baseliner and a skeletal imperium town guard off the map, check genes, looks, diet, thoughts, immunity, backstory and faction, discard the pawns, and log one `selftest` line per check plus a summary.
+**Self-tests:** with Development mode on, loading or starting a game runs the in-game self-tests once per session (also on demand: Debug actions > Rimshi Skeletons > Run self-tests). They generate a skeleton, a baseliner and a skeletal imperium town guard off the map, check genes, looks, diet, thoughts, immunity, backstory, faction, reproduction, the recall array and horde skeletons (gear, protocol, failsafe core, one reprogramming session), discard the pawns, and log one `selftest` line per check plus a summary.
 
 **Unit tests:** `python3 -m unittest discover -s tests` runs the offline tests (def cross-references, textures, checklist coverage, the log reader, house style). CI runs them on every push.
 
@@ -37,6 +37,19 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | faction | Skeletal imperium present in the loaded world (or says none) | not seen |  |  |
 | render | Skeleton body texture drawn | not seen |  |  |
 | diet | Skeleton ate chemfuel or uranium (fails if it ate anything else) | not seen |  |  |
+| reproduction | A pregnancy added to a skeleton was refused | not seen |  |  |
+| horde | Recall array inherited the mechband antenna graphic | not seen |  |  |
+| horde | Recall research on the research tab, overlapping nothing (gives its position) | not seen |  |  |
+| horde | Bladeguard melee weapon tags (adds medieval weapons without Royalty) | not seen |  |  |
+| horde | Mechanitor broadcast the recall codes; array burned out | not seen |  |  |
+| horde | Skeleton horde dropped in (counts, kinds, weapons, shield belts, failsafe cores) | not seen |  |  |
+| horde | Horde called to a map that is gone was dropped | not seen |  |  |
+| horde | Horde skeleton went berserk | not seen |  |  |
+| horde | Failsafe core set the death on downed chance | not seen |  |  |
+| horde | A failsafe skeleton died anyway (says how; not a failure) | not seen |  |  |
+| reprogram | Captured horde skeleton set to interrogate and reprogram | not seen |  |  |
+| reprogram | Warden reprogramming session lowered the corruption | not seen |  |  |
+| reprogram | Reprogrammed skeleton joined the colony | not seen |  |  |
 | selftest | Self-tests: all passed (summary line) | failed | 7 | FAILED: 21 passed, 4 failed |
 | selftest | Self-test: skeleton and baseliner generate | passed | 7 | skeleton Acid, baseliner Norman |
 | selftest | Self-test: no exceptions while testing | not seen |  |  |
@@ -67,6 +80,15 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | selftest | Self-test: skeleton has a skeleton adulthood backstory | not seen |  |  |
 | selftest | Self-test: skeletal imperium and skeleton player faction loaded | not seen |  |  |
 | selftest | Self-test: a skeletal imperium pawn kind generates a skeleton | not seen |  |  |
+| selftest | Self-test: skeleton cannot have children or be implanted | not seen |  |  |
+| selftest | Self-test: pregnancy cannot be added to a skeleton | not seen |  |  |
+| selftest | Self-test: recall array and its research loaded (2000, after basic mechtech, mechanitor) | not seen |  |  |
+| selftest | Self-test: horde skeletons have no faction | not seen |  |  |
+| selftest | Self-test: horde skeletons have the corrupted protocol and cannot be recruited | not seen |  |  |
+| selftest | Self-test: horde gunners carry spacer guns, bladeguards melee weapons and shield belts | not seen |  |  |
+| selftest | Self-test: horde skeletons are not hostile to each other | not seen |  |  |
+| selftest | Self-test: failsafe core sets the death on downed chance | not seen |  |  |
+| selftest | Self-test: a reprogramming session lowers the corruption | not seen |  |  |
 
 ## Manual checks
 

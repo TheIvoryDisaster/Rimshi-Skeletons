@@ -26,6 +26,16 @@ def concrete(tag=None):
     return [(f, el) for f, el in defs() if el.get("Abstract") != "True" and (tag is None or el.tag == tag)]
 
 
+def patch_names():
+    """Name attributes our patches give to vanilla defs (PatchOperationAttributeAdd), so our defs can inherit from them."""
+    names = set()
+    for path in xml_files("Patches"):
+        for op in ET.parse(path).getroot().iter("Operation"):
+            if op.get("Class") == "PatchOperationAttributeAdd" and op.findtext("attribute") == "Name":
+                names.add(op.findtext("value"))
+    return names
+
+
 def def_names(tag):
     return {el.findtext("defName") for _, el in concrete(tag)}
 

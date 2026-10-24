@@ -2,7 +2,7 @@
 
 Names from vanilla or DLCs that our defs use are listed in VANILLA so a typo in one of ours still fails."""
 import os, re, unittest, xml.etree.ElementTree as ET
-from helpers import ROOT, SOURCE, concrete, defs, def_names, source_text, texture_exists, xml_files
+from helpers import ROOT, SOURCE, concrete, defs, def_names, patch_names, source_text, texture_exists, xml_files
 
 VANILLA = {
     "GeneDef": {"Neversleep", "Ageless", "Hair_BaldOnly", "Beard_NoBeardOnly"},
@@ -33,7 +33,7 @@ class DefTests(unittest.TestCase):
             parent = el.get("ParentName")
             if parent:
                 with self.subTest(file=f, parent=parent):
-                    self.assertIn(parent, named | VANILLA["parents"])
+                    self.assertIn(parent, named | patch_names() | VANILLA["parents"])
 
     def test_xenotype_genes_exist(self):
         genes = def_names("GeneDef") | VANILLA["GeneDef"]
@@ -115,12 +115,24 @@ class DefTests(unittest.TestCase):
 
     def test_own_references_exist(self):
         """Every Rimshi_ name used inside a def or patch (comments aside) is one of our defs or abstract parents."""
-        names = {el.findtext("defName") for _, el in concrete()} | {el.get("Name") for _, el in defs() if el.get("Name")}
+        names = {el.findtext("defName") for _, el in concrete()} | {el.get("Name") for _, el in defs() if el.get("Name")} | patch_names()
         for path in xml_files("Defs", "Patches"):
             text = re.sub(r"<!--.*?-->", "", open(path).read(), flags=re.S)
             for name in set(re.findall(r"\b(Rimshi_[A-Za-z0-9_]+)\b", text)):
                 with self.subTest(file=path, name=name):
                     self.assertIn(name, names)
+
+    def test_patch_names_prefixed(self):
+        for name in patch_names():
+            self.assertTrue(name.startswith("Rimshi_"), name)
+
+    def test_horde_kinds_exist(self):
+        """Pawn kinds SkeletonHorde generates by name."""
+        code = source_text()["Source/RimshiSkeletons/Horde/SkeletonHorde.cs"]
+        kinds = re.findall(r'\("(Rimshi_Horde\w+)", [0-9.]+f\)', code)
+        self.assertEqual(len(kinds), 3)
+        for kind in kinds:
+            self.assertIn(kind, def_names("PawnKindDef"))
 
     def test_skeleton_backstories(self):
         stories = [el for _, el in concrete("BackstoryDef") if "Rimshi_Skeleton" in [li.text for li in el.find("spawnCategories")]]
