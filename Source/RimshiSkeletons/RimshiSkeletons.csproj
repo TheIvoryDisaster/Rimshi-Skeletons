@@ -19,7 +19,8 @@
 
     <!-- Default paths assume this repo lives at RimWorld\Mods\Rimshi-Skeletons in a Steam install. Override with -p:Name=Path. -->
     <RimWorldManaged Condition="'$(RimWorldManaged)' == ''">$(MSBuildProjectDirectory)\..\..\..\..\RimWorldWin64_Data\Managed</RimWorldManaged>
-    <HarmonyDir Condition="'$(HarmonyDir)' == ''">$(MSBuildProjectDirectory)\..\..\..\..\..\..\workshop\content\294100\2009463077\Current\Assemblies</HarmonyDir>
+    <!-- The Harmony workshop mod keeps one 0Harmony.dll per game version (1.6\Assemblies), not a Current folder. -->
+    <HarmonyDir Condition="'$(HarmonyDir)' == ''">$(MSBuildProjectDirectory)\..\..\..\..\..\..\workshop\content\294100\2009463077\1.6\Assemblies</HarmonyDir>
 
     <!-- Set by the GitHub Actions build (see .github/workflows/build.yml); a local build leaves them empty. -->
     <RimshiCI Condition="'$(RimshiCI)' == ''">false</RimshiCI>
@@ -71,6 +72,22 @@
       <Private>false</Private>
     </Reference>
   </ItemGroup>
+
+  <!-- Local builds: stop with a clear message instead of a page of "type or namespace not found" errors. -->
+  <Target Name="RimshiCheckReferences" BeforeTargets="ResolveAssemblyReferences" Condition="'$(RimshiCI)' != 'true'">
+    <Error Condition="!Exists('$(HarmonyDir)\0Harmony.dll')"
+           Text="0Harmony.dll not found in $(HarmonyDir). Subscribe to Harmony on the Workshop, or build with -p:HarmonyDir=&lt;folder holding 0Harmony.dll&gt;." />
+    <Error Condition="!Exists('$(RimWorldManaged)\Assembly-CSharp.dll')"
+           Text="Assembly-CSharp.dll not found in $(RimWorldManaged). Keep the repo at RimWorld\Mods\Rimshi-Skeletons, or build with -p:RimWorldManaged=&lt;RimWorldWin64_Data\Managed folder&gt;." />
+  </Target>
+
+  <!-- The mod ships only its own DLL. Without this, a local build copies the game's mscorlib and System*.dll (pulled in
+       through FrameworkPathOverride) into 1.6\Assemblies, where RimWorld would try to load them as mod assemblies. -->
+  <Target Name="RimshiNoCopyLocal" AfterTargets="ResolveAssemblyReferences">
+    <ItemGroup>
+      <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" />
+    </ItemGroup>
+  </Target>
 
   <!--
     Build stamp (as in Tithe). Every local build adds 1 to BuildNumber.txt next to this file (git-ignored, so it is
