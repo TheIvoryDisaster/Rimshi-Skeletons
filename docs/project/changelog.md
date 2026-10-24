@@ -4,6 +4,7 @@ Newest first. Every change gets a dated row.
 
 | Date | Change |
 | --- | --- |
+| 2026-10-24 | Tests: in-game self-tests (26 checks, run on game load in dev mode or from the debug menu) logging `selftest` lines to Player.log; offline unit tests in `tests/` run by CI. |
 | 2026-10-24 | Core xenotype: skeleton genes, xenotype, heads and body art from the original, genderless null chromosome gene, chemfuel and uranium diet with a slow hunger rate and fuel need thought, blocked thoughts and immunities, test log lines. |
 | 2026-10-24 | Design added: Kenshi lore theming, skeleton repair kits (repair is the top Smith job using Crafting, optional separate Skeleton repair work type after Doctor), skeleton repair bed costing an AI persona core. |
 | 2026-10-24 | Design revised with Matthew's answers: genderless the Rim-Hivers way, anatomy options (rename vs android-style parts), save converter from Rim-Skeletons (Continued), original art used with credit (About.xml, README). Vanilla field claims checked against the 1.6 decompiled source. |

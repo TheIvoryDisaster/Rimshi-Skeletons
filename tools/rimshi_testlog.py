@@ -30,6 +30,33 @@ CHECKLIST = [
     ("gene", "gender restored", "Removing the null chromosome gives a gender back"),
     ("render", "body", "Skeleton body texture drawn"),
     ("diet", "ate fuel", "Skeleton ate chemfuel or uranium (fails if it ate anything else)"),
+    ("selftest", "summary", "Self-tests: all passed (summary line)"),
+    ("selftest", "generate", "Self-test: skeleton and baseliner generate"),
+    ("selftest", "no exceptions", "Self-test: no exceptions while testing"),
+    ("selftest", "xenotype", "Self-test: skeleton has the Skeleton xenotype"),
+    ("selftest", "genderless", "Self-test: skeleton is genderless"),
+    ("selftest", "asexual", "Self-test: skeleton is Asexual"),
+    ("selftest", "body type", "Self-test: skeleton body is male, thin or hulk"),
+    ("selftest", "head", "Self-test: skeleton has a skeleton head"),
+    ("selftest", "plating", "Self-test: skeleton has a plating colour"),
+    ("selftest", "bald", "Self-test: skeleton is bald"),
+    ("selftest", "body texture", "Self-test: skeleton body texture found"),
+    ("selftest", "head texture", "Self-test: skeleton head texture found"),
+    ("selftest", "no rest need", "Self-test: skeleton has no rest need"),
+    ("selftest", "no relations", "Self-test: skeleton generated without family"),
+    ("selftest", "fertility", "Self-test: skeleton fertility is 0"),
+    ("selftest", "toxic resistance", "Self-test: skeleton toxic resistance 100%"),
+    ("selftest", "immunity", "Self-test: skeleton immune to flu"),
+    ("selftest", "eats fuel", "Self-test: skeleton can eat chemfuel and uranium"),
+    ("selftest", "refuses meals", "Self-test: skeleton refuses meals"),
+    ("selftest", "hunger rate", "Self-test: skeleton hunger well below human"),
+    ("selftest", "hunger thought", "Self-test: vanilla hunger thought nullified for skeleton"),
+    ("selftest", "fuel thought", "Self-test: fuel need thought can apply to skeleton"),
+    ("selftest", "blocked thought", "Self-test: naked thought nullified for skeleton"),
+    ("selftest", "human refuses fuel", "Self-test: human refuses chemfuel"),
+    ("selftest", "human eats meals", "Self-test: human still eats meals"),
+    ("selftest", "human unchanged", "Self-test: human keeps gender and hunger thought"),
+    ("selftest", "gene removal", "Self-test: removing the null chromosome restores a gender"),
 ]
 
 
@@ -63,16 +90,8 @@ def read(logs):
     return lines, errors
 
 
-def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("logs", nargs="+")
-    here = os.path.dirname(os.path.abspath(__file__))
-    ap.add_argument("--state", default=os.path.join(here, "test_state.json"))
-    ap.add_argument("--markdown", action="store_true")
-    a = ap.parse_args()
-
-    state = json.load(open(a.state)) if os.path.exists(a.state) else {}
-    lines, errors = read(a.logs)
+def update_state(state, lines):
+    """Adds the test lines to the per-row state (passes, fails, status, last detail, build)."""
     for item in CHECKLIST:
         sid = item[0] + "|" + item[1]
         for area, key, detail, build, src in lines:
@@ -87,6 +106,20 @@ def main():
                 st["status"] = "failed"
             else:
                 st["status"] = "passed" if st["fails"] == 0 else "passed after fail"
+    return state
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("logs", nargs="+")
+    here = os.path.dirname(os.path.abspath(__file__))
+    ap.add_argument("--state", default=os.path.join(here, "test_state.json"))
+    ap.add_argument("--markdown", action="store_true")
+    a = ap.parse_args()
+
+    state = json.load(open(a.state)) if os.path.exists(a.state) else {}
+    lines, errors = read(a.logs)
+    update_state(state, lines)
     json.dump(state, open(a.state, "w"), indent=1)
 
     rows = []
