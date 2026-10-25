@@ -12,7 +12,7 @@ namespace RimshiSkeletons
     [StaticConstructorOnStartup]
     public static class HordeDefs
     {
-        public const string AntennaDefName = "MechbandAntenna";
+        public const string AntennaDefName = "BurnoutMechlinkBooster";
         public const string RoyaltyMeleeTag = "UltratechMelee";
         public const string FallbackMeleeTag = "MedievalMeleeAdvanced";
 

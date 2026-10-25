@@ -1,22 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
 
-  <!-- The recall array: a mechband antenna (graphic, size, build work and placement inherited through
-       Patches/Rimshi_MechbandAntenna.xml) rewired to broadcast the old empire's recall codes. Any colonist can activate
-       it (no mechanitor needed); it burns out, and a few hours later a horde of corrupted, berserk skeletons drops in around it. -->
-  <ThingDef ParentName="Rimshi_MechbandAntennaParent">
+  <!-- The recall array: Biotech's mechband antenna (vanilla defName BurnoutMechlinkBooster) rewired to broadcast the old
+       empire's recall codes. It copies the antenna's graphic, size and build settings instead of inheriting from it, so the
+       array always has a thingClass even if the antenna changes. Any colonist can activate it (no mechanitor needed); it
+       burns out, and a few hours later a horde of corrupted, berserk skeletons drops in around it. -->
+  <ThingDef ParentName="BuildingBase">
     <defName>Rimshi_RecallArray</defName>
     <label>skeleton recall array</label>
     <description>A mechband antenna rewired to broadcast the old empire's recall codes. A colonist can activate it to call a dormant skeleton legion out of the dark.\n\nThe legion arrives by drop pod around the array a few hours later. Its protocols are corrupted: every skeleton in it is berserk and belongs to no faction. Some still carry a failsafe core that shuts the frame down instead of letting it be destroyed; those can be captured and reprogrammed to join the colony.\n\nThe broadcast burns out the array. Each new broadcast reaches further and wakes a larger legion.</description>
-    <costList Inherit="False">
+    <graphicData>
+      <texPath>Things/Building/Misc/MechbandAntenna</texPath>
+      <graphicClass>Graphic_Multi</graphicClass>
+      <drawSize>(2,1)</drawSize>
+      <shadowData>
+        <volume>(1.7, 0.75, 0.8)</volume>
+        <offset>(0.15, 0, 0)</offset>
+      </shadowData>
+    </graphicData>
+    <altitudeLayer>Building</altitudeLayer>
+    <passability>PassThroughOnly</passability>
+    <fillPercent>0.3</fillPercent>
+    <building>
+      <ai_chillDestination>false</ai_chillDestination>
+    </building>
+    <designationCategory>Biotech</designationCategory>
+    <uiOrder>2455</uiOrder>
+    <statBases>
+      <MaxHitPoints>80</MaxHitPoints>
+      <WorkToBuild>8000</WorkToBuild>
+      <Mass>25</Mass>
+      <Flammability>0.5</Flammability>
+    </statBases>
+    <size>(2,1)</size>
+    <killedLeavings>
+      <ChunkSlagSteel>3</ChunkSlagSteel>
+    </killedLeavings>
+    <tickerType>Normal</tickerType>
+    <filthLeaving>Filth_MachineBits</filthLeaving>
+    <costList>
       <Steel>120</Steel>
       <ComponentIndustrial>6</ComponentIndustrial>
       <Plasteel>25</Plasteel>
     </costList>
-    <researchPrerequisites Inherit="False">
+    <researchPrerequisites>
       <li>Rimshi_SkeletonRecall</li>
     </researchPrerequisites>
-    <comps Inherit="False">
+    <comps>
       <li Class="CompProperties_Usable">
         <useJob>UseItem</useJob>
         <useLabel>Broadcast recall codes</useLabel>
