@@ -1,0 +1,1 @@
+Skeleton workbench (minifiable) with motors, robotic components and skeleton muscle, five tiers of skeleton arms and legs, optical sensors, audio receivers and the AI core, behind two new research projects. Repair kits are now made at the workbench, and parts, intermediates, kits and the bench never burn.

@@ -6,7 +6,7 @@ from helpers import ROOT, SOURCE, concrete, defs, def_names, patch_names, source
 
 VANILLA = {
     "GeneDef": {"Neversleep", "Ageless", "Hair_BaldOnly", "Beard_NoBeardOnly"},
-    "parents": {"BaseFilth", "ResourceBase", "BedWithQualityBase", "BuildingBase", "GeneSkinColorOverride", "AverageBase", "FactionBase", "PlayerFactionBase", "BasePlayerPawnKind", "ScenarioBase"},
+    "parents": {"BaseFilth", "ResourceBase", "BedWithQualityBase", "BuildingBase", "GeneSkinColorOverride", "AverageBase", "FactionBase", "PlayerFactionBase", "BasePlayerPawnKind", "ScenarioBase", "BenchBase", "BodyPartBase", "AddedBodyPartBase", "SurgeryFlesh"},
     "PawnKindDef": {"Villager", "Town_Guard", "Miner", "Farmer"},
 }
 DIRECTIONS = ("south", "north", "east")
@@ -169,7 +169,20 @@ class DefTests(unittest.TestCase):
             with self.subTest(research=name):
                 self.assertIn("BasicMechtech", [li.text for li in research[name].find("prerequisites")])
         things = {el.findtext("defName"): el for _, el in concrete("ThingDef")}
-        self.assertEqual(things["Rimshi_RepairKit"].findtext("recipeMaker/researchPrerequisite"), "Rimshi_SkeletonRepairKits")
+        self.assertIn("Rimshi_SkeletonRepairKits", [li.text for li in things["Rimshi_RepairKit"].find("recipeMaker/researchPrerequisites")])
+
+    def test_skeleton_parts(self):
+        """Every skeleton part has a hediff of the same name, an install recipe, a workbench recipe and Crafting 11."""
+        things = {el.findtext("defName"): el for _, el in concrete("ThingDef")}
+        hediffs = def_names("HediffDef")
+        installs = {el.findtext("addsHediff") for _, el in concrete("RecipeDef") if el.findtext("addsHediff")}
+        parts = [n for n, el in things.items() if el.get("ParentName") == "Rimshi_SkeletonPartBase"]
+        self.assertEqual(len(parts), 13)
+        for name in parts:
+            with self.subTest(part=name):
+                self.assertIn(name, hediffs)
+                self.assertIn(name, installs)
+                self.assertEqual(things[name].findtext("recipeMaker/researchPrerequisite") is not None, True)
         self.assertIn("Rimshi_SkeletonRepairBeds", [li.text for li in things["Rimshi_SkeletonRepairBed"].find("researchPrerequisites")])
 
 

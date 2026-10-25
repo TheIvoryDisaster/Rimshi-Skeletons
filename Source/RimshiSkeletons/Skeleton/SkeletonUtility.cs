@@ -30,6 +30,9 @@ namespace RimshiSkeletons
         public static JobDef Rimshi_ReprogramSkeleton;
         public static ThingDef Rimshi_Filth_AncientOil;
         public static EffecterDef Rimshi_Damage_HitAncientOil;
+        public static ThingDef Rimshi_SkeletonWorkbench;
+        public static ResearchProjectDef Rimshi_SkeletonFabrication;
+        public static ResearchProjectDef Rimshi_AdvancedSkeletonParts;
 
         static RimshiDefOf()
         {

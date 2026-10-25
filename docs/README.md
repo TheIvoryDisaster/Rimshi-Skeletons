@@ -9,6 +9,7 @@ The design and project documents. These files are the source of truth; edit them
 | xenotype-port.md | What Rim-Skeletons (Continued) does, how each part maps onto Biotech genes and patches, soft dependencies, assets, open questions and build order. |
 | recall-horde.md | The skeleton recall array (built from the mechband antenna), the berserk factionless horde it calls, failsafe cores, reprogramming captured skeletons, and the reproduction block. |
 | kenshi-lore-and-repair.md | Kenshi lore and how it themes the mod, skeleton repair kits (Crafting-based repair work), and the skeleton repair bed. |
+| skeleton-parts.md | The skeleton workbench, the motor, robotic component and skeleton muscle intermediates, the five limb tiers, senses and the AI core, and their research. |
 | skeleton-chips.md | Skeleton chips: the genepack-like system for modding skeletons (chip extractor, processor, assembler), kept apart from Biotech's gene trade, and why it does not use Vanilla Expanded Framework. |
 
 ## Project (docs/project)

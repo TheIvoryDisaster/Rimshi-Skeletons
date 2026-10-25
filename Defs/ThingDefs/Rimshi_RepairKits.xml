@@ -24,15 +24,14 @@
     <techLevel>Industrial</techLevel>
     <statBases>
       <MaxHitPoints>60</MaxHitPoints>
-      <MarketValue>18</MarketValue>
       <Mass>0.50</Mass>
-      <Flammability>0.2</Flammability>
+      <Flammability>0</Flammability>
       <DeteriorationRate>1</DeteriorationRate>
       <WorkToMake>700</WorkToMake>
     </statBases>
     <costList>
       <Steel>5</Steel>
-      <ComponentIndustrial>1</ComponentIndustrial>
+      <Rimshi_RoboticComponent>1</Rimshi_RoboticComponent>
     </costList>
     <recipeMaker>
       <workSpeedStat>GeneralLaborSpeed</workSpeedStat>
@@ -40,9 +39,12 @@
       <effectWorking>Smith</effectWorking>
       <soundWorking>Recipe_Machining</soundWorking>
       <recipeUsers>
-        <li>TableMachining</li>
+        <li>Rimshi_SkeletonWorkbench</li>
       </recipeUsers>
-      <researchPrerequisite>Rimshi_SkeletonRepairKits</researchPrerequisite>
+      <researchPrerequisites>
+        <li>Rimshi_SkeletonRepairKits</li>
+        <li>Rimshi_SkeletonFabrication</li>
+      </researchPrerequisites>
       <skillRequirements>
         <Crafting>4</Crafting>
       </skillRequirements>

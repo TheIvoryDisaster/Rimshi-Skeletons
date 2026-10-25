@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!-- Skeleton part hediffs (docs/design/skeleton-parts.md). Added parts like vanilla bionics. Damage resistance
+       (PartDamageExtension) and the steady arm's disarm (DisarmExtension) are in Parts/SkeletonParts.cs. Melee damage
+       (MeleeDamageFactor) is pawn-wide in vanilla, so each industrial arm adds 10% and a pair 20%. Steady legs add
+       MeleeDodgeChance in the stat's own points (vanilla Nimble is 15; 8 per leg). -->
+  <HediffDef Name="Rimshi_SkeletonPartHediffBase" ParentName="AddedBodyPartBase" Abstract="True">
+    <defaultLabelColor>(0.75, 0.6, 0.45)</defaultLabelColor>
+  </HediffDef>
+
+  <HediffDef ParentName="Rimshi_SkeletonPartHediffBase">
+    <defName>Rimshi_EconomyArm</defName>
+    <label>economy skeleton arm</label>
+    <labelNoun>an economy skeleton arm</labelNoun>
+    <description>A replacement arm for a skeleton. A cheap, light-duty replacement built from the fewest parts that will do. It is weaker and clumsier than the original. Only fits a skeleton.</description>
+    <descriptionHyperlinks>
+      <ThingDef>Rimshi_EconomyArm</ThingDef>
+    </descriptionHyperlinks>
+    <spawnThingOnRemoved>Rimshi_EconomyArm</spawnThingOnRemoved>
+    <addedPartProps>
+      <solid>true</solid>
+      <partEfficiency>0.8</partEfficiency>
+    </addedPartProps>
+    <comps>
+      <li Class="HediffCompProperties_VerbGiver">
+        <tools>
+          <li>
+            <label>fist</label>
+            <capacities>
+              <li>Blunt</li>
+            </capacities>
+            <power>8</power>
+            <cooldownTime>2</cooldownTime>
+          </li>
+        </tools>
+      </li>
+    </comps>
+  </HediffDef>
+  <HediffDef ParentName="Rimshi_SkeletonPartHediffBase">
+    <defName>Rimshi_EconomyLeg</defName>
+    <label>economy skeleton leg</label>
+    <labelNoun>an economy skeleton leg</labelNoun>
+    <description>A replacement leg for a skeleton. A cheap, light-duty replacement built from the fewest parts that will do. It is weaker and clumsier than the original. Only fits a skeleton.</description>
+    <descriptionHyperlinks>
+      <ThingDef>Rimshi_EconomyLeg</ThingDef>
+    </descriptionHyperlinks>
+    <spawnThingOnRemoved>Rimshi_EconomyLeg</spawnThingOnRemoved>
+    <addedPartProps>
+      <solid>true</solid>
+      <partEfficiency>0.8</partEfficiency>
+    </addedPartProps>
+  </HediffDef>
+  <HediffDef ParentName="Rimshi_SkeletonPartHediffBase">
+    <defName>Rimshi_StandardArm</defName>
+    <label>skeleton arm</label>
+    <labelNoun>a skeleton arm</labelNoun>
+    <description>A replacement arm for a skeleton. The standard pattern, built to the old empire's specifications. It works exactly as well as the original. Only fits a skeleton.</description>
+    <descriptionHyperlinks>
+      <ThingDef>Rimshi_StandardArm</ThingDef>
+    </descriptionHyperlinks>
+    <spawnThingOnRemoved>Rimshi_StandardArm</spawnThingOnRemoved>
+    <addedPartProps>
+      <solid>true</solid>
+      <partEfficiency>1.0</partEfficiency>
+    </addedPartProps>
+    <comps>
+      <li Class="HediffCompProperties_VerbGiver">
+        <tools>
+          <li>
+            <label>fist</label>
+            <capacities>
+              <li>Blunt</li>
+            </capacities>
+            <power>10</power>
+            <cooldownTime>2</cooldownTime>
+          </li>
+        </tools>
+      </li>
+    </comps>
+  </HediffDef>
+  <HediffDef ParentName="Rimshi_SkeletonPartHediffBase">
+    <defName>Rimshi_StandardLeg</defName>
+    <label>skeleton leg</label>
+    <labelNoun>a skeleton leg</labelNoun>
+    <description>A replacement leg for a skeleton. The standard pattern, built to the old empire's specifications. It works exactly as well as the original. Only fits a skeleton.</description>
+    <descriptionHyperlinks>
+      <ThingDef>Rimshi_StandardLeg</ThingDef>
+    </descriptionHyperlinks>
+    <spawnThingOnRemoved>Rimshi_StandardLeg</spawnThingOnRemoved>
+    <addedPartProps>
+      <solid>true</solid>
+      <partEfficiency>1.0</partEfficiency>
+    </addedPartProps>
+  </HediffDef>
+  <HediffDef ParentName="Rimshi_SkeletonPartHediffBase">
+    <defName>Rimshi_KLRArm</defName>
+    <label>KLR skeleton arm</label>
+    <labelNoun>a KLR skeleton arm</labelNoun>
+    <description>A replacement arm for a skeleton. A KLR pattern part with a heavy uranium-weighted frame. It works as well as the original and is much harder to damage: it takes 20% less damage. Only fits a skeleton.</description>
+    <descriptionHyperlinks>
+      <ThingDef>Rimshi_KLRArm</ThingDef>
+    </descriptionHyperlinks>
+    <spawnThingOnRemoved>Rimshi_KLRArm</spawnThingOnRemoved>
+    <addedPartProps>
+      <solid>true</solid>
+      <partEfficiency>1.0</partEfficiency>
+    </addedPartProps>
+    <comps>
+      <li Class="HediffCompProperties_VerbGiver">
+        <tools>
+          <li>
+            <label>fist</label>
+            <capacities>
+              <li>Blunt</li>
+            </capacities>
+            <power>11</power>
+            <cooldownTime>2</cooldownTime>
+          </li>
+        </tools>
+      </li>
+    </comps>
+    <modExtensions>
+      <li Class="RimshiSkeletons.PartDamageExtension">
+        <damageFactor>0.8</damageFactor>
+      </li>
+    </modExtensions>
+  </HediffDef>
+  <HediffDef ParentName="Rimshi_SkeletonPartHediffBase">
+    <defName>Rimshi_KLRLeg</defName>
+    <label>KLR skeleton leg</label>
+    <labelNoun>a KLR skeleton leg</labelNoun>
+    <description>A replacement leg for a skeleton. A KLR pattern part with a heavy uranium-weighted frame. It works as well as the original and is much harder to damage: it takes 20% less damage. Only fits a skeleton.</description>
+    <descriptionHyperlinks>
+      <ThingDef>Rimshi_KLRLeg</ThingDef>
+    </descriptionHyperlinks>
+    <spawnThingOnRemoved>Rimshi_KLRLeg</spawnThingOnRemoved>
+    <addedPartProps>
+      <solid>true</solid>
+      <partEfficiency>1.0</partEfficiency>
+    </addedPartProps>
+    <modExtensions>
+      <li Class="RimshiSkeletons.PartDamageExtension">
+        <damageFactor>0.8</damageFactor>
+      </li>
+    </modExtensions>
+  </HediffDef>
+  <HediffDef ParentName="Rimshi_SkeletonPartHediffBase">
+    <defName>Rimshi_IndustrialArm</defName>
+    <label>industrial skeleton arm</label>
+    <labelNoun>an industrial skeleton arm</labelNoun>
+    <description>A replacement arm for a skeleton. A heavy industrial pattern part with oversized motors and doubled muscle. It takes 8% less damage. It is stronger than the original, and its wearer hits 10% harder in melee per arm. Only fits a skeleton.</description>
+    <descriptionHyperlinks>
+      <ThingDef>Rimshi_IndustrialArm</ThingDef>
+    </descriptionHyperlinks>
+    <spawnThingOnRemoved>Rimshi_IndustrialArm</spawnThingOnRemoved>
+    <addedPartProps>
+      <solid>true</solid>
+      <partEfficiency>1.08</partEfficiency>
+      <betterThanNatural>true</betterThanNatural>
+    </addedPartProps>
+    <stages>
+      <li>
+        <statOffsets>
+          <MeleeDamageFactor>0.1</MeleeDamageFactor>
+        </statOffsets>
+      </li>
+    </stages>
+    <comps>
+      <li Class="HediffCompProperties_VerbGiver">
+        <tools>
+          <li>
+            <label>fist</label>
+            <capacities>
+              <li>Blunt</li>
+            </capacities>
+            <power>13</power>
+            <cooldownTime>2</cooldownTime>
+          </li>
+        </tools>
+      </li>
+    </comps>
+    <modExtensions>
+      <li Class="RimshiSkeletons.PartDamageExtension">
+        <damageFactor>0.92</damageFactor>
+      </li>
+    </modExtensions>
+  </HediffDef>
+  <HediffDef ParentName="Rimshi_SkeletonPartHediffBase">
+    <defName>Rimshi_IndustrialLeg</defName>
+    <label>industrial skeleton leg</label>
+    <labelNoun>an industrial skeleton leg</labelNoun>
+    <description>A replacement leg for a skeleton. A heavy industrial pattern part with oversized motors and doubled muscle. It takes 8% less damage. It is faster than the original. Only fits a skeleton.</description>
+    <descriptionHyperlinks>
+      <ThingDef>Rimshi_IndustrialLeg</ThingDef>
+    </descriptionHyperlinks>
+    <spawnThingOnRemoved>Rimshi_IndustrialLeg</spawnThingOnRemoved>
+    <addedPartProps>
+      <solid>true</solid>
+      <partEfficiency>1.15</partEfficiency>
+      <betterThanNatural>true</betterThanNatural>
+    </addedPartProps>
+    <modExtensions>
+      <li Class="RimshiSkeletons.PartDamageExtension">
+        <damageFactor>0.92</damageFactor>
+      </li>
+    </modExtensions>
+  </HediffDef>
+  <HediffDef ParentName="Rimshi_SkeletonPartHediffBase">
+    <defName>Rimshi_SteadyArm</defName>
+    <label>steady skeleton arm</label>
+    <labelNoun>a steady skeleton arm</labelNoun>
+    <description>A replacement arm for a skeleton. A precision pattern part with fine motor control and dense sensor wiring. It is more dexterous than the original, and its grip can tear the weapon out of an enemy's hand in melee. Only fits a skeleton.</description>
+    <descriptionHyperlinks>
+      <ThingDef>Rimshi_SteadyArm</ThingDef>
+    </descriptionHyperlinks>
+    <spawnThingOnRemoved>Rimshi_SteadyArm</spawnThingOnRemoved>
+    <addedPartProps>
+      <solid>true</solid>
+      <partEfficiency>1.15</partEfficiency>
+      <betterThanNatural>true</betterThanNatural>
+    </addedPartProps>
+    <comps>
+      <li Class="HediffCompProperties_VerbGiver">
+        <tools>
+          <li>
+            <label>fist</label>
+            <capacities>
+              <li>Blunt</li>
+            </capacities>
+            <power>10</power>
+            <cooldownTime>2</cooldownTime>
+          </li>
+        </tools>
+      </li>
+    </comps>
+    <modExtensions>
+      <li Class="RimshiSkeletons.DisarmExtension">
+        <chance>0.1</chance>
+      </li>
+    </modExtensions>
+  </HediffDef>
+  <HediffDef ParentName="Rimshi_SkeletonPartHediffBase">
+    <defName>Rimshi_SteadyLeg</defName>
+    <label>steady skeleton leg</label>
+    <labelNoun>a steady skeleton leg</labelNoun>
+    <description>A replacement leg for a skeleton. A precision pattern part with fine motor control and dense sensor wiring. Its quick footwork makes its wearer much harder to hit in melee. Only fits a skeleton.</description>
+    <descriptionHyperlinks>
+      <ThingDef>Rimshi_SteadyLeg</ThingDef>
+    </descriptionHyperlinks>
+    <spawnThingOnRemoved>Rimshi_SteadyLeg</spawnThingOnRemoved>
+    <addedPartProps>
+      <solid>true</solid>
+      <partEfficiency>1.0</partEfficiency>
+      <betterThanNatural>true</betterThanNatural>
+    </addedPartProps>
+    <stages>
+      <li>
+        <statOffsets>
+          <MeleeDodgeChance>8</MeleeDodgeChance>
+        </statOffsets>
+      </li>
+    </stages>
+  </HediffDef>
+  <HediffDef ParentName="Rimshi_SkeletonPartHediffBase">
+    <defName>Rimshi_OpticalSensor</defName>
+    <label>optical sensor</label>
+    <labelNoun>an optical sensor</labelNoun>
+    <description>A skeleton's eye: a lens array and image processor that sees as well as the original. Only fits a skeleton.</description>
+    <descriptionHyperlinks>
+      <ThingDef>Rimshi_OpticalSensor</ThingDef>
+    </descriptionHyperlinks>
+    <spawnThingOnRemoved>Rimshi_OpticalSensor</spawnThingOnRemoved>
+    <addedPartProps>
+      <solid>true</solid>
+      <partEfficiency>1.0</partEfficiency>
+    </addedPartProps>
+  </HediffDef>
+  <HediffDef ParentName="Rimshi_SkeletonPartHediffBase">
+    <defName>Rimshi_AudioReceiver</defName>
+    <label>audio receiver</label>
+    <labelNoun>an audio receiver</labelNoun>
+    <description>A skeleton's ear: a membrane pickup and signal filter that hears as well as the original. Only fits a skeleton.</description>
+    <descriptionHyperlinks>
+      <ThingDef>Rimshi_AudioReceiver</ThingDef>
+    </descriptionHyperlinks>
+    <spawnThingOnRemoved>Rimshi_AudioReceiver</spawnThingOnRemoved>
+    <addedPartProps>
+      <solid>true</solid>
+      <partEfficiency>1.0</partEfficiency>
+    </addedPartProps>
+  </HediffDef>
+  <HediffDef ParentName="Rimshi_SkeletonPartHediffBase">
+    <defName>Rimshi_AICore</defName>
+    <label>AI core</label>
+    <labelNoun>an AI core</labelNoun>
+    <description>A skeleton's mind: an AI persona core wired into the old empire's control lattice. Installed in place of a skeleton's brain, it does the same job. Installed again over a damaged AI core, it repairs all the damage. Destroying it still kills the skeleton. Only fits a skeleton.</description>
+    <descriptionHyperlinks>
+      <ThingDef>Rimshi_AICore</ThingDef>
+    </descriptionHyperlinks>
+    <spawnThingOnRemoved>Rimshi_AICore</spawnThingOnRemoved>
+    <addedPartProps>
+      <solid>true</solid>
+      <partEfficiency>1.0</partEfficiency>
+    </addedPartProps>
+  </HediffDef>
+
+</Defs>

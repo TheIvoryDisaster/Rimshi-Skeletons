@@ -58,6 +58,7 @@ namespace RimshiSkeletons
                 RepairChecks(skeleton, human);
                 GeneProofChecks(skeleton, human);
                 ProstheticsChecks(skeleton, human);
+                PartsChecks(skeleton, human);
                 BloodChecks(skeleton, human);
                 DrugChecks(skeleton, human);
                 GeneRemovalCheck(skeleton);
@@ -607,6 +608,43 @@ namespace RimshiSkeletons
             {
                 Log.Warning("[Rimshi] self-test could not discard " + pawn.LabelShort + ": " + e.Message);
             }
+        }
+
+        /// <summary>
+        /// Skeleton parts (Parts/SkeletonParts.cs): install bills only on skeletons, a KLR arm installs and takes 20% less
+        /// damage, and a second AI core repairs a damaged one. Runs on the throwaway skeleton, which is discarded after.
+        /// </summary>
+        private static void PartsChecks(Pawn s, Pawn human)
+        {
+            List<RecipeDef> installs = DefDatabase<RecipeDef>.AllDefsListForReading.Where(r => r.Worker is Recipe_Rimshi_InstallSkeletonPart).ToList();
+            List<string> wrong = installs.Where(r => !r.Worker.AvailableOnNow(s) || r.Worker.AvailableOnNow(human) || !r.Worker.GetPartsToApplyOn(s, r).Any()).Select(r => r.defName).ToList();
+            Check("part bills", installs.Count >= 13 && wrong.Count == 0, installs.Count + " skeleton part installs, skeleton only" + (wrong.Count > 0 ? "; wrong: " + string.Join(", ", wrong) : ""));
+
+            RecipeDef klr = DefDatabase<RecipeDef>.GetNamed("Rimshi_Install_KLRArm");
+            BodyPartRecord shoulder = klr.Worker.GetPartsToApplyOn(s, klr).FirstOrDefault();
+            if (shoulder == null)
+            {
+                Check("part install", false, "no shoulder to install a KLR arm on");
+                return;
+            }
+            klr.Worker.ApplyOnPawn(s, shoulder, null, new List<Thing>(), null);
+            bool installed = s.health.hediffSet.hediffs.Any(h => h.def == klr.addsHediff && h.Part == shoulder);
+            Check("part install", installed, "KLR arm on " + shoulder.Label + ": " + installed);
+
+            var dinfo = new DamageInfo(DamageDefOf.Bullet, 10f, 99f, -1f, null, shoulder);
+            s.TakeDamage(dinfo);
+            float severity = s.health.hediffSet.hediffs.OfType<Hediff_Injury>().Where(h => h.Part == shoulder).Sum(h => h.Severity);
+            Check("part armour", severity > 7.9f && severity < 8.1f, "10 bullet damage on the KLR arm made an injury of " + severity.ToString("0.##") + " (expected 8)");
+
+            RecipeDef core = DefDatabase<RecipeDef>.GetNamed("Rimshi_Install_AICore");
+            BodyPartRecord brain = s.health.hediffSet.GetBrain();
+            core.Worker.ApplyOnPawn(s, brain, null, new List<Thing>(), null);
+            bool hasCore = s.health.hediffSet.hediffs.Any(h => h.def == core.addsHediff && h.Part == brain);
+            s.TakeDamage(new DamageInfo(DamageDefOf.Bullet, 1f, 99f, -1f, null, brain));
+            bool offered = core.Worker.GetPartsToApplyOn(s, core).Contains(brain);
+            core.Worker.ApplyOnPawn(s, brain, null, new List<Thing>(), null);
+            int left = s.health.hediffSet.hediffs.Count(h => h.Part == brain && h is Hediff_Injury);
+            Check("ai core repair", hasCore && offered && left == 0 && !s.Dead, "core installed " + hasCore + ", repair offered when damaged " + offered + ", injuries left " + left + ", alive " + !s.Dead);
         }
 
         private static void Check(string name, bool ok, string detail)
