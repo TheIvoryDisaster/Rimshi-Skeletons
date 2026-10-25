@@ -103,6 +103,7 @@ namespace RimshiSkeletons
             Check("no relations", s.relations == null || s.relations.DirectRelations.Count == 0, "direct relations " + (s.relations?.DirectRelations.Count ?? 0));
             Check("fertility", s.GetStatValue(StatDefOf.Fertility) == 0f, "fertility " + s.GetStatValue(StatDefOf.Fertility));
             Check("toxic resistance", s.GetStatValue(StatDefOf.ToxicResistance) >= 1f, "toxic resistance " + s.GetStatValue(StatDefOf.ToxicResistance));
+            Check("psychically deaf", s.GetStatValue(StatDefOf.PsychicSensitivity) == 0f, "psychic sensitivity " + s.GetStatValue(StatDefOf.PsychicSensitivity));
             HediffDef flu = DefDatabase<HediffDef>.GetNamedSilentFail("Flu");
             Check("immunity", flu != null && s.health.immunity.AnyGeneMakesFullyImmuneTo(flu), "immune to flu");
 

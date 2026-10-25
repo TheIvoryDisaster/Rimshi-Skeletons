@@ -15,7 +15,7 @@ Read from the original's files (local folder "3674548651", 1.6 only):
 | Area | Original (HAR) | Where |
 | --- | --- | --- |
 | Race | `Skeleton_` ThingDef_AlienRace, parent Human. Genderless (`hasGenders` false), asexual, life expectancy 2500, age 480 to 2500, body size 1.1, health scale 1.8, `needsRest` false, near-zero hunger. | Defs/AlienRaces/RimskeletonRace.xml |
-| Stats | Psychic sensitivity 0.5, toxic resist 1, comfy temp -100 to 250, flammability 0, armor 0.12 blunt / 0.4 sharp / 2.0 heat, move speed 4.25, research 1.3, plants 0.5, social impact 0.5, mental break threshold 0.2, pain shock 0.5, melee dodge 0.5, fertility 0, Odyssey vacuum resistance 1, market value 5800. | same |
+| Stats | Psychic sensitivity 0.5, toxic resist 1, comfy temp -100 to 250, flammability 0, armor 0.12 blunt / 0.4 sharp / 2.0 heat, move speed 4.25, research 1.3, plants 0.5, social impact 0.5, mental break threshold 0.2, pain shock 0.5, melee dodge 0.5, fertility 0, Odyssey vacuum resistance 1, market value 5800. | same, except psychic sensitivity 0 (psychically deaf, decided 2026-10-25) |
 | Melee | Fists 8.5 blunt, surprise attack stun. | same |
 | Body | Custom `SkeletonBody`: mechanical thorax, reactor, fluid reprocessor, AI core (brain), visual sensors, mech arms, legs etc. Fleshtype `VexedMechanical` (mech wound graphics), blood is machine bits, no bleeding. | Defs/Bodies, Defs/Misc/FleshTypes |
 | Looks | Body textures Male / Thin / Hulk, six head types (Mki, Log, Lion, Scout, Catlon, Screamer), steel or rust skin colours, no hair, beard or tattoos. | Textures/SkeletonRace, Defs/HeadTypeDefs |
