@@ -56,6 +56,7 @@ namespace RimshiSkeletons
                 HumanChecks(human);
                 RepairChecks(skeleton, human);
                 GeneProofChecks(skeleton, human);
+                ProstheticsChecks(skeleton, human);
                 GeneRemovalCheck(skeleton);
                 FactionChecks(pawns);
                 ReproductionChecks(skeleton, human);
@@ -340,6 +341,76 @@ namespace RimshiSkeletons
             AccessTools.Method(typeof(GeneUtility), nameof(GeneUtility.ImplantXenogermItem)),
             AccessTools.Method(typeof(GeneUtility), nameof(GeneUtility.ReimplantXenogerm)),
             AccessTools.Method(typeof(Genepack), nameof(Genepack.Initialize)),
+        };
+
+        private static void ProstheticsChecks(Pawn s, Pawn human)
+        {
+            // A throwaway kind that always rolls bionics, so the baseliner shows the generator still works for others.
+            var bionicKind = new PawnKindDef
+            {
+                defName = "Rimshi_SelfTestBionics",
+                race = ThingDefOf.Human,
+                techHediffsChance = 1f,
+                techHediffsMaxAmount = 3,
+                techHediffsMoney = new FloatRange(10000f, 10000f),
+                techHediffsTags = new List<string> { "Simple", "Advanced" },
+            };
+            int skeletonParts = AddedParts(s);
+            int humanParts = AddedParts(human);
+            PawnKindDef skeletonKind = s.kindDef;
+            PawnKindDef humanKind = human.kindDef;
+            try
+            {
+                s.kindDef = bionicKind;
+                human.kindDef = bionicKind;
+                PawnTechHediffsGenerator.GenerateTechHediffsFor(s);
+                PawnTechHediffsGenerator.GenerateTechHediffsFor(human);
+            }
+            finally
+            {
+                s.kindDef = skeletonKind;
+                human.kindDef = humanKind;
+            }
+            int skeletonAdded = AddedParts(s) - skeletonParts;
+            int humanAdded = AddedParts(human) - humanParts;
+            Check("no spawn bionics", skeletonAdded == 0 && humanAdded > 0, "bionics generated: skeleton " + skeletonAdded + ", baseliner " + humanAdded);
+
+            var installs = DefDatabase<RecipeDef>.AllDefsListForReading.FindAll(ProstheticsLock.IsInstallRecipe);
+            var offered = installs.FindAll(r => r.Worker.AvailableOnNow(s));
+            RecipeDef arm = DefDatabase<RecipeDef>.GetNamedSilentFail("InstallBionicArm");
+            RecipeDef heart = DefDatabase<RecipeDef>.GetNamedSilentFail("InstallNaturalHeart");
+            bool controls = arm != null && heart != null && installs.Contains(arm) && installs.Contains(heart)
+                && arm.Worker.AvailableOnNow(human) && heart.Worker.AvailableOnNow(human);
+            Check("no install bills", installs.Count > 0 && offered.Count == 0 && controls, installs.Count + " install surgeries, "
+                + offered.Count + " offered on the skeleton" + (offered.Count > 0 ? " (" + string.Join(", ", offered.Take(5).Select(r => r.defName)) + ")" : "")
+                + "; bionic arm and natural heart offered on the baseliner " + controls);
+
+            RecipeDef removal = DefDatabase<RecipeDef>.GetNamedSilentFail("RemoveBodyPart");
+            Check("removal allowed", removal != null && !ProstheticsLock.IsInstallRecipe(removal) && removal.Worker.AvailableOnNow(s),
+                "remove body part offered on the skeleton " + removal?.Worker.AvailableOnNow(s));
+
+            var unpatched = new List<string>();
+            foreach (MethodBase method in ProstheticsTargets)
+            {
+                Patches info = method == null ? null : Harmony.GetPatchInfo(method);
+                if (info == null || !info.Owners.Contains(RimshiMod.HarmonyId))
+                {
+                    unpatched.Add(method == null ? "missing method" : method.DeclaringType.Name + "." + method.Name);
+                }
+            }
+            Check("prosthetics patched", unpatched.Count == 0, unpatched.Count == 0 ? ProstheticsTargets.Length + " prosthetics lock patches applied" : "not patched: " + string.Join(", ", unpatched));
+        }
+
+        private static int AddedParts(Pawn pawn) =>
+            pawn.health.hediffSet.hediffs.Count(h => h.def.countsAsAddedPartOrImplant || h is Hediff_AddedPart || h is Hediff_Implant);
+
+        private static readonly MethodBase[] ProstheticsTargets =
+        {
+            AccessTools.Method(typeof(PawnTechHediffsGenerator), nameof(PawnTechHediffsGenerator.GenerateTechHediffsFor)),
+            AccessTools.Method(typeof(Recipe_Surgery), nameof(Recipe_Surgery.AvailableOnNow)),
+            AccessTools.Method(typeof(Recipe_InstallArtificialBodyPart), nameof(Recipe_InstallArtificialBodyPart.ApplyOnPawn)),
+            AccessTools.Method(typeof(Recipe_InstallImplant), nameof(Recipe_InstallImplant.ApplyOnPawn)),
+            AccessTools.Method(typeof(Recipe_InstallNaturalBodyPart), nameof(Recipe_InstallNaturalBodyPart.ApplyOnPawn)),
         };
 
         private static void GeneRemovalCheck(Pawn s)

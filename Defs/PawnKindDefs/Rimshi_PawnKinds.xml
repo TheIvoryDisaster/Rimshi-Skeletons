@@ -37,11 +37,7 @@
     <apparelTags>
       <li>IndustrialBasic</li>
     </apparelTags>
-    <techHediffsMoney>200~800</techHediffsMoney>
-    <techHediffsTags>
-      <li>Simple</li>
-      <li>ImplantEmpireCommon</li>
-    </techHediffsTags>
+    <!-- No techHediffs on any kind: skeletons get no prosthetics or implants (Skeleton/ProstheticsLock.cs skips them for any kind). -->
     <initialWillRange>10~19</initialWillRange>
     <initialResistanceRange>20~37</initialResistanceRange>
   </PawnKindDef>
@@ -59,22 +55,9 @@
     </weaponTags>
     <weaponMoney>250~300</weaponMoney>
     <backstoryCryptosleepCommonality>0</backstoryCryptosleepCommonality>
-    <techHediffsChance>0.06</techHediffsChance>
-    <techHediffsMoney>50~600</techHediffsMoney>
-    <techHediffsTags>
-      <li>Simple</li>
-      <li>ImplantEmpireCommon</li>
-    </techHediffsTags>
   </PawnKindDef>
 
   <PawnKindDef ParentName="Rimshi_SkeletonKindBase" Name="Rimshi_FighterBase" Abstract="True">
-    <techHediffsChance>0.15</techHediffsChance>
-    <techHediffsMoney>700~1200</techHediffsMoney>
-    <techHediffsTags>
-      <li>Simple</li>
-      <li>Advanced</li>
-      <li>ImplantEmpireCommon</li>
-    </techHediffsTags>
     <biocodeWeaponChance>0.2</biocodeWeaponChance>
     <initialWillRange>2~4</initialWillRange>
   </PawnKindDef>
@@ -192,13 +175,6 @@
     <apparelMoney>400~700</apparelMoney>
     <apparelAllowHeadgearChance>0.5</apparelAllowHeadgearChance>
     <weaponMoney>500~500</weaponMoney>
-    <techHediffsChance>0.05</techHediffsChance>
-    <techHediffsMoney>500~500</techHediffsMoney>
-    <techHediffsTags>
-      <li>Poor</li>
-      <li>Simple</li>
-      <li>ImplantEmpireCommon</li>
-    </techHediffsTags>
     <disallowedTraits>
       <li>Brawler</li>
     </disallowedTraits>
@@ -261,12 +237,6 @@
     <disallowedTraits>
       <li>Brawler</li>
     </disallowedTraits>
-    <techHediffsMoney>1000~1200</techHediffsMoney>
-    <techHediffsTags>
-      <li>Advanced</li>
-      <li>ImplantEmpireCommon</li>
-    </techHediffsTags>
-    <techHediffsChance>0.35</techHediffsChance>
     <biocodeWeaponChance>0.3</biocodeWeaponChance>
     <initialWillRange>3~5</initialWillRange>
   </PawnKindDef>
@@ -327,12 +297,6 @@
       <li MayRequire="Ludeon.RimWorld.Royalty">UltratechMelee</li>
     </weaponTags>
     <weaponMoney>800~3000</weaponMoney>
-    <techHediffsChance>0.04</techHediffsChance>
-    <techHediffsMoney>200~700</techHediffsMoney>
-    <techHediffsTags>
-      <li>Advanced</li>
-      <li>AdvancedWeapon</li>
-    </techHediffsTags>
     <initialWillRange>26~28</initialWillRange>
     <initialResistanceRange>30~57</initialResistanceRange>
   </PawnKindDef>
@@ -367,13 +331,6 @@
       <li MayRequire="Ludeon.RimWorld.Royalty">Bladelink</li>
     </weaponTags>
     <weaponMoney>1500~3000</weaponMoney>
-    <techHediffsChance>0.08</techHediffsChance>
-    <techHediffsMoney>200~500</techHediffsMoney>
-    <techHediffsTags>
-      <li>Advanced</li>
-      <li>AdvancedWeapon</li>
-      <li>ImplantEmpireCommon</li>
-    </techHediffsTags>
     <skills>
       <li>
         <skill>Shooting</skill>
@@ -412,13 +369,6 @@
       <li>Gun</li>
     </weaponTags>
     <weaponMoney>250~400</weaponMoney>
-    <techHediffsChance>0.04</techHediffsChance>
-    <techHediffsMoney>200~700</techHediffsMoney>
-    <techHediffsTags>
-      <li>Poor</li>
-      <li>Simple</li>
-      <li>ImplantEmpireCommon</li>
-    </techHediffsTags>
     <initialWillRange>6~8</initialWillRange>
     <initialResistanceRange>10~17</initialResistanceRange>
   </PawnKindDef>
@@ -451,12 +401,6 @@
     </weaponTags>
     <weaponMoney>250~300</weaponMoney>
     <backstoryCryptosleepCommonality>0</backstoryCryptosleepCommonality>
-    <techHediffsChance>0.03</techHediffsChance>
-    <techHediffsMoney>200~800</techHediffsMoney>
-    <techHediffsTags>
-      <li>Simple</li>
-      <li>ImplantEmpireCommon</li>
-    </techHediffsTags>
     <initialWillRange>3~5</initialWillRange>
     <initialResistanceRange>10~17</initialResistanceRange>
   </PawnKindDef>
@@ -491,12 +435,6 @@
     <apparelColor>(58,58,58)</apparelColor>
     <apparelAllowHeadgearChance>0</apparelAllowHeadgearChance>
     <backstoryCryptosleepCommonality>0</backstoryCryptosleepCommonality>
-    <techHediffsChance>0.03</techHediffsChance>
-    <techHediffsMoney>200~800</techHediffsMoney>
-    <techHediffsTags>
-      <li>Simple</li>
-      <li>ImplantEmpireCommon</li>
-    </techHediffsTags>
     <initialWillRange>0~1</initialWillRange>
     <initialResistanceRange>10~17</initialResistanceRange>
   </PawnKindDef>
