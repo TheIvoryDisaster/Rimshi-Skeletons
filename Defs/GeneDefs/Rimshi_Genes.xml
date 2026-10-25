@@ -110,6 +110,29 @@
       <li>Has no blood and never bleeds; leaks black ancient oil when hit</li>
       <li>Cannot take drugs of any kind, medical or recreational; drug policies do nothing</li>
     </customEffectDescriptions>
+    <!-- Dubs Bad Hygiene (optional): no thirst or bladder, and hygiene becomes self-cleaning at half the fall rate. Names
+         are looked up at startup (SkeletonDefs, SkeletonNeeds.cs), so nothing here errors without the mod. -->
+    <modExtensions>
+      <li Class="RimshiSkeletons.NeedRelabelExtension">
+        <removedNeeds>
+          <li>DBHThirst</li>
+          <li>Bladder</li>
+        </removedNeeds>
+        <relabels>
+          <li>
+            <need>Hygiene</need>
+            <label>self-cleaning</label>
+            <description>A skeleton's motors and joints slowly gather dust, grit and debris. Its self-cleaning cycle clears most of it away on its own, so this falls at half the rate of a human's hygiene, but now and then the build-up needs a proper wash to flush it out of the motors.</description>
+          </li>
+        </relabels>
+        <statFactorsIfLoaded>
+          <li>
+            <stat>HygieneRateMultiplier</stat>
+            <value>0.5</value>
+          </li>
+        </statFactorsIfLoaded>
+      </li>
+    </modExtensions>
     <biostatCpx>4</biostatCpx>
     <biostatMet>-4</biostatMet>
   </GeneDef>
@@ -135,22 +158,34 @@
     <biostatCpx>2</biostatCpx>
   </GeneDef>
 
-  <!-- Diet: eats only fuel (things with RimshiSkeletons.FuelExtension: chemfuel and uranium), very slowly. -->
+  <!-- Diet: the food need becomes "maintenance", met by consuming one component about every two days (things with
+       RimshiSkeletons.MaintenanceItemExtension, see Patches/Rimshi_ComponentMaintenance.xml). No malnutrition; the
+       Rimshi_MaintenanceNeed thought is the only cost of going without. defName and geneClass keep their old fuel
+       reactor names so saves with skeletons still load. See SkeletonNeeds.cs. -->
   <GeneDef ParentName="Rimshi_SkeletonGeneBase">
     <defName>Rimshi_FuelReactor</defName>
-    <label>fuel reactor</label>
-    <labelShortAdj>reactor</labelShortAdj>
-    <description>Carriers of this gene run on an internal reactor instead of a stomach. They burn through fuel very slowly and can eat nothing but chemfuel and uranium. Nobody else can eat those.</description>
+    <label>component maintenance</label>
+    <labelShortAdj>maintained</labelShortAdj>
+    <description>Carriers of this gene have no stomach. Instead they strip industrial components for parts to patch their worn joints, seals and circuits, about one component every two days. They consume nothing else, and nobody else can make use of components this way. Going without hurts their mood but never starves them.</description>
     <geneClass>RimshiSkeletons.Gene_FuelReactor</geneClass>
     <iconPath>UI/Icons/Genes/Gene_RobustDigestion</iconPath>
     <displayOrderInCategory>40</displayOrderInCategory>
     <customEffectDescriptions>
-      <li>Eats only chemfuel and uranium</li>
-      <li>Hunger rate: x10%</li>
+      <li>Consumes one component about every 2 days, and nothing else</li>
+      <li>Never suffers malnutrition</li>
     </customEffectDescriptions>
     <modExtensions>
-      <li Class="RimshiSkeletons.FuelReactorExtension">
-        <hungerRateFactor>0.1</hungerRateFactor>
+      <li Class="RimshiSkeletons.MaintenanceExtension">
+        <daysPerItem>2</daysPerItem>
+      </li>
+      <li Class="RimshiSkeletons.NeedRelabelExtension">
+        <relabels>
+          <li>
+            <need>Food</need>
+            <label>maintenance</label>
+            <description>Since the fall of the Second Empire, skeletons have had to find ways to sustain themselves without the technology that was lost in the collapse. With no factories left to service them, they strip industrial components for parts to patch their worn joints, seals and circuits. A skeleton needs about one component every two days. Going without never starves it, but grinding on with worn-out parts is miserable.</description>
+          </li>
+        </relabels>
       </li>
     </modExtensions>
     <biostatCpx>2</biostatCpx>

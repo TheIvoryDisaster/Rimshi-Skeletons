@@ -52,6 +52,7 @@ namespace RimshiSkeletons
 
         public static bool HasFrame(Pawn pawn) => HasActiveGene(pawn, RimshiDefOf.Rimshi_SkeletonFrame);
 
+        /// <summary>The component maintenance gene (defName kept from when it was the fuel reactor).</summary>
         public static bool HasFuelReactor(Pawn pawn) => HasActiveGene(pawn, RimshiDefOf.Rimshi_FuelReactor);
 
         /// <summary>The gene carrying every rule that holds for all skeletons (immunities, psychic sense, no prosthetics).</summary>

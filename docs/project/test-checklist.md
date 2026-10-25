@@ -20,9 +20,10 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | --- | --- | --- | --- | --- |
 | build | Build line at startup | passed | 7 | version dev, build 7 (DESKTOP-ESRRCQ3 2026-10-24T18:45Z), dll written 2026-10-24 18:45 UTC; biotech True, royalty True, ideology True, odyssey True |
 | defs | Blocked thoughts linked at startup (lists any not loaded) | passed | 7 | 27 of 30 blocked; not loaded: RG_Wet, RG_ExtremelyWet, RG_HotSpringWet |
-| defs | Vanilla hunger thought nullified by the fuel reactor | passed | 7 | NeedFood nullified by Rimshi_FuelReactor |
+| defs | Vanilla hunger thought nullified by component maintenance | not seen |  |  |
 | defs | Immunity list linked at startup (lists any not loaded) | passed | 7 | 23 of 23 immunities |
-| defs | Chemfuel and uranium tagged as edible fuel | passed | 7 | Uranium: nutrition 0.5, food type Fluid |
+| defs | Component tagged as the maintenance item (nutrition, days one lasts) | not seen |  |  |
+| defs | Needs from other mods removed or relabelled (Dubs Bad Hygiene), or says none | not seen |  |  |
 | defs | Skeleton backstories loaded | not seen |  |  |
 | defs | Outlander, pirate, tribe and Empire xenotype sets include skeletons | not seen |  |  |
 | patch | Every patched private method found (this line only appears when one is missing) | not seen |  |  |
@@ -48,7 +49,9 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | bed | Non-skeleton kept out of a skeleton repair bed | not seen |  |  |
 | bed | Repair bed repairing a skeleton's injury | not seen |  |  |
 | bed | Skeleton fully repaired in a repair bed | not seen |  |  |
-| diet | Skeleton ate chemfuel or uranium (fails if it ate anything else) | not seen |  |  |
+| diet | Skeleton consumed a component for maintenance (fails if it ate anything else) | not seen |  |  |
+| maintenance | Skeleton out of maintenance did not get malnutrition | not seen |  |  |
+| maintenance | Need bar and tooltips relabel needs (this line only appears when a patch target is missing) | not seen |  |  |
 | reproduction | A pregnancy added to a skeleton was refused | not seen |  |  |
 | horde | Recall array inherited the mechband antenna graphic | not seen |  |  |
 | horde | Recall research on the research tab, overlapping nothing (gives its position) | not seen |  |  |
@@ -95,13 +98,17 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | selftest | Self-test: skeleton toxic resistance 100% | passed | 7 | toxic resistance 1 |
 | selftest | Self-test: skeleton psychic sensitivity 0% | not seen |  |  |
 | selftest | Self-test: skeleton immune to flu | passed | 7 | immune to flu |
-| selftest | Self-test: skeleton can eat chemfuel and uranium | failed | 7 | FAILED: chemfuel and uranium suitable |
+| selftest | Self-test: skeleton can consume components | not seen |  |  |
 | selftest | Self-test: skeleton refuses meals | passed | 7 | simple meal suitable False |
-| selftest | Self-test: skeleton hunger well below human | passed | 7 | skeleton/human hunger 0.225 |
+| selftest | Self-test: one component lasts a skeleton 2 days | not seen |  |  |
+| selftest | Self-test: skeleton consumes one component at a time | not seen |  |  |
+| selftest | Self-test: skeleton food bar shown as Maintenance with the Second Empire tooltip (human keeps Food) | not seen |  |  |
+| selftest | Self-test: skeleton cannot get malnutrition | not seen |  |  |
 | selftest | Self-test: vanilla hunger thought nullified for skeleton | passed | 7 | NeedFood nullified |
-| selftest | Self-test: fuel need thought can apply to skeleton | passed | 7 | Rimshi_FuelNeed can apply |
+| selftest | Self-test: maintenance thought can apply to skeleton | not seen |  |  |
+| selftest | Self-test: with Dubs Bad Hygiene, no thirst or bladder and self-cleaning at half rate (passes when not loaded) | not seen |  |  |
 | selftest | Self-test: naked thought nullified for skeleton | passed | 7 | Naked nullified |
-| selftest | Self-test: human refuses chemfuel | passed | 7 | chemfuel suitable False |
+| selftest | Self-test: human refuses components | not seen |  |  |
 | selftest | Self-test: human still eats meals | passed | 7 | simple meal suitable True |
 | selftest | Self-test: human keeps gender and hunger thought | passed | 7 | gender Male, hunger thought nullified False |
 | selftest | Self-test: both repair research projects need Basic mechtech | not seen |  |  |
@@ -162,9 +169,11 @@ Things the log cannot show; tick them off by hand after looking in game.
 
 - [ ] A skeleton spawned in dev mode (xenotype Skeleton) looks right: skeleton body and head, steel or rust colour, bald, no beard, no tattoos.
 - [ ] A skeleton is genderless in its info card and has the Asexual trait.
-- [ ] A hungry skeleton walks to chemfuel or uranium and eats it ("Fueling reactor with chemfuel").
-- [ ] A skeleton refuses ordinary meals (right-click shows "not suitable"), and a human or animal refuses chemfuel.
-- [ ] A hungry skeleton gets the "fuel need" thought; the vanilla hunger thought shows as nullified.
+- [ ] A skeleton's needs tab shows "Maintenance" instead of "Food"; its tooltip tells of the fall of the Second Empire. A human still shows "Food".
+- [ ] When maintenance drops to about 30% (about two days after a full bar), a skeleton walks to a component and strips it ("Stripping component for maintenance"), one at a time, and the bar fills back up.
+- [ ] A skeleton refuses ordinary meals (right-click shows "not suitable"), and a human or animal refuses components.
+- [ ] Without components, a skeleton gets "maintenance due", then "maintenance overdue", then "worn parts" at 0%, getting one stage worse per day (down to "falling apart", -22); the vanilla hunger thought shows as nullified, and it never gets malnutrition.
+- [ ] With Dubs Bad Hygiene: a skeleton has no thirst or bladder bar, its hygiene bar reads "Self-cleaning" with the motor debris tooltip, and it drops about half as fast as a human's. The mechanical nature gene lists the changes and "hygiene rate factor x50%".
 - [ ] Naked, dark, wet and pain thoughts show as nullified by mechanical nature.
 - [ ] A skeleton never needs sleep (no rest bar).
 - [ ] A new world lists the skeletal imperium in the faction setup (one by default) and it appears on the world map.

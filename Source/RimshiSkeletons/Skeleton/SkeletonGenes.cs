@@ -55,7 +55,10 @@ namespace RimshiSkeletons
         }
     }
 
-    /// <summary>Fuel reactor: logs what a skeleton eats, so the diet can be checked in Player.log.</summary>
+    /// <summary>
+    /// Component maintenance (the class keeps its old fuel reactor name: saves store gene classes by name). Logs what a
+    /// skeleton consumes, so the diet can be checked in Player.log. The rules are in SkeletonNeeds.cs.
+    /// </summary>
     public class Gene_FuelReactor : Gene
     {
         public override void Notify_IngestedThing(Thing thing, int numTaken)
@@ -65,25 +68,15 @@ namespace RimshiSkeletons
             {
                 return;
             }
-            if (thing.def.HasModExtension<FuelExtension>())
+            if (thing.def.HasModExtension<MaintenanceItemExtension>())
             {
-                RimshiLog.Test("diet", "ate fuel", pawn.LabelShort + " ate " + numTaken + " " + thing.def.defName);
+                RimshiLog.Test("diet", "ate component", pawn.LabelShort + " consumed " + numTaken + " " + thing.def.defName + ", maintenance now "
+                    + pawn.needs?.food?.CurLevelPercentage.ToStringPercent());
             }
             else
             {
-                RimshiLog.Fail("diet", "ate fuel", pawn.LabelShort + " ate non-fuel " + thing.def.defName);
+                RimshiLog.Fail("diet", "ate component", pawn.LabelShort + " ate " + thing.def.defName + ", which is not a maintenance item");
             }
         }
-    }
-
-    /// <summary>Marks a ThingDef as skeleton fuel (chemfuel and uranium, added by Patches/Rimshi_FuelEdible.xml).</summary>
-    public class FuelExtension : DefModExtension
-    {
-    }
-
-    /// <summary>Settings for the fuel reactor gene.</summary>
-    public class FuelReactorExtension : DefModExtension
-    {
-        public float hungerRateFactor = 0.1f;
     }
 }
