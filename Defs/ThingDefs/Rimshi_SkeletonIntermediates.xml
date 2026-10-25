@@ -3,7 +3,7 @@
 
   <!-- Skeleton intermediates (docs/design/skeleton-parts.md), from Kenshi's robotics components: made at the skeleton
        workbench and used up making skeleton parts and repair kits. Placeholder art until Matthew picks from the ComfyUI
-       proposals: the vanilla advanced component, tinted dark. While being made they show as vanilla's unfinished
+       proposals (docs/art/proposals/intermediates/): the vanilla advanced component recoloured black with yellow trim. While being made they show as vanilla's unfinished
        component. Work amounts are in ticks: the game shows them divided by 60 (6000 shows as 100). -->
   <ThingDef Name="Rimshi_SkeletonIntermediateBase" ParentName="ResourceBase" Abstract="True">
     <stackLimit>25</stackLimit>
@@ -14,8 +14,8 @@
       <li>Manufactured</li>
     </thingCategories>
     <graphicData>
-      <texPath>Things/Item/Resource/ComponentSpacer</texPath>
-      <graphicClass>Graphic_StackCount</graphicClass>
+      <texPath>Rimshi/Items/Placeholder_Intermediate</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
     </graphicData>
     <techLevel>Industrial</techLevel>
     <tradeTags>
@@ -28,9 +28,6 @@
     <defName>Rimshi_Motor</defName>
     <label>motor</label>
     <description>A compact electric motor of the old empire's pattern, the kind that drives a skeleton's joints. Used to make skeleton parts.</description>
-    <graphicData>
-      <color>(70, 66, 58)</color>
-    </graphicData>
     <statBases>
       <MaxHitPoints>70</MaxHitPoints>
       <MarketValue>85</MarketValue>
@@ -44,9 +41,6 @@
     <defName>Rimshi_RoboticComponent</defName>
     <label>robotic component</label>
     <description>A sealed bundle of servo controllers, sensors and silver-traced circuitry: the nerves of a skeleton part. Used to make skeleton parts and repair kits.</description>
-    <graphicData>
-      <color>(52, 50, 46)</color>
-    </graphicData>
     <statBases>
       <MaxHitPoints>70</MaxHitPoints>
       <MarketValue>170</MarketValue>
@@ -60,9 +54,6 @@
     <defName>Rimshi_SkeletonMuscle</defName>
     <label>skeleton muscle</label>
     <description>A bundle of plasteel-sheathed actuator cables that pulls a skeleton's limbs the way muscle pulls bone. Used to make skeleton limbs.</description>
-    <graphicData>
-      <color>(40, 38, 36)</color>
-    </graphicData>
     <statBases>
       <MaxHitPoints>90</MaxHitPoints>
       <MarketValue>260</MarketValue>

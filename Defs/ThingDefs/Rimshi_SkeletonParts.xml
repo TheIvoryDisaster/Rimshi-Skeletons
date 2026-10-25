@@ -3,7 +3,7 @@
 
   <!-- Skeleton parts (docs/design/skeleton-parts.md): limbs from Kenshi's robot limbs in five tiers, plus senses and the
        AI core. Made at the skeleton workbench from the skeleton intermediates, Crafting 11. Installed only on skeletons
-       (Recipe_Rimshi_InstallSkeletonPart). Placeholder art: vanilla's body part item tinted brown. Never burns.
+       (Recipe_Rimshi_InstallSkeletonPart). Placeholder art: vanilla's body part item recoloured brown with grey trim. Never burns.
        Work amounts are in ticks: the game shows them divided by 60 (3000 shows as 50). -->
   <ThingDef Name="Rimshi_SkeletonPartBase" ParentName="BodyPartBase" Abstract="True">
     <techLevel>Industrial</techLevel>
@@ -11,10 +11,9 @@
       <li>BodyPartsProsthetic</li>
     </thingCategories>
     <graphicData>
-      <texPath>Things/Item/Health/HealthItem</texPath>
+      <texPath>Rimshi/Items/Placeholder_Part</texPath>
       <graphicClass>Graphic_Single</graphicClass>
       <drawSize>0.80</drawSize>
-      <color>(110, 78, 52)</color>
     </graphicData>
     <statBases>
       <Flammability>0</Flammability>

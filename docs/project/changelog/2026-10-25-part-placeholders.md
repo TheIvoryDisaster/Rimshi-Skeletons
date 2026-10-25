@@ -1,0 +1,1 @@
+Skeleton intermediates and parts use black and yellow, and brown and grey, placeholder textures recoloured from vanilla art. Added the ComfyUI art proposals for the motor, robotic component and skeleton muscle.

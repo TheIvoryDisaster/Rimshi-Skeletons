@@ -24,11 +24,11 @@ Made at the workbench with Crafting. While being made, they show as vanilla's un
 | Robotic component | 2 components, 30 steel, 10 silver | 150 | 8 |
 | Skeleton muscle | 2 components, 30 steel, 10 plasteel | 200 | 8 |
 
-Vanilla components and advanced components are also used. The placeholder art is the vanilla advanced component, tinted dark, until Matthew picks from the ComfyUI proposals.
+Vanilla components and advanced components are also used. The placeholder art is the vanilla advanced component recoloured black with caution-yellow trim, until Matthew picks from the ComfyUI proposals.
 
 ## Parts
 
-All parts need Crafting 11 and are made at the workbench. Each install surgery uses one repair kit instead of medicine (skeletons take none), has no anaesthetic, and is offered only on skeletons (Recipe_Rimshi_InstallSkeletonPart). Parts and intermediates never burn. The placeholder art is vanilla's body part item, tinted brown.
+All parts need Crafting 11 and are made at the workbench. Each install surgery uses one repair kit instead of medicine (skeletons take none), has no anaesthetic, and is offered only on skeletons (Recipe_Rimshi_InstallSkeletonPart). Parts and intermediates never burn. The placeholder art is vanilla's body part item recoloured brown with a grey seam.
 
 | Tier | Cost (arm and leg alike) | Work | Effect |
 | --- | --- | --- | --- |
@@ -51,6 +51,6 @@ Notes:
 
 ## Open
 
-- Final art for the intermediates (3 ComfyUI proposals each) and a brown/grey-trim part texture.
+- Final art for the intermediates: 3 ComfyUI proposals each in docs/art/proposals/intermediates/, waiting for Matthew's pick.
 - The repair kit's new cost (1 robotic component, 5 steel, Proposed:) raises its price. It used 1 component.
 - Install surgery uses Medicine like vanilla. It could use Crafting like the repair job.
