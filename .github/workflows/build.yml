@@ -6,8 +6,13 @@
 #                   the branch contains. Creating a branch pushes it, so a new branch gets a build straight away.
 #
 # The version is compiled into RimshiSkeletons.dll (logged at startup as "[Rimshi][T] build | <version> | ...") and
-# written into About.xml's <modVersion> in the packaged mod, which RimWorld shows in its mod list. Nothing is
-# committed back.
+# written into About.xml's <modVersion> in the packaged mod, which RimWorld shows in its mod list. The build commits
+# nothing back.
+#
+# Beta flow (2026-10-25, as Tithe): feature branches merge into beta, and Matthew merges beta into main. On main the
+# "Fold docs" job folds changelog fragments (docs/project/changelog/) into the changelog table and commits that to
+# main, so pull requests open at the same time never conflict over the table. It then brings beta up to date with
+# main. A push made with the workflow's own token starts no new run, so neither push uses up a version.
 
 name: Build
 
@@ -48,6 +53,9 @@ jobs:
           fi
           echo "version=$version" >> "$GITHUB_OUTPUT"
           echo "Version: $version"
+
+      - name: Check changelog fragments
+        run: python3 tools/changelog_fold.py --check
 
       - uses: actions/setup-dotnet@v4
         with:
@@ -110,3 +118,63 @@ jobs:
           git tag "$TAG" "$GITHUB_SHA"
           git push origin "$TAG"
           gh release create "$TAG" "RimshiSkeletons-${TAG#v}.zip" --title "Rimshi Skeletons $TAG" --notes "Build ${{ github.run_number }} of $GITHUB_SHA."
+
+  docs:
+    name: Fold docs
+    if: github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      # Always works on the newest main (not the commit that started the run), so a run that starts after another
+      # merge never folds the same fragment twice. Retries if main moves while it works.
+      - name: Fold changelog fragments
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          for attempt in 1 2 3 4 5; do
+            git fetch origin main
+            git reset --hard origin/main
+            python3 tools/changelog_fold.py
+            git add -A docs/project
+            if git diff --cached --quiet; then
+              echo "Nothing to fold."
+              exit 0
+            fi
+            git commit -m "Fold changelog fragments"
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep $((attempt * 5))
+          done
+          exit 1
+
+      # Beta gets main's fold commit (and anything merged straight into main, like checklist updates) so the next
+      # beta into main pull request starts clean. A fast-forward when beta has nothing new, otherwise a merge. If the
+      # merge conflicts, beta is left alone and the run says so.
+      - name: Bring beta up to date with main
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          if ! git fetch origin beta; then
+            echo "No beta branch yet."
+            exit 0
+          fi
+          git checkout -B beta origin/beta
+          if git merge-base --is-ancestor origin/main beta; then
+            echo "Beta already has main."
+            exit 0
+          fi
+          if git merge --no-edit origin/main -m "Merge main into beta"; then
+            git push origin beta
+          else
+            git merge --abort
+            echo "::warning::Merging main into beta conflicts; merge it by hand."
+          fi
