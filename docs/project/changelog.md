@@ -1,6 +1,6 @@
 # Changelog
 
-Newest first. Every change gets a dated row.
+Newest first. Every change gets a dated row, added as a fragment file in `changelog/` (see its README); CI folds them into this table on main.
 
 | Date | Change |
 | --- | --- |

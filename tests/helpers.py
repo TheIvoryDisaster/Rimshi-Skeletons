@@ -54,8 +54,12 @@ def source_text():
     return texts
 
 
-def testlog_module():
-    spec = importlib.util.spec_from_file_location("rimshi_testlog", os.path.join(ROOT, "tools", "rimshi_testlog.py"))
+def tool_module(name):
+    spec = importlib.util.spec_from_file_location(name, os.path.join(ROOT, "tools", name + ".py"))
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
     return mod
+
+
+def testlog_module():
+    return tool_module("rimshi_testlog")

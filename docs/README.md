@@ -15,11 +15,11 @@ The design and project documents. These files are the source of truth; edit them
 | File | What it holds |
 | --- | --- |
 | test-checklist.md | What has been seen working in game, from the `[Rimshi][T]` log lines. Updated with tools/rimshi_testlog.py. |
-| changelog.md | Dated changes, newest first. |
+| changelog.md | Dated changes, newest first. Rows arrive as fragment files in changelog/ and CI folds them in on main. |
 
 ## Conventions
 
-- Every change gets a dated row at the top of the changelog.
+- Every change gets a dated changelog row, as its own fragment file in `project/changelog/` (see the README there). Never edit the changelog table on a branch.
 - No em or en dashes anywhere.
 - Drafts for Matthew's review are marked "(draft)" or "Proposed:".
 - Every def name starts with `Rimshi_`. C# lives in the `RimshiSkeletons` namespace.
