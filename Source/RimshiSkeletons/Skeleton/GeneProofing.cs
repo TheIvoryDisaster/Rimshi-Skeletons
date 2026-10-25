@@ -79,7 +79,8 @@ namespace RimshiSkeletons
     }
 
     /// <summary>Xenogerm reimplanter ability (sanguophages and others): skeletons are not a valid target.</summary>
-    [HarmonyPatch(typeof(CompAbilityEffect_ReimplantXenogerm), nameof(CompAbilityEffect_ReimplantXenogerm.Valid))]
+    [HarmonyPatch(typeof(CompAbilityEffect_ReimplantXenogerm), nameof(CompAbilityEffect_ReimplantXenogerm.Valid),
+        new[] { typeof(LocalTargetInfo), typeof(bool) })]
     public static class Patch_ReimplantTarget
     {
         public static void Postfix(LocalTargetInfo target, bool throwMessages, ref bool __result)

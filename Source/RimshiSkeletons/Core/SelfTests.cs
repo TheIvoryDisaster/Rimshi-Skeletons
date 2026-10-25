@@ -397,7 +397,9 @@ namespace RimshiSkeletons
             AccessTools.Method(typeof(Building_GeneExtractor), nameof(Building_GeneExtractor.CanAcceptPawn)),
             AccessTools.Method(typeof(Xenogerm), nameof(Xenogerm.ValidateTarget)),
             AccessTools.Method(typeof(Recipe_ImplantXenogerm), nameof(Recipe_ImplantXenogerm.AvailableOnNow)),
-            AccessTools.Method(typeof(CompAbilityEffect_ReimplantXenogerm), nameof(CompAbilityEffect_ReimplantXenogerm.Valid)),
+            // Valid is overloaded (the base class adds a GlobalTargetInfo one), so a name-only lookup is ambiguous.
+            AccessTools.Method(typeof(CompAbilityEffect_ReimplantXenogerm), nameof(CompAbilityEffect_ReimplantXenogerm.Valid),
+                new[] { typeof(LocalTargetInfo), typeof(bool) }),
             AccessTools.Method(typeof(JobDriver_AbsorbXenogerm), nameof(JobDriver_AbsorbXenogerm.TryMakePreToilReservations)),
             AccessTools.Method(typeof(GeneUtility), nameof(GeneUtility.ImplantXenogermItem)),
             AccessTools.Method(typeof(GeneUtility), nameof(GeneUtility.ReimplantXenogerm)),
