@@ -35,6 +35,11 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | faction | Mod setting on: save had no old Rim-Skeletons factions | not seen |  |  |
 | faction | Debug action added the skeletal imperium to the world | not seen |  |  |
 | faction | Skeletal imperium present in the loaded world (or says none) | not seen |  |  |
+| migrate | Mod setting on: an old Rim-Skeletons skeleton converted to ours (lists what changed) | not seen |  |  |
+| migrate | Health condition with no matching human body part dropped during conversion (names it) | not seen |  |  |
+| migrate | Mod setting on: conversion summary (skeletons converted, conditions dropped) | not seen |  |  |
+| migrate | Mod setting on: save had no old Rim-Skeletons skeletons | not seen |  |  |
+| migrate | Mod setting on: Rim-Skeletons (Continued) not loaded, nothing to convert | not seen |  |  |
 | render | Skeleton body texture drawn | not seen |  |  |
 | diet | Skeleton ate chemfuel or uranium (fails if it ate anything else) | not seen |  |  |
 | selftest | Self-tests: all passed (summary line) | failed | 7 | FAILED: 21 passed, 4 failed |
@@ -67,6 +72,13 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | selftest | Self-test: skeleton has a skeleton adulthood backstory | not seen |  |  |
 | selftest | Self-test: skeletal imperium and skeleton player faction loaded | not seen |  |  |
 | selftest | Self-test: a skeletal imperium pawn kind generates a skeleton | not seen |  |  |
+| selftest | Self-test: every old skeleton body part maps to its own human part (old mod loaded) | not seen |  |  |
+| selftest | Self-test: converted old skeleton is race Human with the human body | not seen |  |  |
+| selftest | Self-test: converted old skeleton has the Skeleton xenotype and no gender | not seen |  |  |
+| selftest | Self-test: converted old skeleton has our head and backstories | not seen |  |  |
+| selftest | Self-test: converted old skeleton has our pawn kind | not seen |  |  |
+| selftest | Self-test: converted old skeleton has no old hediff and only human body parts | not seen |  |  |
+| selftest | Self-test: a converted skeleton is not converted again | not seen |  |  |
 
 ## Manual checks
 
@@ -82,5 +94,6 @@ Things the log cannot show; tick them off by hand after looking in game.
 - [ ] A new world lists the skeletal imperium in the faction setup (one by default) and it appears on the world map.
 - [ ] Skeletal imperium visitors, traders and raids are mostly skeletons (with some human villagers and guards), with skeleton names and backstories.
 - [ ] The "Embarking 'Skeleton'" scenario starts with one skeleton in the Skeleton Foundation faction.
-- [ ] Mod settings show "Replace Rim-Skeletons (Continued) factions when a save loads"; with it on and the old mod loaded, an old save's skeletal imperium shows our faction icon and keeps its name and goodwill.
+- [ ] Mod settings show "Convert Rim-Skeletons (Continued) factions and skeletons when a save loads"; with it on and the old mod loaded, an old save's skeletal imperium shows our faction icon and keeps its name and goodwill.
+- [ ] With the setting on, a "Skeletons converted" letter names each old skeleton; they look like our skeletons (body, head, plating, bald), keep their names, skills, traits, gear and injuries, and show as xenotype Skeleton. After saving, removing Rim-Skeletons (Continued) and loading again, they are still there and the log has no "Null key" or "Could not resolve reference" errors for them.
 - [ ] In a world made before this mod, Debug actions > Rimshi Skeletons > Add the skeletal imperium adds the faction with one settlement.
