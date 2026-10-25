@@ -8,7 +8,7 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 
 **How to use it:** play with Development mode on, then tell Claude to check the logs. Claude pulls Player.log and Player-prev.log from `C:\Users\Matthew\AppData\LocalLow\Ludeon Studios\RimWorld by Ludeon Studios`, runs `tools/rimshi_testlog.py` over them and updates this table. Results add up across sessions; any exception that mentions the mod is reported too. A PR that only updates this file is merged by Claude without asking, and its description lists every test that ran and its outcome.
 
-**Self-tests:** with Development mode on, loading or starting a game runs the in-game self-tests once per session (also on demand: Debug actions > Rimshi Skeletons > Run self-tests). They generate a skeleton, a baseliner and a skeletal imperium town guard off the map, check genes, looks, diet, thoughts, immunity, backstory and faction, discard the pawns, and log one `selftest` line per check plus a summary.
+**Self-tests:** with Development mode on, loading or starting a game runs the in-game self-tests once per session (also on demand: Debug actions > Rimshi Skeletons > Run self-tests). They generate a skeleton, a baseliner and a skeletal imperium town guard off the map, check genes, looks, diet, thoughts, immunity, the gene lock, backstory and faction, discard the pawns, and log one `selftest` line per check plus a summary.
 
 **Unit tests:** `python3 -m unittest discover -s tests` runs the offline tests (def cross-references, textures, checklist coverage, the log reader, house style). CI runs them on every push.
 
@@ -42,6 +42,12 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | migrate | Mod setting on: Rim-Skeletons (Continued) not loaded, nothing to convert | not seen |  |  |
 | render | Skeleton body texture drawn | not seen |  |  |
 | diet | Skeleton ate chemfuel or uranium (fails if it ate anything else) | not seen |  |  |
+| geneproof | Xenogerm implant on a skeleton refused | not seen |  |  |
+| geneproof | Xenogerm reimplant ability on a skeleton refused | not seen |  |  |
+| geneproof | Skeleton refused the absorb xenogerm job | not seen |  |  |
+| geneproof | No xenogerm reached a skeleton past the checks (this line only appears when one did) | not seen |  |  |
+| geneproof | No reimplant involving a skeleton got past the checks (this line only appears when one did) | not seen |  |  |
+| geneproof | Skeleton genes kept out of a genepack (fails if a pack held only skeleton genes) | not seen |  |  |
 | selftest | Self-tests: all passed (summary line) | failed | 7 | FAILED: 21 passed, 4 failed |
 | selftest | Self-test: skeleton and baseliner generate | passed | 7 | skeleton Acid, baseliner Norman |
 | selftest | Self-test: no exceptions while testing | not seen |  |  |
@@ -69,6 +75,12 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | selftest | Self-test: human still eats meals | passed | 7 | simple meal suitable True |
 | selftest | Self-test: human keeps gender and hunger thought | passed | 7 | gender Male, hunger thought nullified False |
 | selftest | Self-test: removing the null chromosome restores a gender | passed | 7 | gender after removing null chromosome Male |
+| selftest | Self-test: no skeleton gene can roll in gene sets | not seen |  |  |
+| selftest | Self-test: 200 random gene sets hold no skeleton gene | not seen |  |  |
+| selftest | Self-test: a genepack drops skeleton genes and keeps the rest | not seen |  |  |
+| selftest | Self-test: gene buildings refuse the skeleton, not the baseliner | not seen |  |  |
+| selftest | Self-test: implant xenogerm bill unavailable on a skeleton | not seen |  |  |
+| selftest | Self-test: every gene lock patch applied | not seen |  |  |
 | selftest | Self-test: skeleton has a skeleton adulthood backstory | not seen |  |  |
 | selftest | Self-test: skeletal imperium and skeleton player faction loaded | not seen |  |  |
 | selftest | Self-test: a skeletal imperium pawn kind generates a skeleton | not seen |  |  |
@@ -97,3 +109,7 @@ Things the log cannot show; tick them off by hand after looking in game.
 - [ ] Mod settings show "Convert Rim-Skeletons (Continued) factions and skeletons when a save loads"; with it on and the old mod loaded, an old save's skeletal imperium shows our faction icon and keeps its name and goodwill.
 - [ ] With the setting on, a "Skeletons converted" letter names each old skeleton; they look like our skeletons (body, head, plating, bald), keep their names, skills, traits, gear and injuries, and show as xenotype Skeleton. After saving, removing Rim-Skeletons (Continued) and loading again, they are still there and the log has no "Null key" or "Could not resolve reference" errors for them.
 - [ ] In a world made before this mod, Debug actions > Rimshi Skeletons > Add the skeletal imperium adds the faction with one settlement.
+- [ ] A gene extractor will not take a skeleton (the menu option is greyed out with "Skeletons have no genes to extract").
+- [ ] A xenogerm's "Implant" gizmo will not target a skeleton, and the skeleton's health tab has no "Implant xenogerm" bill.
+- [ ] A sanguophage's xenogerm reimplant ability will not target a skeleton.
+- [ ] Skeleton genes never show up in traders' or quest genepacks, so the gene assembler never offers them. The custom xenotype editor at game start still does (on purpose).

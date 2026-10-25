@@ -9,11 +9,13 @@ namespace RimshiSkeletons
         public static RimshiMod Instance;
         public static RimshiSettings Settings;
 
+        public const string HarmonyId = "Matthew.RimshiSkeletons";
+
         public RimshiMod(ModContentPack content) : base(content)
         {
             Instance = this;
             Settings = GetSettings<RimshiSettings>();
-            new Harmony("Matthew.RimshiSkeletons").PatchAll();
+            new Harmony(HarmonyId).PatchAll();
         }
 
         public override string SettingsCategory() => "Rimshi Skeletons";
