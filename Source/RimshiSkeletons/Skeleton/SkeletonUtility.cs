@@ -52,6 +52,9 @@ namespace RimshiSkeletons
 
         public static bool HasFuelReactor(Pawn pawn) => HasActiveGene(pawn, RimshiDefOf.Rimshi_FuelReactor);
 
+        /// <summary>The gene carrying every rule that holds for all skeletons (immunities, psychic sense, no prosthetics).</summary>
+        public static bool HasMechanicalNature(Pawn pawn) => HasActiveGene(pawn, RimshiDefOf.Rimshi_MechanicalNature);
+
         public static bool HasNullChromosome(Pawn pawn) => HasActiveGene(pawn, RimshiDefOf.Rimshi_NullChromosome);
 
         /// <summary>Gene display category of every skeleton gene (Defs/GeneDefs/Rimshi_Genes.xml).</summary>

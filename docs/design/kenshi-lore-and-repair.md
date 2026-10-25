@@ -132,7 +132,7 @@ Only skeletons. `RestUtility.CanUseBedEver(Pawn p, ThingDef bedDef)` is where va
 
 1. Heal the worst `Hediff_Injury` that is not permanent by `repairPerDay * 250 / 60000 * pawn.HealthScale` severity. This is the same idea as Biotech's `MechRepairUtility.RepairTick` (heal one injury, then move on to missing parts), and it works whether or not the injury was tended.
 2. When no fresh injuries are left, and `repairsScars` is on: heal permanent injuries (scars, old gunshots) the same way. Kenshi's bed brings a skeleton to full health, so this is on by default.
-3. `restoresMissingParts`: off by default. In Kenshi a lost limb needs a robotic limb, so the bed does not regrow parts; the player installs a prosthetic or bionic as usual. Can be a mod setting.
+3. `restoresMissingParts`: off by default. In Kenshi a lost limb needs a robotic limb, so the bed does not regrow parts. Prosthetics are locked on skeletons for now (Skeleton/ProstheticsLock.cs) until skeleton parts of our own exist. Can be a mod setting.
 4. When nothing is left, a "fully repaired" message (vanilla `MessageFullyHealed` style) and the skeleton gets up.
 
 Suggested numbers: `repairPerDay` 40 (a skeleton with a 15-point gunshot and a few cuts is fixed in one night; a near-death skeleton in two or three). Tuned in testing.

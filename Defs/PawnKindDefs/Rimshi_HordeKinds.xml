@@ -17,12 +17,6 @@
     <apparelColor>(72,70,78)</apparelColor>
     <apparelMoney>2500~5000</apparelMoney>
     <apparelAllowHeadgearChance>0.8</apparelAllowHeadgearChance>
-    <techHediffsChance>0.25</techHediffsChance>
-    <techHediffsMoney>800~1600</techHediffsMoney>
-    <techHediffsTags Inherit="False">
-      <li>Advanced</li>
-      <li>ImplantEmpireCommon</li>
-    </techHediffsTags>
     <skills>
       <li>
         <skill>Shooting</skill>

@@ -8,7 +8,7 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 
 **How to use it:** play with Development mode on, then tell Claude to check the logs. Claude pulls Player.log and Player-prev.log from `C:\Users\Matthew\AppData\LocalLow\Ludeon Studios\RimWorld by Ludeon Studios`, runs `tools/rimshi_testlog.py` over them and updates this table. Results add up across sessions; any exception that mentions the mod is reported too. A PR that only updates this file is merged by Claude without asking, and its description lists every test that ran and its outcome.
 
-**Self-tests:** with Development mode on, loading or starting a game runs the in-game self-tests once per session (also on demand: Debug actions > Rimshi Skeletons > Run self-tests). They generate a skeleton, a baseliner and a skeletal imperium town guard off the map, check genes, looks, diet, thoughts, immunity, the gene lock, backstory, faction, reproduction, the recall array and horde skeletons (gear, protocol, failsafe core, one reprogramming session), discard the pawns, and log one `selftest` line per check plus a summary.
+**Self-tests:** with Development mode on, loading or starting a game runs the in-game self-tests once per session (also on demand: Debug actions > Rimshi Skeletons > Run self-tests). They generate a skeleton, a baseliner and a skeletal imperium town guard off the map, check genes, looks, diet, thoughts, immunity, the gene lock, the prosthetics lock, backstory, faction, reproduction, the recall array and horde skeletons (gear, protocol, failsafe core, one reprogramming session), discard the pawns, and log one `selftest` line per check plus a summary.
 
 **Unit tests:** `python3 -m unittest discover -s tests` runs the offline tests (def cross-references, textures, checklist coverage, the log reader, house style). CI runs them on every push.
 
@@ -67,6 +67,10 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | geneproof | No xenogerm reached a skeleton past the checks (this line only appears when one did) | not seen |  |  |
 | geneproof | No reimplant involving a skeleton got past the checks (this line only appears when one did) | not seen |  |  |
 | geneproof | Skeleton genes kept out of a genepack (fails if a pack held only skeleton genes) | not seen |  |  |
+| prosthetics | Generated skeleton got no prosthetics, bionics or implants | not seen |  |  |
+| prosthetics | Skeleton refused a self-installed implant (neuroformer or another mod's; mechlinks still allowed) | not seen |  |  |
+| prosthetics | A psylink was refused on a skeleton (royal title, bestowing, anima tree, dev mode) | not seen |  |  |
+| prosthetics | No install surgery reached a skeleton past the checks (this line only appears when one did) | not seen |  |  |
 | selftest | Self-tests: all passed (summary line) | failed | 7 | FAILED: 21 passed, 4 failed |
 | selftest | Self-test: skeleton and baseliner generate | passed | 7 | skeleton Acid, baseliner Norman |
 | selftest | Self-test: no exceptions while testing | not seen |  |  |
@@ -121,6 +125,12 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | selftest | Self-test: horde skeletons are not hostile to each other | not seen |  |  |
 | selftest | Self-test: failsafe core sets the death on downed chance | not seen |  |  |
 | selftest | Self-test: a reprogramming session lowers the corruption | not seen |  |  |
+| selftest | Self-test: a bionics-rolling kind gives the skeleton none and the baseliner some | not seen |  |  |
+| selftest | Self-test: no install surgery is offered on a skeleton (bionic arm and natural heart still offered on a baseliner) | not seen |  |  |
+| selftest | Self-test: removing a body part is still offered on a skeleton | not seen |  |  |
+| selftest | Self-test: mechlink allowed and psylink neuroformer refused for skeletons | not seen |  |  |
+| selftest | Self-test: giving a skeleton a psylink adds none and no psycast, a baseliner gets one (Royalty only) | not seen |  |  |
+| selftest | Self-test: the prosthetics lock patches are applied | not seen |  |  |
 | selftest | Self-test: every old skeleton body part maps to its own human part (old mod loaded) | not seen |  |  |
 | selftest | Self-test: converted old skeleton is race Human with the human body | not seen |  |  |
 | selftest | Self-test: converted old skeleton has the Skeleton xenotype and no gender | not seen |  |  |
