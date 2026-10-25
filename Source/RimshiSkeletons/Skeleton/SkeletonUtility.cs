@@ -17,6 +17,13 @@ namespace RimshiSkeletons
         public static FactionDef Rimshi_SkeletalImperium;
         public static FactionDef Rimshi_PlayerSkeletons;
 
+        public static ThingDef Rimshi_RecallArray;
+        public static ResearchProjectDef Rimshi_SkeletonRecall;
+        public static HediffDef Rimshi_CorruptedProtocol;
+        public static HediffDef Rimshi_FailsafeCore;
+        public static PrisonerInteractionModeDef Rimshi_Reprogram;
+        public static JobDef Rimshi_ReprogramSkeleton;
+
         static RimshiDefOf()
         {
             DefOfHelper.EnsureInitializedInCtor(typeof(RimshiDefOf));

@@ -57,6 +57,8 @@ namespace RimshiSkeletons
                 GeneProofChecks(skeleton, human);
                 GeneRemovalCheck(skeleton);
                 FactionChecks(pawns);
+                ReproductionChecks(skeleton, human);
+                HordeChecks(pawns, human);
                 ConversionChecks(pawns);
             }
             catch (Exception e)
@@ -131,6 +133,74 @@ namespace RimshiSkeletons
             Check("faction kind", guard.genes.Xenotype == RimshiDefOf.Rimshi_Skeleton, guardKind.defName + ": xenotype " + guard.genes.XenotypeLabel + ", name " + guard.Name?.ToStringFull);
             Faction inWorld = Find.FactionManager.FirstFactionOfDef(imperium);
             RimshiLog.Test("faction", "in world", inWorld != null ? inWorld.Name : "none (world made without this mod; see Debug actions > Rimshi Skeletons)");
+        }
+
+        private static void ReproductionChecks(Pawn s, Pawn human)
+        {
+            AcceptanceReport child = PregnancyUtility.CanEverProduceChild(s, human);
+            Check("cannot reproduce", !child.Accepted && PregnancyUtility.PregnancyChanceForPawn(s) == 0f && PregnancyUtility.PregnancyChanceImplantEmbryo(s) == 0f,
+                "child with baseliner " + (child.Accepted ? "allowed" : child.Reason) + ", pregnancy chance " + PregnancyUtility.PregnancyChanceForPawn(s));
+            Hediff pregnancy = HediffMaker.MakeHediff(HediffDefOf.PregnantHuman, s);
+            s.health.AddHediff(pregnancy);
+            bool pregnant = s.health.hediffSet.HasHediff(HediffDefOf.PregnantHuman);
+            if (pregnant)
+            {
+                s.health.RemoveHediff(pregnancy);
+            }
+            Check("pregnancy refused", !pregnant, "pregnancy hediff " + (pregnant ? "was added" : "refused"));
+        }
+
+        private static void HordeChecks(List<Pawn> pawns, Pawn human)
+        {
+            ThingDef array = RimshiDefOf.Rimshi_RecallArray;
+            ResearchProjectDef research = RimshiDefOf.Rimshi_SkeletonRecall;
+            Check("recall array", array.HasComp(typeof(CompUseEffect_RecallArray)) && array.HasComp(typeof(CompUsable)) && array.researchPrerequisites != null
+                && array.researchPrerequisites.Contains(research) && research.baseCost == 2000f && !research.requiresMechanitor
+                && research.prerequisites != null && research.prerequisites.Any(r => r.defName == "BasicMechtech"),
+                array.defName + " needs " + research.defName + " (" + research.baseCost + ", after " + string.Join(", ", research.prerequisites?.ConvertAll(r => r.defName) ?? new List<string>())
+                + ", needs mechanitor " + research.requiresMechanitor + ")");
+
+            var horde = new List<Pawn>();
+            foreach (PawnKindDef kind in SkeletonHorde.AllKinds)
+            {
+                horde.Add(SkeletonHorde.GeneratePawn(kind));
+            }
+            pawns.AddRange(horde);
+            Check("horde factionless", horde.TrueForAll(p => p.Faction == null && p.genes.Xenotype == RimshiDefOf.Rimshi_Skeleton),
+                string.Join(", ", horde.ConvertAll(p => p.kindDef.defName + " faction " + (p.Faction?.Name ?? "none") + " " + p.genes.XenotypeLabel)));
+            Check("horde protocol", horde.TrueForAll(p => ReprogramUtility.IsCorrupted(p) && !p.guest.Recruitable),
+                string.Join(", ", horde.ConvertAll(p => p.LabelShort + " corrupted " + ReprogramUtility.IsCorrupted(p) + " recruitable " + p.guest.Recruitable)));
+            Check("horde gear", horde.TrueForAll(HordeGearOk), string.Join(", ", horde.ConvertAll(p => p.kindDef.defName + ": " + (p.equipment?.Primary?.def.defName ?? "no weapon")
+                + (SkeletonHorde.HasShieldBelt(p) ? " + shield belt" : ""))));
+            Check("horde peace", !horde[0].HostileTo(horde[1]) && !horde[1].HostileTo(horde[2]), "horde skeletons not hostile to each other");
+
+            Pawn failsafe = horde[0];
+            failsafe.health.AddHediff(RimshiDefOf.Rimshi_FailsafeCore);
+            float chance = failsafe.health.overrideDeathOnDownedChance;
+            Check("failsafe", Mathf.Approximately(chance, RimshiDefOf.Rimshi_FailsafeCore.CompProps<HediffCompProperties_FailsafeCore>().deathOnDownedChance),
+                "death on downed chance " + chance.ToStringPercent());
+
+            Pawn prisoner = horde[1];
+            Hediff protocol = ReprogramUtility.Protocol(prisoner);
+            float before = protocol.Severity;
+            ReprogramUtility.DoSession(human, prisoner);
+            Check("reprogram session", protocol.Severity < before && ReprogramUtility.IsCorrupted(prisoner),
+                "corruption " + before.ToStringPercent() + " to " + protocol.Severity.ToStringPercent() + " (warden Intellectual " + human.skills.GetSkill(SkillDefOf.Intellectual).Level + ")");
+        }
+
+        /// <summary>Gunners carry a spacer gun; bladeguards a melee weapon and a shield belt.</summary>
+        private static bool HordeGearOk(Pawn p)
+        {
+            ThingWithComps weapon = p.equipment?.Primary;
+            if (weapon == null)
+            {
+                return false;
+            }
+            if (p.kindDef.defName == "Rimshi_HordeBladeguard")
+            {
+                return weapon.def.IsMeleeWeapon && SkeletonHorde.HasShieldBelt(p);
+            }
+            return weapon.def.weaponTags != null && weapon.def.weaponTags.Contains("SpacerGun");
         }
 
         /// <summary>
@@ -284,13 +354,65 @@ namespace RimshiSkeletons
     }
 
     /// <summary>
-    /// When a save loads: replaces the old mod's factions and converts its skeletons if the mod setting is on. When a game loads or starts: runs the
-    /// self-tests once per session with Development mode on.
+    /// When a save loads: replaces the old mod's factions and converts its skeletons if the mod setting is on. When a game
+    /// loads or starts: runs the self-tests once per session with Development mode on. Also keeps the recall horde
+    /// schedule: hordes on their way and how many times the recall codes have been broadcast in this game (each horde is
+    /// larger).
     /// </summary>
     public class RimshiGameComponent : GameComponent
     {
+        public static RimshiGameComponent Instance;
+
+        private List<PendingHorde> pendingHordes = new List<PendingHorde>();
+        private int summons;
+
         public RimshiGameComponent(Game game)
         {
+            Instance = this;
+        }
+
+        public int Summons => summons;
+
+        public bool HordePending => pendingHordes.Count > 0;
+
+        public void ScheduleHorde(Map map, IntVec3 cell, int delayTicks)
+        {
+            pendingHordes.Add(new PendingHorde { map = map, cell = cell, arriveTick = Find.TickManager.TicksGame + delayTicks });
+        }
+
+        public override void GameComponentTick()
+        {
+            if (pendingHordes.Count == 0 || Find.TickManager.TicksGame % 60 != 0)
+            {
+                return;
+            }
+            for (int i = pendingHordes.Count - 1; i >= 0; i--)
+            {
+                PendingHorde horde = pendingHordes[i];
+                if (horde.map == null || !Find.Maps.Contains(horde.map))
+                {
+                    pendingHordes.RemoveAt(i);
+                    RimshiLog.Test("horde", "cancelled", "the map the horde was called to is gone");
+                    continue;
+                }
+                if (Find.TickManager.TicksGame < horde.arriveTick)
+                {
+                    continue;
+                }
+                pendingHordes.RemoveAt(i);
+                SkeletonHorde.Arrive(horde.map, horde.cell, SkeletonHorde.PointsFor(horde.map, summons));
+                summons++;
+            }
+        }
+
+        public override void ExposeData()
+        {
+            Scribe_Collections.Look(ref pendingHordes, "pendingHordes", LookMode.Deep);
+            Scribe_Values.Look(ref summons, "hordeSummons");
+            if (Scribe.mode == LoadSaveMode.PostLoadInit && pendingHordes == null)
+            {
+                pendingHordes = new List<PendingHorde>();
+            }
         }
 
         // Both run inside the loading long event, off the main thread; textures can only be read on the main thread, so
