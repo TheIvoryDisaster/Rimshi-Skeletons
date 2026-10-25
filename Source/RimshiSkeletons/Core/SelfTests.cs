@@ -151,10 +151,10 @@ namespace RimshiSkeletons
             ThingDef array = RimshiDefOf.Rimshi_RecallArray;
             ResearchProjectDef research = RimshiDefOf.Rimshi_SkeletonRecall;
             Check("recall array", array.HasComp(typeof(CompUseEffect_RecallArray)) && array.HasComp(typeof(CompUsable)) && array.researchPrerequisites != null
-                && array.researchPrerequisites.Contains(research) && research.baseCost == 2000f && research.requiresMechanitor
+                && array.researchPrerequisites.Contains(research) && research.baseCost == 2000f && !research.requiresMechanitor
                 && research.prerequisites != null && research.prerequisites.Any(r => r.defName == "BasicMechtech"),
                 array.defName + " needs " + research.defName + " (" + research.baseCost + ", after " + string.Join(", ", research.prerequisites?.ConvertAll(r => r.defName) ?? new List<string>())
-                + ", mechanitor " + research.requiresMechanitor + ")");
+                + ", needs mechanitor " + research.requiresMechanitor + ")");
 
             var horde = new List<Pawn>();
             foreach (PawnKindDef kind in SkeletonHorde.AllKinds)

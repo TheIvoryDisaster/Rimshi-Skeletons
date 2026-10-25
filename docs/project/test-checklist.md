@@ -41,7 +41,7 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | horde | Recall array inherited the mechband antenna graphic | not seen |  |  |
 | horde | Recall research on the research tab, overlapping nothing (gives its position) | not seen |  |  |
 | horde | Bladeguard melee weapon tags (adds medieval weapons without Royalty) | not seen |  |  |
-| horde | Mechanitor broadcast the recall codes; array burned out | not seen |  |  |
+| horde | Colonist broadcast the recall codes; array burned out | not seen |  |  |
 | horde | Skeleton horde dropped in (counts, kinds, weapons, shield belts, failsafe cores) | not seen |  |  |
 | horde | Horde called to a map that is gone was dropped | not seen |  |  |
 | horde | Horde skeleton went berserk | not seen |  |  |
@@ -82,7 +82,7 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | selftest | Self-test: a skeletal imperium pawn kind generates a skeleton | not seen |  |  |
 | selftest | Self-test: skeleton cannot have children or be implanted | not seen |  |  |
 | selftest | Self-test: pregnancy cannot be added to a skeleton | not seen |  |  |
-| selftest | Self-test: recall array and its research loaded (2000, after basic mechtech, mechanitor) | not seen |  |  |
+| selftest | Self-test: recall array and its research loaded (2000, after basic mechtech, no mechanitor needed) | not seen |  |  |
 | selftest | Self-test: horde skeletons have no faction | not seen |  |  |
 | selftest | Self-test: horde skeletons have the corrupted protocol and cannot be recruited | not seen |  |  |
 | selftest | Self-test: horde gunners carry spacer guns, bladeguards melee weapons and shield belts | not seen |  |  |

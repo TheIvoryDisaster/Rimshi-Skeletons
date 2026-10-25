@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
 
-  <!-- Unlocks the recall array. Needs a mechanitor, like the other mechtech projects. Startup logs its position on
+  <!-- Unlocks the recall array. No mechanitor needed (the array only reuses the antenna's art). Startup logs its position on
        the research tab and any project it overlaps ("horde | research"). -->
   <ResearchProjectDef>
     <defName>Rimshi_SkeletonRecall</defName>
@@ -9,7 +9,6 @@
     <description>Fragments of the old empire's command codes still drift through the mechband. Pieced together and broadcast from a modified mechband antenna, they wake the skeleton legions that went dormant when the empire fell.\n\nWhatever answers has been alone in the dark for a very long time. Its protocols are corrupted and it will attack anything it finds, but a skeleton brought down intact can be interrogated and reprogrammed to serve the colony.</description>
     <baseCost>2000</baseCost>
     <techLevel>Industrial</techLevel>
-    <requiresMechanitor>true</requiresMechanitor>
     <prerequisites>
       <li>BasicMechtech</li>
     </prerequisites>

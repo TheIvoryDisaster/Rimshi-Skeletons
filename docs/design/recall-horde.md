@@ -1,6 +1,6 @@
 # Recall array and skeleton horde
 
-Where skeletons come from: a mechanitor can rewire Biotech's mechband antenna (the building that calls the war queen) into a **skeleton recall array**. Broadcasting the old empire's recall codes wakes a dormant skeleton legion that drops in around the array, berserk and belonging to no faction. A few go down intact and can be captured, interrogated and reprogrammed to join the colony. Also in this change: skeletons are blocked from reproducing by every route, not only through fertility.
+Where skeletons come from: the colony can rewire Biotech's mechband antenna (the building that calls the war queen) into a **skeleton recall array**. Broadcasting the old empire's recall codes wakes a dormant skeleton legion that drops in around the array, berserk and belonging to no faction. A few go down intact and can be captured, interrogated and reprogrammed to join the colony. Also in this change: skeletons are blocked from reproducing by every route, not only through fertility.
 
 Requested by Matthew on 2026-10-24. Values below are first-pass numbers for playtesting.
 
@@ -8,13 +8,13 @@ Requested by Matthew on 2026-10-24. Values below are first-pass numbers for play
 
 | Def | Value |
 | --- | --- |
-| `Rimshi_SkeletonRecall` "skeleton recall codes" | 2000 base cost, Industrial (no tech-level multiplier for Industrial colonies), after Biotech's `BasicMechtech`, `requiresMechanitor` like the other mechtech projects. |
+| `Rimshi_SkeletonRecall` "skeleton recall codes" | 2000 base cost, Industrial (no tech-level multiplier for Industrial colonies), after Biotech's `BasicMechtech`. No mechanitor needed: the array only reuses the antenna's art (Matthew, 2026-10-25). |
 | Position | (12, 5.3) on the Main tab, a first guess. Startup logs its position, Basic mechtech's, and any project it overlaps (`horde | research`), so it can be moved after one log scan. |
 
 ## Recall array
 
 - `Rimshi_RecallArray` inherits from the vanilla `MechbandAntenna` ThingDef: `Patches/Rimshi_MechbandAntenna.xml` gives the antenna the Name `Rimshi_MechbandAntennaParent`, so the array gets the antenna's graphic, size, build work and placement and replaces its comps, cost (120 steel, 6 components, 25 plasteel) and research. Startup checks the graphic really matches (`horde | array graphic`).
-- Use: `CompUsable` (the vanilla `UseItem` job, 10 seconds) plus `CompUseEffect_RecallArray`. Only a mechanitor can use it (`MechanitorUtility.IsMechanitor`, as the antenna's boss call), and not while a horde is already on its way.
+- Use: `CompUsable` (the vanilla `UseItem` job, 10 seconds) plus `CompUseEffect_RecallArray`. Any colonist can use it (no mechanitor needed, unlike the antenna's boss call), but not while a horde is already on its way.
 - Effect: plays the antenna's own call effecter (read from its `CompProperties_Useable_CallBossgroup`), sends a small threat letter, burns out into 2 steel slag, and queues a horde on `RimshiGameComponent` for 1 to 6 in-game hours later. The queue is saved with the game.
 
 ## The horde

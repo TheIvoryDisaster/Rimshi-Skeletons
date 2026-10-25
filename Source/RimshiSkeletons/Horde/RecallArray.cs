@@ -15,8 +15,8 @@ namespace RimshiSkeletons
     }
 
     /// <summary>
-    /// The recall array's use effect. A mechanitor broadcasts the recall codes (the same requirement as Biotech's
-    /// mechband antenna); the array burns out, and the horde is queued on RimshiGameComponent to drop in around it after
+    /// The recall array's use effect. Any colonist can broadcast the recall codes (unlike Biotech's mechband antenna,
+    /// the array only reuses its art, not its mechanitor requirement); the array burns out, and the horde is queued on RimshiGameComponent to drop in around it after
     /// a delay. Only one horde can be on its way at a time.
     /// </summary>
     public class CompUseEffect_RecallArray : CompUseEffect
@@ -25,10 +25,6 @@ namespace RimshiSkeletons
 
         public override AcceptanceReport CanBeUsedBy(Pawn p)
         {
-            if (!MechanitorUtility.IsMechanitor(p))
-            {
-                return "Only a mechanitor can broadcast the recall codes.";
-            }
             if (RimshiGameComponent.Instance != null && RimshiGameComponent.Instance.HordePending)
             {
                 return "A skeleton legion is already answering an earlier broadcast.";
