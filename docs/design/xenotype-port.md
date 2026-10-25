@@ -124,6 +124,7 @@ The rule: anything that needs another mod either loads only when that mod is act
 | Save Our Ship 2 | Trade tag. | The original patch targets a defName that does not exist (`RimskeletonRace`), so it never applied. Dropped. | None. |
 | EPOE, VTE, VBE, VFE Insectoids, CE, VAE, Kenshi Armory | Recipes, disallowed traits, chemicals, blocked apparel. | Same items under `MayRequire`. EPOE recipes are not needed. | Items skipped. |
 | Rim-Robots, androids mods | `notXenophobistTowards`. | HAR only; no Biotech equivalent. Dropped. | None. |
+| Vanilla Expanded Framework | Not used. | Checked 2026-10-25 for the skeleton chip system: not a dependency. VRE Android's gene-like system lives in its own DLL, VEF only adds gene cosmetics. See design/skeleton-chips.md. | None needed. |
 
 Build step 5 (save converter, pawn part), 2026-10-25, brought forward because Matthew's save still had two old skeletons (a colonist and a raid leader) that removing the old mod would delete, leaving Vanilla Memes Expanded and others with null references on load:
 

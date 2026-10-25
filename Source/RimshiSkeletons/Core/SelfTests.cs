@@ -295,6 +295,12 @@ namespace RimshiSkeletons
             Check("gene set flag", ours.Count > 0 && rollable.Count == 0, ours.Count + " skeleton genes"
                 + (rollable.Count > 0 ? "; can roll in gene sets: " + string.Join(", ", rollable.ConvertAll(g => g.defName)) : ", none can roll in gene sets"));
 
+            List<GeneDef> unmarked = ours.FindAll(g => SkeletonChips.KindOf(g) == null);
+            bool chipCategory = DefDatabase<GeneCategoryDef>.GetNamedSilentFail(SkeletonChips.ChipCategory) != null;
+            Check("gene kinds", chipCategory && unmarked.Count == 0, ours.FindAll(SkeletonChips.IsCoreGene).Count + " core genes, "
+                + ours.FindAll(SkeletonChips.IsChip).Count + " chips, chip category " + (chipCategory ? "loaded" : "missing")
+                + (unmarked.Count > 0 ? "; not marked core or chip: " + string.Join(", ", unmarked.ConvertAll(g => g.defName)) : ""));
+
             int leaked = 0;
             for (int i = 0; i < 200; i++)
             {

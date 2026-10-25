@@ -104,6 +104,7 @@ CHECKLIST = [
     ("selftest", "bed users", "Self-test: only skeletons can use a repair bed; skeletons can still use hospital beds"),
     ("selftest", "gene removal", "Self-test: removing the null chromosome restores a gender"),
     ("selftest", "gene set flag", "Self-test: no skeleton gene can roll in gene sets"),
+    ("selftest", "gene kinds", "Self-test: every skeleton gene is marked core or chip, chip category loaded"),
     ("selftest", "gene sets clean", "Self-test: 200 random gene sets hold no skeleton gene"),
     ("selftest", "genepack strip", "Self-test: a genepack drops skeleton genes and keeps the rest"),
     ("selftest", "gene lock", "Self-test: gene buildings refuse the skeleton, not the baseliner"),
