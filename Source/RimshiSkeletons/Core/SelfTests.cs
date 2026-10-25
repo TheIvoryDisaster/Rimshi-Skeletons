@@ -133,10 +133,26 @@ namespace RimshiSkeletons
             ThoughtDef maintenance = DefDatabase<ThoughtDef>.GetNamedSilentFail("Rimshi_MaintenanceNeed");
             Check("maintenance thought", maintenance != null && ThoughtUtility.CanGetThought(s, maintenance), "Rimshi_MaintenanceNeed can apply");
             DubsNeedChecks(s, human);
+            DeathrestChecks(s, human);
             Check("blocked thought", ThoughtUtility.ThoughtNullified(s, ThoughtDefOf.Naked), "Naked nullified");
 
             Check("backstory", s.story.Adulthood != null && s.story.Adulthood.spawnCategories.Contains(SkeletonUtility.BackstoryCategory),
                 "backstories " + s.story.Childhood?.defName + ", " + s.story.Adulthood?.defName);
+        }
+
+        /// <summary>Deathrest: skeletons have the vanilla deathrest need and gene, and the repair bed holds and burns their chemfuel.</summary>
+        private static void DeathrestChecks(Pawn s, Pawn human)
+        {
+            NeedDef deathrest = DefDatabase<NeedDef>.GetNamedSilentFail("Deathrest");
+            Check("deathrest", s.CanDeathrest() && deathrest != null && s.needs.TryGetNeed(deathrest) != null && !human.CanDeathrest()
+                && ContentFinder<Texture2D>.Get(RimshiDefOf.Rimshi_Deathrest.iconPath, false) != null,
+                "skeleton deathrests " + s.CanDeathrest() + ", need " + (deathrest != null && s.needs.TryGetNeed(deathrest) != null) + ", human deathrests " + human.CanDeathrest());
+            ThingDef bed = RimshiDefOf.Rimshi_SkeletonRepairBed;
+            CompProperties_Refuelable tank = bed.GetCompProperties<CompProperties_Refuelable>();
+            CompProperties_Rimshi_DeathrestFuel burn = bed.GetCompProperties<CompProperties_Rimshi_DeathrestFuel>();
+            Check("deathrest bed", tank != null && tank.consumeFuelOnlyWhenUsed && tank.fuelFilter.Allows(ThingDefOf.Chemfuel) && burn != null && burn.fuelPerDeathrest <= tank.fuelCapacity,
+                "tank " + tank?.fuelCapacity + " chemfuel, " + burn?.fuelPerDeathrest + " per deathrest");
+            Check("deathrest label", SkeletonNeeds.RelabelFor(s, deathrest)?.description.Contains("repair bed") ?? false, "deathrest tooltip relabelled for skeletons");
         }
 
         /// <summary>Dubs Bad Hygiene (optional): skeletons lose thirst and bladder, and hygiene is self-cleaning at half rate.</summary>
@@ -696,6 +712,7 @@ namespace RimshiSkeletons
                 // Pawns leave and re-enter the map while their race changes, which needs the main thread.
                 LongEventHandler.ExecuteWhenFinished(OldSkeletonConversion.ConvertAll);
             }
+            LongEventHandler.ExecuteWhenFinished(SkeletonDeathrest.AddMissingGenes);
             LongEventHandler.ExecuteWhenFinished(SelfTests.RunIfDevMode);
         }
 
