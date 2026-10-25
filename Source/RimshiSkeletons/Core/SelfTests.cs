@@ -389,6 +389,19 @@ namespace RimshiSkeletons
             Check("removal allowed", removal != null && !ProstheticsLock.IsInstallRecipe(removal) && removal.Worker.AvailableOnNow(s),
                 "remove body part offered on the skeleton " + removal?.Worker.AvailableOnNow(s));
 
+            Check("self implants", ProstheticsLock.AllowsSelfImplant(DefDatabase<HediffDef>.GetNamedSilentFail("MechlinkImplant"))
+                && !ProstheticsLock.AllowsSelfImplant(HediffDefOf.PsychicAmplifier), "mechlink allowed, psylink neuroformer refused");
+
+            if (ModsConfig.RoyaltyActive)
+            {
+                int skeletonCasts = s.abilities.abilities.Count;
+                s.ChangePsylinkLevel(1, sendLetter: false);
+                human.ChangePsylinkLevel(1, sendLetter: false);
+                Check("no psylink", s.GetMainPsylinkSource() == null && s.abilities.abilities.Count == skeletonCasts && human.GetMainPsylinkSource() != null,
+                    "skeleton psylink " + (s.GetMainPsylinkSource() != null) + ", new abilities " + (s.abilities.abilities.Count - skeletonCasts)
+                    + "; baseliner psylink " + (human.GetMainPsylinkSource() != null));
+            }
+
             var unpatched = new List<string>();
             foreach (MethodBase method in ProstheticsTargets)
             {
@@ -411,6 +424,9 @@ namespace RimshiSkeletons
             AccessTools.Method(typeof(Recipe_InstallArtificialBodyPart), nameof(Recipe_InstallArtificialBodyPart.ApplyOnPawn)),
             AccessTools.Method(typeof(Recipe_InstallImplant), nameof(Recipe_InstallImplant.ApplyOnPawn)),
             AccessTools.Method(typeof(Recipe_InstallNaturalBodyPart), nameof(Recipe_InstallNaturalBodyPart.ApplyOnPawn)),
+            AccessTools.Method(typeof(CompUseEffect_InstallImplant), nameof(CompUseEffect_InstallImplant.CanBeUsedBy)),
+            AccessTools.Method(typeof(CompPsylinkable), nameof(CompPsylinkable.CanPsylink)),
+            AccessTools.Method(typeof(Hediff_Psylink), nameof(Hediff_Psylink.ChangeLevel), new[] { typeof(int), typeof(bool) }),
         };
 
         private static void GeneRemovalCheck(Pawn s)

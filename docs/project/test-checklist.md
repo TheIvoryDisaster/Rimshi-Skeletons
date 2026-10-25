@@ -68,6 +68,8 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | geneproof | No reimplant involving a skeleton got past the checks (this line only appears when one did) | not seen |  |  |
 | geneproof | Skeleton genes kept out of a genepack (fails if a pack held only skeleton genes) | not seen |  |  |
 | prosthetics | Generated skeleton got no prosthetics, bionics or implants | not seen |  |  |
+| prosthetics | Skeleton refused a self-installed implant (neuroformer or another mod's; mechlinks still allowed) | not seen |  |  |
+| prosthetics | A psylink was refused on a skeleton (royal title, bestowing, anima tree, dev mode) | not seen |  |  |
 | prosthetics | No install surgery reached a skeleton past the checks (this line only appears when one did) | not seen |  |  |
 | selftest | Self-tests: all passed (summary line) | failed | 7 | FAILED: 21 passed, 4 failed |
 | selftest | Self-test: skeleton and baseliner generate | passed | 7 | skeleton Acid, baseliner Norman |
@@ -125,6 +127,8 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | selftest | Self-test: a bionics-rolling kind gives the skeleton none and the baseliner some | not seen |  |  |
 | selftest | Self-test: no install surgery is offered on a skeleton (bionic arm and natural heart still offered on a baseliner) | not seen |  |  |
 | selftest | Self-test: removing a body part is still offered on a skeleton | not seen |  |  |
+| selftest | Self-test: mechlink allowed and psylink neuroformer refused for skeletons | not seen |  |  |
+| selftest | Self-test: giving a skeleton a psylink adds none and no psycast, a baseliner gets one (Royalty only) | not seen |  |  |
 | selftest | Self-test: the prosthetics lock patches are applied | not seen |  |  |
 | selftest | Self-test: every old skeleton body part maps to its own human part (old mod loaded) | not seen |  |  |
 | selftest | Self-test: converted old skeleton is race Human with the human body | not seen |  |  |
