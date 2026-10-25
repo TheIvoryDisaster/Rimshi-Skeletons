@@ -14,4 +14,19 @@
     </requiredCapacities>
   </WorkGiverDef>
 
+  <!-- Repairing skeletons is the first Smith job (above making weapons at 115) and uses Crafting, as Matthew decided
+       (docs/design/kenshi-lore-and-repair.md). -->
+  <WorkGiverDef>
+    <defName>Rimshi_RepairSkeleton</defName>
+    <label>repair skeletons</label>
+    <giverClass>RimshiSkeletons.WorkGiver_Rimshi_RepairSkeleton</giverClass>
+    <workType>Smithing</workType>
+    <verb>repair</verb>
+    <gerund>repairing</gerund>
+    <priorityInType>125</priorityInType>
+    <requiredCapacities>
+      <li>Manipulation</li>
+    </requiredCapacities>
+  </WorkGiverDef>
+
 </Defs>

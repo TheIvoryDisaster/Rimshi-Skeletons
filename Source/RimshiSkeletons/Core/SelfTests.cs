@@ -267,10 +267,23 @@ namespace RimshiSkeletons
                 "recipe " + kitRecipe?.defName + " needs " + kitRecipe?.researchPrerequisite?.defName);
             Check("bed gated", bed.researchPrerequisites != null && bed.researchPrerequisites.Contains(bedResearch)
                 && bed.CostList.Any(c => c.thingDef == DefDatabase<ThingDef>.GetNamed("AIPersonaCore")), "bed needs " + string.Join(", ", bed.researchPrerequisites?.ConvertAll(r => r.defName) ?? new List<string>()));
-            Check("kit medicine", kit.IsMedicine && kit.GetStatValueAbstract(StatDefOf.MedicalPotency) == ThingDefOf.MedicineIndustrial.GetStatValueAbstract(StatDefOf.MedicalPotency),
-                "potency " + kit.GetStatValueAbstract(StatDefOf.MedicalPotency));
-            Check("kit filter", RepairKits.Suits(s, kit) && !RepairKits.Suits(s, ThingDefOf.MedicineIndustrial) && !RepairKits.Suits(h, kit) && RepairKits.Suits(h, ThingDefOf.MedicineIndustrial),
-                "kits for skeletons only, medicine for humans only");
+            Check("kit not medicine", !kit.IsMedicine, "repair kit is medicine " + kit.IsMedicine + "; vanilla tending never uses it");
+            Check("no healing", s.GetStatValue(StatDefOf.InjuryHealingFactor) == 0f && h.GetStatValue(StatDefOf.InjuryHealingFactor) > 0f,
+                "injury healing: skeleton " + s.GetStatValue(StatDefOf.InjuryHealingFactor).ToStringPercent() + ", human " + h.GetStatValue(StatDefOf.InjuryHealingFactor).ToStringPercent());
+            WorkGiverDef repairGiver = DefDatabase<WorkGiverDef>.GetNamedSilentFail("Rimshi_RepairSkeleton");
+            Check("repair work", repairGiver != null && repairGiver.workType.defName == "Smithing" && repairGiver.workType.relevantSkills.Contains(SkillDefOf.Crafting),
+                "work giver in " + repairGiver?.workType?.defName);
+            BodyPartRecord torso = s.RaceProps.body.corePart;
+            Hediff cut = HediffMaker.MakeHediff(HediffDefOf.Cut, s, torso);
+            cut.Severity = 4f;
+            s.health.AddHediff(cut, torso);
+            Hediff humanCut = HediffMaker.MakeHediff(HediffDefOf.Cut, h, h.RaceProps.body.corePart);
+            humanCut.Severity = 4f;
+            h.health.AddHediff(humanCut, h.RaceProps.body.corePart);
+            Check("needs repair", SkeletonRepair.NeedsRepair(s) && !SkeletonRepair.NeedsRepair(h) && SkeletonRepair.KitsFor(s) == 1,
+                "cut skeleton needs repair " + SkeletonRepair.NeedsRepair(s) + " (" + SkeletonRepair.KitsFor(s) + " kit), cut human " + SkeletonRepair.NeedsRepair(h));
+            s.health.RemoveHediff(cut);
+            h.health.RemoveHediff(humanCut);
             Check("bed users", RestUtility.CanUseBedEver(s, bed) && !RestUtility.CanUseBedEver(h, bed) && RestUtility.CanUseBedEver(s, hospitalBed),
                 "skeleton " + RestUtility.CanUseBedEver(s, bed) + ", human " + RestUtility.CanUseBedEver(h, bed) + ", skeleton in hospital bed " + RestUtility.CanUseBedEver(s, hospitalBed));
         }

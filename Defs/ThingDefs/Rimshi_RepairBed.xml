@@ -3,7 +3,8 @@
 
   <!-- The skeleton repair bed (docs/design/kenshi-lore-and-repair.md, section 3). Built like the hospital bed, drawn
        with the hospital bed's art tinted grey until it has its own texture. Only skeletons can use it
-       (Patch_RepairBedOnlySkeletons); while powered, CompRimshi_RepairBed mends whoever lies in it. -->
+       (Patch_RepairBedOnlySkeletons); while powered, CompRimshi_RepairBed mends whoever lies in it. Medical by default,
+       and its tend quality offset (0.12) beats the hospital bed's (0.10), so vanilla's patient bed search picks it first. -->
   <ThingDef ParentName="BedWithQualityBase">
     <defName>Rimshi_SkeletonRepairBed</defName>
     <label>skeleton repair bed</label>
@@ -52,7 +53,7 @@
     <building>
       <bed_showSleeperBody>False</bed_showSleeperBody>
       <bed_healPerDay>0</bed_healPerDay>
-      <bed_defaultMedical>false</bed_defaultMedical>
+      <bed_defaultMedical>true</bed_defaultMedical>
       <buildingSizeCategory>Small</buildingSizeCategory>
     </building>
     <fillPercent>0.4</fillPercent>

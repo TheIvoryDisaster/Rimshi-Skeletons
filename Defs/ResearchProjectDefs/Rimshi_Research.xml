@@ -21,7 +21,7 @@
   <ResearchProjectDef>
     <defName>Rimshi_SkeletonRepairKits</defName>
     <label>skeleton repair kits</label>
-    <description>Work out how the ancient skeleton frames were patched up in the field, and make repair kits for them. Skeletons can only be tended with repair kits, and repair kits only work on skeletons.</description>
+    <description>Work out how the ancient skeleton frames were patched up in the field, and make repair kits for them. Skeletons do not heal on their own; a crafter with a repair kit can work on a damaged skeleton until it is whole.</description>
     <baseCost>600</baseCost>
     <techLevel>Industrial</techLevel>
     <prerequisites>

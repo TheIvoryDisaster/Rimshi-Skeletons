@@ -21,6 +21,7 @@ namespace RimshiSkeletons
         public static ThingDef Rimshi_SkeletonRepairBed;
         public static ResearchProjectDef Rimshi_SkeletonRepairKits;
         public static ResearchProjectDef Rimshi_SkeletonRepairBeds;
+        public static JobDef Rimshi_RepairSkeleton;
         public static ThingDef Rimshi_RecallArray;
         public static ResearchProjectDef Rimshi_SkeletonRecall;
         public static HediffDef Rimshi_CorruptedProtocol;

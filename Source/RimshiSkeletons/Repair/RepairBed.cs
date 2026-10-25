@@ -31,7 +31,7 @@ namespace RimshiSkeletons
 
         public CompProperties_Rimshi_RepairBed Props => (CompProperties_Rimshi_RepairBed)props;
 
-        private bool Powered => parent.GetComp<CompPowerTrader>()?.PowerOn ?? true;
+        public bool Powered => parent.GetComp<CompPowerTrader>()?.PowerOn ?? true;
 
         private Building_Bed Bed => parent as Building_Bed;
 

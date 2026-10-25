@@ -1,13 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
 
-  <!-- Industrial medicine for skeletons (docs/design/kenshi-lore-and-repair.md, section 2). Same potency, quality and
-       stack art as vanilla industrial medicine, tinted grey until it has its own texture. RepairKits.Suits keeps kits
-       for skeletons and medicine for everyone else. -->
-  <ThingDef ParentName="MedicineBase">
+  <!-- Used up by the skeleton repair job (JobDriver_Rimshi_RepairSkeleton), the way mechanitors repair mechs. Not
+       medicine: no MedicalPotency, so vanilla tending never picks it up and it never shows in medical care settings.
+       Vanilla industrial medicine art tinted grey until it has its own texture. -->
+  <ThingDef ParentName="ResourceBase">
     <defName>Rimshi_RepairKit</defName>
     <label>skeleton repair kit</label>
-    <description>A kit of tools, spare plating, servo grease and patch wiring for repairing skeletons. It can be used to repair a skeleton's injuries the way medicine is used to tend a human's, and is useless on anything made of flesh.</description>
+    <description>A kit of tools, spare plating, servo grease and patch wiring for repairing skeletons. A crafter works on a damaged skeleton with it, and the skeleton mends while the work goes on, using up the kit bit by bit. Useless on anything made of flesh.</description>
+    <stackLimit>25</stackLimit>
+    <healthAffectsPrice>false</healthAffectsPrice>
+    <uiIconForStackCount>1</uiIconForStackCount>
+    <soundInteract>Standard_Drop</soundInteract>
+    <soundDrop>Standard_Drop</soundDrop>
+    <thingCategories>
+      <li>Manufactured</li>
+    </thingCategories>
     <possessionCount>3</possessionCount>
     <graphicData>
       <texPath>Things/Item/Resource/Medicine/MedicineIndustrial</texPath>
@@ -17,11 +25,10 @@
     </graphicData>
     <techLevel>Industrial</techLevel>
     <statBases>
+      <MaxHitPoints>60</MaxHitPoints>
       <MarketValue>18</MarketValue>
       <Mass>0.50</Mass>
       <Flammability>0.2</Flammability>
-      <MedicalPotency>1.00</MedicalPotency>
-      <MedicalQualityMax>1.00</MedicalQualityMax>
       <DeteriorationRate>1</DeteriorationRate>
       <WorkToMake>700</WorkToMake>
     </statBases>

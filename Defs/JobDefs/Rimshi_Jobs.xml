@@ -8,4 +8,11 @@
     <casualInterruptible>false</casualInterruptible>
   </JobDef>
 
+  <JobDef>
+    <defName>Rimshi_RepairSkeleton</defName>
+    <driverClass>RimshiSkeletons.JobDriver_Rimshi_RepairSkeleton</driverClass>
+    <reportString>repairing TargetA.</reportString>
+    <casualInterruptible>false</casualInterruptible>
+  </JobDef>
+
 </Defs>
