@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using LudeonTK;
 using RimWorld;
 using RimWorld.Planet;
@@ -53,6 +54,7 @@ namespace RimshiSkeletons
                 HumanChecks(human);
                 GeneRemovalCheck(skeleton);
                 FactionChecks(pawns);
+                ConversionChecks(pawns);
             }
             catch (Exception e)
             {
@@ -128,6 +130,46 @@ namespace RimshiSkeletons
             RimshiLog.Test("faction", "in world", inWorld != null ? inWorld.Name : "none (world made without this mod; see Debug actions > Rimshi Skeletons)");
         }
 
+        /// <summary>
+        /// Only with Rim-Skeletons (Continued) loaded: every old body part lands on a human part, and an old skeleton
+        /// generated off the map converts into one of ours.
+        /// </summary>
+        private static void ConversionChecks(List<Pawn> pawns)
+        {
+            ThingDef oldRace = OldSkeletonConversion.OldRace;
+            BodyDef oldBody = DefDatabase<BodyDef>.GetNamedSilentFail(OldSkeletonConversion.OldBodyName);
+            if (oldRace == null || oldBody == null)
+            {
+                return;
+            }
+            BodyDef human = ThingDefOf.Human.race.body;
+            var unmapped = oldBody.AllParts.Where(p => OldSkeletonConversion.MapPart(p, oldBody, human) == null).Select(p => p.def.defName).ToList();
+            var targets = oldBody.AllParts.Select(p => OldSkeletonConversion.MapPart(p, oldBody, human)).Where(p => p != null).ToList();
+            Check("convert parts", unmapped.Count == 0 && targets.Distinct().Count() == targets.Count,
+                oldBody.AllParts.Count + " old parts, unmapped: " + (unmapped.Count == 0 ? "none" : string.Join(", ", unmapped))
+                + ", shared targets " + (targets.Count - targets.Distinct().Count()));
+
+            PawnKindDef oldKind = DefDatabase<PawnKindDef>.GetNamedSilentFail("Skeleton_Colonist");
+            if (oldKind == null)
+            {
+                return;
+            }
+            Pawn old = PawnGenerator.GeneratePawn(new PawnGenerationRequest(oldKind, null, forceGenerateNewPawn: true, forceNoGear: true));
+            pawns.Add(old);
+            var lost = new List<string>();
+            OldSkeletonConversion.Convert(old, oldRace, lost);
+            Check("convert race", old.def == ThingDefOf.Human && old.RaceProps.body == human, "race " + old.def.defName + ", body " + old.RaceProps.body.defName);
+            Check("convert xenotype", old.genes.Xenotype == RimshiDefOf.Rimshi_Skeleton && old.gender == Gender.None, "xenotype " + old.genes.XenotypeLabel + ", gender " + old.gender);
+            Check("convert story", old.story.headType.defName.StartsWith("Rimshi_Head_") && old.story.Adulthood != null
+                && old.story.Adulthood.spawnCategories.Contains(SkeletonUtility.BackstoryCategory),
+                "head " + old.story.headType.defName + ", backstories " + old.story.Childhood?.defName + ", " + old.story.Adulthood?.defName);
+            Check("convert kind", old.kindDef.defName == "Rimshi_Colonist", "kind " + old.kindDef.defName);
+            Check("convert health", !old.health.hediffSet.hediffs.Any(h => h.def.defName == OldSkeletonConversion.OldHediffName)
+                && old.health.hediffSet.hediffs.All(h => h.Part == null || h.Part.body == human) && lost.Count == 0,
+                old.health.hediffSet.hediffs.Count + " health conditions, lost " + lost.Count);
+            Check("convert again", !OldSkeletonConversion.IsOldSkeleton(old, oldRace), "converted pawn no longer matches");
+        }
+
         private static void HumanChecks(Pawn h)
         {
             Check("human refuses fuel", !h.FoodIsSuitable(ThingDefOf.Chemfuel), "chemfuel suitable " + h.FoodIsSuitable(ThingDefOf.Chemfuel));
@@ -185,7 +227,7 @@ namespace RimshiSkeletons
     }
 
     /// <summary>
-    /// When a save loads: replaces the old mod's factions if the mod setting is on. When a game loads or starts: runs the
+    /// When a save loads: replaces the old mod's factions and converts its skeletons if the mod setting is on. When a game loads or starts: runs the
     /// self-tests once per session with Development mode on.
     /// </summary>
     public class RimshiGameComponent : GameComponent
@@ -201,6 +243,8 @@ namespace RimshiSkeletons
             if (RimshiMod.Settings.replaceOldFactions)
             {
                 SkeletonFactions.ReplaceOldFactions();
+                // Pawns leave and re-enter the map while their race changes, which needs the main thread.
+                LongEventHandler.ExecuteWhenFinished(OldSkeletonConversion.ConvertAll);
             }
             LongEventHandler.ExecuteWhenFinished(SelfTests.RunIfDevMode);
         }

@@ -124,6 +124,16 @@ The rule: anything that needs another mod either loads only when that mod is act
 | EPOE, VTE, VBE, VFE Insectoids, CE, VAE, Kenshi Armory | Recipes, disallowed traits, chemicals, blocked apparel. | Same items under `MayRequire`. EPOE recipes are not needed. | Items skipped. |
 | Rim-Robots, androids mods | `notXenophobistTowards`. | HAR only; no Biotech equivalent. Dropped. | None. |
 
+Build step 5 (save converter, pawn part), 2026-10-25, brought forward because Matthew's save still had two old skeletons (a colonist and a raid leader) that removing the old mod would delete, leaving Vanilla Memes Expanded and others with null references on load:
+
+- `OldSkeletonConversion` (`Source/RimshiSkeletons/Skeleton`), run after the faction swap when the setting is on (renamed **Convert Rim-Skeletons (Continued) factions and skeletons when a save loads**), and from Debug actions > Rimshi Skeletons > Convert old skeletons now. It waits until loading finishes, because spawned pawns leave and re-enter the map while their race changes (map lists are kept per ThingDef).
+- Finds every pawn (maps, containers, caravans, world pawns, dead world pawns, corpses on maps and in graves) that has race `Skeleton_`, an old pawn kind, or the old hidden hediff.
+- Race: the def becomes Human; Humanoid Alien Races' comps are dropped, Human comps it lacked are added, the others keep their state; the verb tracker is rebuilt for the human fists. A corpse gets the human corpse def too. The thing ID changes from `Skeleton_N` to `HumanN`; every reference is saved again under the new ID, so this is safe.
+- Health: conditions are moved, not re-added (same severity, age, comps), onto the human part with the mapped def (`OldParts`: thorax to torso, reactor to heart, fluid reprocessor to a kidney, sensors to eyes, ear and nose, and so on), matched by side and thumb, then in order. Anything without a target is dropped, logged (`migrate | lost`) and listed in the letter. This replaces the "clear health first" plan above: bionics and scars carry over.
+- Age: the old race lived to 2500, so biological age is scaled to the same share of a human life (a 1196-year-old becomes 38), never below adult. Chronological age is kept.
+- Then the skeleton xenotype (genes, genderless, looks), old backstories to ours by title (random skeleton backstory if none matches), old heads `None_X` to `Rimshi_Head_X`, bald and no beard, old pawn kinds to ours (`OldKinds`; the unported tribal, pirate and Empire kinds go to the drifter, or colonist for the player), and old-mod hediffs and memories removed.
+- A "Skeletons converted" letter names each pawn and says the old mod can now be removed. Self-tests (old mod loaded only) check the part mapping and convert a generated old skeleton.
+
 ## Converting saves from Rim-Skeletons (Continued)
 
 Matthew asked (2026-10-24) for a mod option that converts the old mod's skeletons in a save into ours, so the old mod can then be removed. He has both loaded and reports the old mod's skeletons show up as plain humans.
@@ -160,7 +170,7 @@ Answered 2026-10-24:
 2. Diet patches and fuel thoughts.
 3. Spawning: faction xenotype sets, player faction, scenario, backstories, names. Done 2026-10-24, see Implemented.
 4. Mechanical body behaviour and anatomy, corpses, shred / smash, sever AI core.
-5. Save converter from Rim-Skeletons (Continued).
+5. Save converter from Rim-Skeletons (Continued). Done 2026-10-25, see Implemented.
 6. Trait odds, blocked apparel and actions, age.
 7. Soft dependency patches (Royalty, Ideology, Odyssey, then DBH, AC, QE after decompiling them).
 
