@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!-- The recall array: a mechband antenna (graphic, size, build work and placement inherited through
+       Patches/Rimshi_MechbandAntenna.xml) rewired to broadcast the old empire's recall codes. Any colonist can activate
+       it (no mechanitor needed); it burns out, and a few hours later a horde of corrupted, berserk skeletons drops in around it. -->
+  <ThingDef ParentName="Rimshi_MechbandAntennaParent">
+    <defName>Rimshi_RecallArray</defName>
+    <label>skeleton recall array</label>
+    <description>A mechband antenna rewired to broadcast the old empire's recall codes. A colonist can activate it to call a dormant skeleton legion out of the dark.\n\nThe legion arrives by drop pod around the array a few hours later. Its protocols are corrupted: every skeleton in it is berserk and belongs to no faction. Some still carry a failsafe core that shuts the frame down instead of letting it be destroyed; those can be captured and reprogrammed to join the colony.\n\nThe broadcast burns out the array. Each new broadcast reaches further and wakes a larger legion.</description>
+    <costList Inherit="False">
+      <Steel>120</Steel>
+      <ComponentIndustrial>6</ComponentIndustrial>
+      <Plasteel>25</Plasteel>
+    </costList>
+    <researchPrerequisites Inherit="False">
+      <li>Rimshi_SkeletonRecall</li>
+    </researchPrerequisites>
+    <comps Inherit="False">
+      <li Class="CompProperties_Usable">
+        <useJob>UseItem</useJob>
+        <useLabel>Broadcast recall codes</useLabel>
+        <useDuration>600</useDuration>
+      </li>
+      <li Class="RimshiSkeletons.CompProperties_RecallArray">
+        <minDelayTicks>2500</minDelayTicks>
+        <maxDelayTicks>15000</maxDelayTicks>
+      </li>
+    </comps>
+  </ThingDef>
+
+</Defs>

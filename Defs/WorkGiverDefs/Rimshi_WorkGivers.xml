@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <WorkGiverDef>
+    <defName>Rimshi_WardenReprogram</defName>
+    <label>reprogram corrupted skeletons</label>
+    <giverClass>RimshiSkeletons.WorkGiver_Warden_Reprogram</giverClass>
+    <workType>Warden</workType>
+    <verb>reprogram</verb>
+    <gerund>reprogramming</gerund>
+    <priorityInType>55</priorityInType>
+    <requiredCapacities>
+      <li>Manipulation</li>
+    </requiredCapacities>
+  </WorkGiverDef>
+
+</Defs>

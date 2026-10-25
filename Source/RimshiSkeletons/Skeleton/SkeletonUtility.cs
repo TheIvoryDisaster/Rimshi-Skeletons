@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using RimWorld;
 using Verse;
 
@@ -20,6 +21,12 @@ namespace RimshiSkeletons
         public static ThingDef Rimshi_SkeletonRepairBed;
         public static ResearchProjectDef Rimshi_SkeletonRepairKits;
         public static ResearchProjectDef Rimshi_SkeletonRepairBeds;
+        public static ThingDef Rimshi_RecallArray;
+        public static ResearchProjectDef Rimshi_SkeletonRecall;
+        public static HediffDef Rimshi_CorruptedProtocol;
+        public static HediffDef Rimshi_FailsafeCore;
+        public static PrisonerInteractionModeDef Rimshi_Reprogram;
+        public static JobDef Rimshi_ReprogramSkeleton;
 
         static RimshiDefOf()
         {
@@ -45,6 +52,34 @@ namespace RimshiSkeletons
         public static bool HasFuelReactor(Pawn pawn) => HasActiveGene(pawn, RimshiDefOf.Rimshi_FuelReactor);
 
         public static bool HasNullChromosome(Pawn pawn) => HasActiveGene(pawn, RimshiDefOf.Rimshi_NullChromosome);
+
+        /// <summary>Gene display category of every skeleton gene (Defs/GeneDefs/Rimshi_Genes.xml).</summary>
+        public const string GeneCategory = "Rimshi_Skeleton";
+
+        /// <summary>True for our genes: everything in the skeleton gene category, plating colours included.</summary>
+        public static bool IsSkeletonGene(GeneDef gene) => gene?.displayCategory?.defName == GeneCategory;
+
+        /// <summary>True if the pawn has any skeleton gene, active or not, or the skeleton xenotype.</summary>
+        public static bool CarriesSkeletonGenes(Pawn pawn)
+        {
+            if (pawn?.genes == null)
+            {
+                return false;
+            }
+            if (IsSkeletonXenotype(pawn.genes.Xenotype))
+            {
+                return true;
+            }
+            List<Gene> genes = pawn.genes.GenesListForReading;
+            for (int i = 0; i < genes.Count; i++)
+            {
+                if (IsSkeletonGene(genes[i].def))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
 
         /// <summary>Skeleton art exists for Male, Thin and Hulk only (as in the original). Children and babies keep vanilla.</summary>
         public static bool IsSkeletonBodyType(BodyTypeDef bodyType) =>

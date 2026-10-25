@@ -8,7 +8,7 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 
 **How to use it:** play with Development mode on, then tell Claude to check the logs. Claude pulls Player.log and Player-prev.log from `C:\Users\Matthew\AppData\LocalLow\Ludeon Studios\RimWorld by Ludeon Studios`, runs `tools/rimshi_testlog.py` over them and updates this table. Results add up across sessions; any exception that mentions the mod is reported too. A PR that only updates this file is merged by Claude without asking, and its description lists every test that ran and its outcome.
 
-**Self-tests:** with Development mode on, loading or starting a game runs the in-game self-tests once per session (also on demand: Debug actions > Rimshi Skeletons > Run self-tests). They generate a skeleton, a baseliner and a skeletal imperium town guard off the map, check genes, looks, diet, thoughts, immunity, backstory and faction, discard the pawns, and log one `selftest` line per check plus a summary.
+**Self-tests:** with Development mode on, loading or starting a game runs the in-game self-tests once per session (also on demand: Debug actions > Rimshi Skeletons > Run self-tests). They generate a skeleton, a baseliner and a skeletal imperium town guard off the map, check genes, looks, diet, thoughts, immunity, the gene lock, backstory, faction, reproduction, the recall array and horde skeletons (gear, protocol, failsafe core, one reprogramming session), discard the pawns, and log one `selftest` line per check plus a summary.
 
 **Unit tests:** `python3 -m unittest discover -s tests` runs the offline tests (def cross-references, textures, checklist coverage, the log reader, house style). CI runs them on every push.
 
@@ -35,12 +35,36 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | faction | Mod setting on: save had no old Rim-Skeletons factions | not seen |  |  |
 | faction | Debug action added the skeletal imperium to the world | not seen |  |  |
 | faction | Skeletal imperium present in the loaded world (or says none) | not seen |  |  |
+| migrate | Mod setting on: an old Rim-Skeletons skeleton converted to ours (lists what changed) | not seen |  |  |
+| migrate | Health condition with no matching human body part dropped during conversion (names it) | not seen |  |  |
+| migrate | Mod setting on: conversion summary (skeletons converted, conditions dropped) | not seen |  |  |
+| migrate | Mod setting on: save had no old Rim-Skeletons skeletons | not seen |  |  |
+| migrate | Mod setting on: Rim-Skeletons (Continued) not loaded, nothing to convert | not seen |  |  |
 | render | Skeleton body texture drawn | not seen |  |  |
 | kit | Medicine skipped for a skeleton, or a repair kit skipped for a non-skeleton | not seen |  |  |
 | bed | Non-skeleton kept out of a skeleton repair bed | not seen |  |  |
 | bed | Repair bed repairing a skeleton's injury | not seen |  |  |
 | bed | Skeleton fully repaired in a repair bed | not seen |  |  |
 | diet | Skeleton ate chemfuel or uranium (fails if it ate anything else) | not seen |  |  |
+| reproduction | A pregnancy added to a skeleton was refused | not seen |  |  |
+| horde | Recall array inherited the mechband antenna graphic | not seen |  |  |
+| horde | Recall research on the research tab, overlapping nothing (gives its position) | not seen |  |  |
+| horde | Bladeguard melee weapon tags (adds medieval weapons without Royalty) | not seen |  |  |
+| horde | Colonist broadcast the recall codes; array burned out | not seen |  |  |
+| horde | Skeleton horde dropped in (counts, kinds, weapons, shield belts, failsafe cores) | not seen |  |  |
+| horde | Horde called to a map that is gone was dropped | not seen |  |  |
+| horde | Horde skeleton went berserk | not seen |  |  |
+| horde | Failsafe core set the death on downed chance | not seen |  |  |
+| horde | A failsafe skeleton died anyway (says how; not a failure) | not seen |  |  |
+| reprogram | Captured horde skeleton set to interrogate and reprogram | not seen |  |  |
+| reprogram | Warden reprogramming session lowered the corruption | not seen |  |  |
+| reprogram | Reprogrammed skeleton joined the colony | not seen |  |  |
+| geneproof | Xenogerm implant on a skeleton refused | not seen |  |  |
+| geneproof | Xenogerm reimplant ability on a skeleton refused | not seen |  |  |
+| geneproof | Skeleton refused the absorb xenogerm job | not seen |  |  |
+| geneproof | No xenogerm reached a skeleton past the checks (this line only appears when one did) | not seen |  |  |
+| geneproof | No reimplant involving a skeleton got past the checks (this line only appears when one did) | not seen |  |  |
+| geneproof | Skeleton genes kept out of a genepack (fails if a pack held only skeleton genes) | not seen |  |  |
 | selftest | Self-tests: all passed (summary line) | failed | 7 | FAILED: 21 passed, 4 failed |
 | selftest | Self-test: skeleton and baseliner generate | passed | 7 | skeleton Acid, baseliner Norman |
 | selftest | Self-test: no exceptions while testing | not seen |  |  |
@@ -74,9 +98,31 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | selftest | Self-test: repair kits only for skeletons, medicine only for non-skeletons | not seen |  |  |
 | selftest | Self-test: only skeletons can use a repair bed; skeletons can still use hospital beds | not seen |  |  |
 | selftest | Self-test: removing the null chromosome restores a gender | passed | 7 | gender after removing null chromosome Male |
+| selftest | Self-test: no skeleton gene can roll in gene sets | not seen |  |  |
+| selftest | Self-test: 200 random gene sets hold no skeleton gene | not seen |  |  |
+| selftest | Self-test: a genepack drops skeleton genes and keeps the rest | not seen |  |  |
+| selftest | Self-test: gene buildings refuse the skeleton, not the baseliner | not seen |  |  |
+| selftest | Self-test: implant xenogerm bill unavailable on a skeleton | not seen |  |  |
+| selftest | Self-test: every gene lock patch applied | not seen |  |  |
 | selftest | Self-test: skeleton has a skeleton adulthood backstory | not seen |  |  |
 | selftest | Self-test: skeletal imperium and skeleton player faction loaded | not seen |  |  |
 | selftest | Self-test: a skeletal imperium pawn kind generates a skeleton | not seen |  |  |
+| selftest | Self-test: skeleton cannot have children or be implanted | not seen |  |  |
+| selftest | Self-test: pregnancy cannot be added to a skeleton | not seen |  |  |
+| selftest | Self-test: recall array and its research loaded (2000, after basic mechtech, no mechanitor needed) | not seen |  |  |
+| selftest | Self-test: horde skeletons have no faction | not seen |  |  |
+| selftest | Self-test: horde skeletons have the corrupted protocol and cannot be recruited | not seen |  |  |
+| selftest | Self-test: horde gunners carry spacer guns, bladeguards melee weapons and shield belts | not seen |  |  |
+| selftest | Self-test: horde skeletons are not hostile to each other | not seen |  |  |
+| selftest | Self-test: failsafe core sets the death on downed chance | not seen |  |  |
+| selftest | Self-test: a reprogramming session lowers the corruption | not seen |  |  |
+| selftest | Self-test: every old skeleton body part maps to its own human part (old mod loaded) | not seen |  |  |
+| selftest | Self-test: converted old skeleton is race Human with the human body | not seen |  |  |
+| selftest | Self-test: converted old skeleton has the Skeleton xenotype and no gender | not seen |  |  |
+| selftest | Self-test: converted old skeleton has our head and backstories | not seen |  |  |
+| selftest | Self-test: converted old skeleton has our pawn kind | not seen |  |  |
+| selftest | Self-test: converted old skeleton has no old hediff and only human body parts | not seen |  |  |
+| selftest | Self-test: a converted skeleton is not converted again | not seen |  |  |
 
 ## Manual checks
 
@@ -92,10 +138,15 @@ Things the log cannot show; tick them off by hand after looking in game.
 - [ ] A new world lists the skeletal imperium in the faction setup (one by default) and it appears on the world map.
 - [ ] Skeletal imperium visitors, traders and raids are mostly skeletons (with some human villagers and guards), with skeleton names and backstories.
 - [ ] The "Embarking 'Skeleton'" scenario starts with one skeleton in the Skeleton Foundation faction.
-- [ ] Mod settings show "Replace Rim-Skeletons (Continued) factions when a save loads"; with it on and the old mod loaded, an old save's skeletal imperium shows our faction icon and keeps its name and goodwill.
+- [ ] Mod settings show "Convert Rim-Skeletons (Continued) factions and skeletons when a save loads"; with it on and the old mod loaded, an old save's skeletal imperium shows our faction icon and keeps its name and goodwill.
+- [ ] With the setting on, a "Skeletons converted" letter names each old skeleton; they look like our skeletons (body, head, plating, bald), keep their names, skills, traits, gear and injuries, and show as xenotype Skeleton. After saving, removing Rim-Skeletons (Continued) and loading again, they are still there and the log has no "Null key" or "Could not resolve reference" errors for them.
 - [ ] In a world made before this mod, Debug actions > Rimshi Skeletons > Add the skeletal imperium adds the faction with one settlement.
 - [ ] Research tab: "skeleton repair kits" and "skeleton repair beds" sit right of Basic mechtech and need it; neither needs a mechanitor.
 - [ ] After the kit research, the machining table has "make skeleton repair kit"; kits look like grey industrial medicine.
 - [ ] A doctor tends a hurt skeleton with a repair kit (not medicine), and a hurt human with medicine (not a kit). With no kits, the skeleton is tended without medicine.
 - [ ] After the bed research, the skeleton repair bed is in Furniture and costs an AI persona core; deconstructing it gives the core back.
 - [ ] A human cannot be assigned to or rest in the repair bed; a hurt skeleton resting in a powered one is repaired, scars included, and gets a "fully repaired" message. Unpowered, the bed says so and does nothing.
+- [ ] A gene extractor will not take a skeleton (the menu option is greyed out with "Skeletons have no genes to extract").
+- [ ] A xenogerm's "Implant" gizmo will not target a skeleton, and the skeleton's health tab has no "Implant xenogerm" bill.
+- [ ] A sanguophage's xenogerm reimplant ability will not target a skeleton.
+- [ ] Skeleton genes never show up in traders' or quest genepacks, so the gene assembler never offers them. The custom xenotype editor at game start still does (on purpose).
