@@ -152,7 +152,7 @@ namespace RimshiSkeletons
         {
             this.FailOnDespawnedNullOrForbidden(TargetIndex.A);
             this.FailOn(() => Patient.InAggroMentalState);
-            AddFinishAction(_ =>
+            AddFinishAction(condition =>
             {
                 Thing carried = pawn.carryTracker?.CarriedThing;
                 if (carried != null && carried.def == RimshiDefOf.Rimshi_RepairKit)
