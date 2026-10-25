@@ -233,8 +233,8 @@ namespace RimshiSkeletons
     }
 
     /// <summary>
-    /// With healing at 0, a tended skeleton would rest in a bed forever waiting to heal. It still goes to bed when vanilla
-    /// says so for being downed or needing tending (to stop bleeding); otherwise only when a powered repair bed is free,
+    /// With healing at 0, a tended skeleton would rest in a bed forever waiting to heal. It still goes to bed whenever vanilla
+    /// says it urgently should (downed, needing tending to stop bleeding, surgery due); otherwise only when a powered repair bed is free,
     /// for fresh injuries any time and for scars during its Sleep hours.
     /// </summary>
     [HarmonyPatch(typeof(HealthAIUtility), nameof(HealthAIUtility.ShouldSeekMedicalRest))]
@@ -242,7 +242,7 @@ namespace RimshiSkeletons
     {
         public static void Postfix(Pawn pawn, ref bool __result)
         {
-            if (!SkeletonUtility.HasFrame(pawn) || pawn.Downed || pawn.health.HasHediffsNeedingTend())
+            if (!SkeletonUtility.HasFrame(pawn) || HealthAIUtility.ShouldSeekMedicalRestUrgent(pawn))
             {
                 return;
             }
