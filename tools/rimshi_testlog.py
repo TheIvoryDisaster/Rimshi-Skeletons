@@ -36,6 +36,11 @@ CHECKLIST = [
     ("faction", "replace none", "Mod setting on: save had no old Rim-Skeletons factions"),
     ("faction", "added", "Debug action added the skeletal imperium to the world"),
     ("faction", "in world", "Skeletal imperium present in the loaded world (or says none)"),
+    ("migrate", "pawn", "Mod setting on: an old Rim-Skeletons skeleton converted to ours (lists what changed)"),
+    ("migrate", "lost", "Health condition with no matching human body part dropped during conversion (names it)"),
+    ("migrate", "summary", "Mod setting on: conversion summary (skeletons converted, conditions dropped)"),
+    ("migrate", "none", "Mod setting on: save had no old Rim-Skeletons skeletons"),
+    ("migrate", "old mod missing", "Mod setting on: Rim-Skeletons (Continued) not loaded, nothing to convert"),
     ("render", "body", "Skeleton body texture drawn"),
     ("diet", "ate fuel", "Skeleton ate chemfuel or uranium (fails if it ate anything else)"),
     ("geneproof", "implant refused", "Xenogerm implant on a skeleton refused"),
@@ -80,6 +85,13 @@ CHECKLIST = [
     ("selftest", "backstory", "Self-test: skeleton has a skeleton adulthood backstory"),
     ("selftest", "faction def", "Self-test: skeletal imperium and skeleton player faction loaded"),
     ("selftest", "faction kind", "Self-test: a skeletal imperium pawn kind generates a skeleton"),
+    ("selftest", "convert parts", "Self-test: every old skeleton body part maps to its own human part (old mod loaded)"),
+    ("selftest", "convert race", "Self-test: converted old skeleton is race Human with the human body"),
+    ("selftest", "convert xenotype", "Self-test: converted old skeleton has the Skeleton xenotype and no gender"),
+    ("selftest", "convert story", "Self-test: converted old skeleton has our head and backstories"),
+    ("selftest", "convert kind", "Self-test: converted old skeleton has our pawn kind"),
+    ("selftest", "convert health", "Self-test: converted old skeleton has no old hediff and only human body parts"),
+    ("selftest", "convert again", "Self-test: a converted skeleton is not converted again"),
 ]
 
 
