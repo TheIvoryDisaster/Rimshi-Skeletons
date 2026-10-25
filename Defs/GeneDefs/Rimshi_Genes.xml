@@ -35,6 +35,14 @@
       <li>Rimshi_Head_Screamer</li>
     </forcedHeadTypes>
     <tattoosVisible>false</tattoosVisible>
+    <!-- No natural healing and no healing from tending (vanilla multiplies both by this stat). Skeletons mend only when
+         repaired: the repair job and the repair bed heal injuries directly. -->
+    <statFactors>
+      <InjuryHealingFactor>0</InjuryHealingFactor>
+    </statFactors>
+    <customEffectDescriptions>
+      <li>Does not heal on its own: needs a crafter with a repair kit, or a skeleton repair bed</li>
+    </customEffectDescriptions>
     <exclusionTags>
       <li>Fur</li>
     </exclusionTags>

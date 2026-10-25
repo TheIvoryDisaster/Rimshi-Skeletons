@@ -6,7 +6,7 @@ from helpers import ROOT, SOURCE, concrete, defs, def_names, patch_names, source
 
 VANILLA = {
     "GeneDef": {"Neversleep", "Ageless", "Hair_BaldOnly", "Beard_NoBeardOnly"},
-    "parents": {"GeneSkinColorOverride", "AverageBase", "FactionBase", "PlayerFactionBase", "BasePlayerPawnKind", "ScenarioBase"},
+    "parents": {"ResourceBase", "BedWithQualityBase", "GeneSkinColorOverride", "AverageBase", "FactionBase", "PlayerFactionBase", "BasePlayerPawnKind", "ScenarioBase"},
     "PawnKindDef": {"Villager", "Town_Guard", "Miner", "Farmer"},
 }
 DIRECTIONS = ("south", "north", "east")
@@ -149,6 +149,15 @@ class DefTests(unittest.TestCase):
         for _, faction in concrete("FactionDef"):
             with self.subTest(faction=faction.findtext("defName")):
                 self.assertTrue(texture_exists(faction.findtext("factionIconPath")))
+
+    def test_repair_research_needs_basic_mechtech(self):
+        research = {el.findtext("defName"): el for _, el in concrete("ResearchProjectDef")}
+        for name in ("Rimshi_SkeletonRepairKits", "Rimshi_SkeletonRepairBeds"):
+            with self.subTest(research=name):
+                self.assertIn("BasicMechtech", [li.text for li in research[name].find("prerequisites")])
+        things = {el.findtext("defName"): el for _, el in concrete("ThingDef")}
+        self.assertEqual(things["Rimshi_RepairKit"].findtext("recipeMaker/researchPrerequisite"), "Rimshi_SkeletonRepairKits")
+        self.assertIn("Rimshi_SkeletonRepairBeds", [li.text for li in things["Rimshi_SkeletonRepairBed"].find("researchPrerequisites")])
 
 
 if __name__ == "__main__":

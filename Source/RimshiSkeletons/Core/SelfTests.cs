@@ -54,6 +54,7 @@ namespace RimshiSkeletons
                 pawns.Add(human);
                 SkeletonChecks(skeleton, human);
                 HumanChecks(human);
+                RepairChecks(skeleton, human);
                 GeneProofChecks(skeleton, human);
                 GeneRemovalCheck(skeleton);
                 FactionChecks(pawns);
@@ -249,6 +250,42 @@ namespace RimshiSkeletons
             Check("human eats meals", h.FoodIsSuitable(ThingDefOf.MealSimple), "simple meal suitable " + h.FoodIsSuitable(ThingDefOf.MealSimple));
             Check("human unchanged", h.gender != Gender.None && !ThoughtUtility.ThoughtNullified(h, NeedFood),
                 "gender " + h.gender + ", hunger thought nullified " + ThoughtUtility.ThoughtNullified(h, NeedFood));
+        }
+
+        private static void RepairChecks(Pawn s, Pawn h)
+        {
+            ThingDef kit = RimshiDefOf.Rimshi_RepairKit;
+            ThingDef bed = RimshiDefOf.Rimshi_SkeletonRepairBed;
+            ThingDef hospitalBed = DefDatabase<ThingDef>.GetNamed("HospitalBed");
+            ResearchProjectDef kitResearch = RimshiDefOf.Rimshi_SkeletonRepairKits;
+            ResearchProjectDef bedResearch = RimshiDefOf.Rimshi_SkeletonRepairBeds;
+            ResearchProjectDef mechtech = DefDatabase<ResearchProjectDef>.GetNamedSilentFail("BasicMechtech");
+            Check("repair research", mechtech != null && kitResearch.prerequisites.Contains(mechtech) && bedResearch.prerequisites.Contains(mechtech),
+                kitResearch.defName + " and " + bedResearch.defName + " need " + mechtech?.defName);
+            RecipeDef kitRecipe = DefDatabase<RecipeDef>.AllDefs.FirstOrDefault(r => r.ProducedThingDef == kit);
+            Check("kit gated", kitRecipe != null && kitRecipe.researchPrerequisite == kitResearch,
+                "recipe " + kitRecipe?.defName + " needs " + kitRecipe?.researchPrerequisite?.defName);
+            Check("bed gated", bed.researchPrerequisites != null && bed.researchPrerequisites.Contains(bedResearch)
+                && bed.CostList.Any(c => c.thingDef == DefDatabase<ThingDef>.GetNamed("AIPersonaCore")), "bed needs " + string.Join(", ", bed.researchPrerequisites?.ConvertAll(r => r.defName) ?? new List<string>()));
+            Check("kit not medicine", !kit.IsMedicine, "repair kit is medicine " + kit.IsMedicine + "; vanilla tending never uses it");
+            Check("no healing", s.GetStatValue(StatDefOf.InjuryHealingFactor) == 0f && h.GetStatValue(StatDefOf.InjuryHealingFactor) > 0f,
+                "injury healing: skeleton " + s.GetStatValue(StatDefOf.InjuryHealingFactor).ToStringPercent() + ", human " + h.GetStatValue(StatDefOf.InjuryHealingFactor).ToStringPercent());
+            WorkGiverDef repairGiver = DefDatabase<WorkGiverDef>.GetNamedSilentFail("Rimshi_RepairSkeleton");
+            Check("repair work", repairGiver != null && repairGiver.workType.defName == "Smithing" && repairGiver.workType.relevantSkills.Contains(SkillDefOf.Crafting),
+                "work giver in " + repairGiver?.workType?.defName);
+            BodyPartRecord torso = s.RaceProps.body.corePart;
+            Hediff cut = HediffMaker.MakeHediff(HediffDefOf.Cut, s, torso);
+            cut.Severity = 4f;
+            s.health.AddHediff(cut, torso);
+            Hediff humanCut = HediffMaker.MakeHediff(HediffDefOf.Cut, h, h.RaceProps.body.corePart);
+            humanCut.Severity = 4f;
+            h.health.AddHediff(humanCut, h.RaceProps.body.corePart);
+            Check("needs repair", SkeletonRepair.NeedsRepair(s) && !SkeletonRepair.NeedsRepair(h) && SkeletonRepair.KitsFor(s) == 1,
+                "cut skeleton needs repair " + SkeletonRepair.NeedsRepair(s) + " (" + SkeletonRepair.KitsFor(s) + " kit), cut human " + SkeletonRepair.NeedsRepair(h));
+            s.health.RemoveHediff(cut);
+            h.health.RemoveHediff(humanCut);
+            Check("bed users", RestUtility.CanUseBedEver(s, bed) && !RestUtility.CanUseBedEver(h, bed) && RestUtility.CanUseBedEver(s, hospitalBed),
+                "skeleton " + RestUtility.CanUseBedEver(s, bed) + ", human " + RestUtility.CanUseBedEver(h, bed) + ", skeleton in hospital bed " + RestUtility.CanUseBedEver(s, hospitalBed));
         }
 
         private static void GeneProofChecks(Pawn s, Pawn human)

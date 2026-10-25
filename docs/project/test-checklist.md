@@ -41,6 +41,12 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | migrate | Mod setting on: save had no old Rim-Skeletons skeletons | not seen |  |  |
 | migrate | Mod setting on: Rim-Skeletons (Continued) not loaded, nothing to convert | not seen |  |  |
 | render | Skeleton body texture drawn | not seen |  |  |
+| repair | Crafter started repairing a skeleton with repair kits | not seen |  |  |
+| repair | Repair used up a kit | not seen |  |  |
+| repair | Skeleton fully repaired by a crafter | not seen |  |  |
+| bed | Non-skeleton kept out of a skeleton repair bed | not seen |  |  |
+| bed | Repair bed repairing a skeleton's injury | not seen |  |  |
+| bed | Skeleton fully repaired in a repair bed | not seen |  |  |
 | diet | Skeleton ate chemfuel or uranium (fails if it ate anything else) | not seen |  |  |
 | reproduction | A pregnancy added to a skeleton was refused | not seen |  |  |
 | horde | Recall array inherited the mechband antenna graphic | not seen |  |  |
@@ -87,6 +93,14 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | selftest | Self-test: human refuses chemfuel | passed | 7 | chemfuel suitable False |
 | selftest | Self-test: human still eats meals | passed | 7 | simple meal suitable True |
 | selftest | Self-test: human keeps gender and hunger thought | passed | 7 | gender Male, hunger thought nullified False |
+| selftest | Self-test: both repair research projects need Basic mechtech | not seen |  |  |
+| selftest | Self-test: repair kit recipe needs the repair kit research | not seen |  |  |
+| selftest | Self-test: repair bed needs the repair bed research and an AI persona core | not seen |  |  |
+| selftest | Self-test: repair kit is not medicine | not seen |  |  |
+| selftest | Self-test: skeleton injury healing is 0%, human's is not | not seen |  |  |
+| selftest | Self-test: skeleton repair is a Smith job using Crafting | not seen |  |  |
+| selftest | Self-test: a cut skeleton needs repair, a cut human does not | not seen |  |  |
+| selftest | Self-test: only skeletons can use a repair bed; skeletons can still use hospital beds | not seen |  |  |
 | selftest | Self-test: removing the null chromosome restores a gender | passed | 7 | gender after removing null chromosome Male |
 | selftest | Self-test: no skeleton gene can roll in gene sets | not seen |  |  |
 | selftest | Self-test: 200 random gene sets hold no skeleton gene | not seen |  |  |
@@ -131,6 +145,13 @@ Things the log cannot show; tick them off by hand after looking in game.
 - [ ] Mod settings show "Convert Rim-Skeletons (Continued) factions and skeletons when a save loads"; with it on and the old mod loaded, an old save's skeletal imperium shows our faction icon and keeps its name and goodwill.
 - [ ] With the setting on, a "Skeletons converted" letter names each old skeleton; they look like our skeletons (body, head, plating, bald), keep their names, skills, traits, gear and injuries, and show as xenotype Skeleton. After saving, removing Rim-Skeletons (Continued) and loading again, they are still there and the log has no "Null key" or "Could not resolve reference" errors for them.
 - [ ] In a world made before this mod, Debug actions > Rimshi Skeletons > Add the skeletal imperium adds the faction with one settlement.
+- [ ] Research tab: "skeleton repair kits" and "skeleton repair beds" sit right of Basic mechtech and need it; neither needs a mechanitor.
+- [ ] After the kit research, the machining table has "make skeleton repair kit"; kits look like grey industrial medicine.
+- [ ] Repair kits are not offered as medicine (medical care settings, doctors never carry them to tend anyone).
+- [ ] A hurt skeleton does not heal on its own (health tab shows injury healing 0%). A colonist with Smith work fetches repair kits, kneels by it and its wounds close while the work goes on; kits are used up (about one per 20 damage) and leftovers are dropped.
+- [ ] A bleeding skeleton still lies down to be tended (first aid, no healing). With only tended wounds it keeps working unless a powered repair bed is free, then goes to it; with only scars it goes during its sleep hours.
+- [ ] After the bed research, the skeleton repair bed is in Furniture and costs an AI persona core; deconstructing it gives the core back.
+- [ ] The repair bed is medical by default and a hurt skeleton picks it over a hospital bed. A human cannot be assigned to or rest in it; a hurt skeleton resting in a powered one is repaired, scars included, and gets a "fully repaired" message. Unpowered, the bed says so and does nothing.
 - [ ] A gene extractor will not take a skeleton (the menu option is greyed out with "Skeletons have no genes to extract").
 - [ ] A xenogerm's "Implant" gizmo will not target a skeleton, and the skeleton's health tab has no "Implant xenogerm" bill.
 - [ ] A sanguophage's xenogerm reimplant ability will not target a skeleton.
