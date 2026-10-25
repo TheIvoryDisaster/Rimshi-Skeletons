@@ -15,7 +15,6 @@ namespace RimshiSkeletons
         {
             Instance = this;
             Settings = GetSettings<RimshiSettings>();
-            new Harmony(HarmonyId).PatchAll();
         }
 
         public override string SettingsCategory() => "Rimshi Skeletons";
@@ -43,6 +42,20 @@ namespace RimshiSkeletons
         public override void ExposeData()
         {
             Scribe_Values.Look(ref replaceOldFactions, "replaceOldFactions", false);
+        }
+    }
+
+    /// <summary>
+    /// Harmony patches go in after defs and DefOfs load, not in the mod constructor. Patching a type runs its static
+    /// constructor, and PregnancyUtility's builds a dictionary keyed on PawnRelationDefOf: patched too early, that
+    /// constructor throws and PregnancyUtility stays broken for the whole session, for every mod and for loading saves.
+    /// </summary>
+    [StaticConstructorOnStartup]
+    public static class RimshiHarmony
+    {
+        static RimshiHarmony()
+        {
+            new Harmony(RimshiMod.HarmonyId).PatchAll();
         }
     }
 }

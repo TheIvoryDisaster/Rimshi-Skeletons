@@ -13,7 +13,7 @@ Requested by Matthew on 2026-10-24. Values below are first-pass numbers for play
 
 ## Recall array
 
-- `Rimshi_RecallArray` inherits from the vanilla `MechbandAntenna` ThingDef: `Patches/Rimshi_MechbandAntenna.xml` gives the antenna the Name `Rimshi_MechbandAntennaParent`, so the array gets the antenna's graphic, size, build work and placement and replaces its comps, cost (120 steel, 6 components, 25 plasteel) and research. Startup checks the graphic really matches (`horde | array graphic`).
+- `Rimshi_RecallArray` copies the vanilla mechband antenna (defName `BurnoutMechlinkBooster`, label "mechband antenna"): its graphic, size, build work and placement, with its own comps, cost (120 steel, 6 components, 25 plasteel) and research. It used to inherit from the antenna through a Name patch, but the patch named the wrong defName, the array lost its thingClass, and saves stopped loading (2026-10-25), so it no longer depends on any patch. Startup checks the graphic still matches the antenna (`horde | array graphic`).
 - Use: `CompUsable` (the vanilla `UseItem` job, 10 seconds) plus `CompUseEffect_RecallArray`. Any colonist can use it (no mechanitor needed, unlike the antenna's boss call), but not while a horde is already on its way.
 - Effect: plays the antenna's own call effecter (read from its `CompProperties_Useable_CallBossgroup`), sends a small threat letter, burns out into 2 steel slag, and queues a horde on `RimshiGameComponent` for 1 to 6 in-game hours later. The queue is saved with the game.
 
@@ -48,7 +48,7 @@ Self-tests: `cannot reproduce`, `pregnancy refused`, `recall array`, `horde fact
 
 ## Checked and not checked
 
-Vanilla signatures were checked against the 1.6 reference assemblies (Krafs.Rimworld.Ref 1.6.4871) and the mod compiles against them. Method bodies were not available in this session, so these are assumptions to confirm in play or against the decompiled source on Matthew's PC: the antenna's defName is `MechbandAntenna` and it has no Name attribute; `UseItem` drives a building's `CompUsable`; an override of -1 means "no override"; downing ends Berserk.
+Vanilla signatures were checked against the 1.6 reference assemblies (Krafs.Rimworld.Ref 1.6.4871) and the mod compiles against them. Method bodies were not available in this session, so these are assumptions to confirm in play or against the decompiled source on Matthew's PC: `UseItem` drives a building's `CompUsable`; an override of -1 means "no override"; downing ends Berserk.
 
 ## Open questions
 
