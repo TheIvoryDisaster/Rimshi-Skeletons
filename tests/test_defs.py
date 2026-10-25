@@ -6,7 +6,7 @@ from helpers import ROOT, SOURCE, concrete, defs, def_names, patch_names, source
 
 VANILLA = {
     "GeneDef": {"Neversleep", "Ageless", "Hair_BaldOnly", "Beard_NoBeardOnly"},
-    "parents": {"ResourceBase", "BedWithQualityBase", "BuildingBase", "GeneSkinColorOverride", "AverageBase", "FactionBase", "PlayerFactionBase", "BasePlayerPawnKind", "ScenarioBase"},
+    "parents": {"BaseFilth", "ResourceBase", "BedWithQualityBase", "BuildingBase", "GeneSkinColorOverride", "AverageBase", "FactionBase", "PlayerFactionBase", "BasePlayerPawnKind", "ScenarioBase"},
     "PawnKindDef": {"Villager", "Town_Guard", "Miner", "Farmer"},
 }
 DIRECTIONS = ("south", "north", "east")

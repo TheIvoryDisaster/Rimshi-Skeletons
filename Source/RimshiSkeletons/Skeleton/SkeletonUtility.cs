@@ -28,6 +28,8 @@ namespace RimshiSkeletons
         public static HediffDef Rimshi_FailsafeCore;
         public static PrisonerInteractionModeDef Rimshi_Reprogram;
         public static JobDef Rimshi_ReprogramSkeleton;
+        public static ThingDef Rimshi_Filth_AncientOil;
+        public static EffecterDef Rimshi_Damage_HitAncientOil;
 
         static RimshiDefOf()
         {

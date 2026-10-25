@@ -57,6 +57,7 @@ namespace RimshiSkeletons
                 RepairChecks(skeleton, human);
                 GeneProofChecks(skeleton, human);
                 ProstheticsChecks(skeleton, human);
+                BloodChecks(skeleton, human);
                 GeneRemovalCheck(skeleton);
                 FactionChecks(pawns);
                 ReproductionChecks(skeleton, human);
@@ -416,6 +417,51 @@ namespace RimshiSkeletons
             }
             Check("prosthetics patched", unpatched.Count == 0, unpatched.Count == 0 ? ProstheticsTargets.Length + " prosthetics lock patches applied" : "not patched: " + string.Join(", ", unpatched));
         }
+
+        private static void BloodChecks(Pawn s, Pawn h)
+        {
+            Check("no bleeding", !s.health.CanBleed && h.health.CanBleed, "skeleton can bleed " + s.health.CanBleed + ", baseliner " + h.health.CanBleed);
+
+            BodyPartRecord torso = s.RaceProps.body.corePart;
+            Hediff cut = HediffMaker.MakeHediff(HediffDefOf.Cut, s, torso);
+            cut.Severity = 6f;
+            s.health.AddHediff(cut, torso);
+            Hediff humanCut = HediffMaker.MakeHediff(HediffDefOf.Cut, h, h.RaceProps.body.corePart);
+            humanCut.Severity = 6f;
+            h.health.AddHediff(humanCut, h.RaceProps.body.corePart);
+            Check("cut no blood loss", s.health.hediffSet.BleedRateTotal == 0f && !cut.Bleeding && h.health.hediffSet.BleedRateTotal > 0f,
+                "bleed rate: cut skeleton " + s.health.hediffSet.BleedRateTotal.ToStringPercent() + ", cut baseliner " + h.health.hediffSet.BleedRateTotal.ToStringPercent());
+            s.health.RemoveHediff(cut);
+            h.health.RemoveHediff(humanCut);
+
+            ThingDef oil = RimshiDefOf.Rimshi_Filth_AncientOil;
+            Check("ancient oil", oil != null && oil.filth != null && oil.label == "ancient oil" && oil.graphicData.color.r < 0.2f
+                && RimshiDefOf.Rimshi_Damage_HitAncientOil != null && h.RaceProps.FleshType.damageEffecter != null,
+                "filth " + oil?.defName + " colour " + oil?.graphicData?.color + ", hit effect " + RimshiDefOf.Rimshi_Damage_HitAncientOil?.defName
+                + " replaces " + h.RaceProps.FleshType.damageEffecter?.defName);
+
+            var unpatched = new List<string>();
+            foreach (MethodBase method in BloodTargets)
+            {
+                Patches info = method == null ? null : Harmony.GetPatchInfo(method);
+                if (info == null || !info.Owners.Contains(RimshiMod.HarmonyId))
+                {
+                    unpatched.Add(method == null ? "missing method" : method.DeclaringType.Name + "." + method.Name);
+                }
+            }
+            Check("blood patched", unpatched.Count == 0, unpatched.Count == 0 ? BloodTargets.Length + " blood patches applied" : "not patched: " + string.Join(", ", unpatched));
+        }
+
+        private static readonly MethodBase[] BloodTargets =
+        {
+            AccessTools.PropertyGetter(typeof(Pawn_HealthTracker), nameof(Pawn_HealthTracker.CanBleed)),
+            AccessTools.Method(typeof(Pawn), nameof(Pawn.PostApplyDamage)),
+            AccessTools.Method(typeof(Pawn_HealthTracker), nameof(Pawn_HealthTracker.DropBloodFilth)),
+            AccessTools.Method(typeof(Pawn_HealthTracker), nameof(Pawn_HealthTracker.DropBloodSmear)),
+            AccessTools.Method(typeof(Effecter), nameof(Effecter.Trigger)),
+            AccessTools.Method(typeof(JobGiver_GetHemogen), nameof(JobGiver_GetHemogen.CanFeedOnPrisoner)),
+            AccessTools.Method(typeof(SanguophageUtility), nameof(SanguophageUtility.DoBite)),
+        };
 
         private static int AddedParts(Pawn pawn) =>
             pawn.health.hediffSet.hediffs.Count(h => h.def.countsAsAddedPartOrImplant || h is Hediff_AddedPart || h is Hediff_Implant);
