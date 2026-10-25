@@ -285,6 +285,8 @@ namespace RimshiSkeletons
             h.health.AddHediff(humanCut, h.RaceProps.body.corePart);
             Check("needs repair", SkeletonRepair.NeedsRepair(s) && !SkeletonRepair.NeedsRepair(h) && SkeletonRepair.KitsFor(s) == 1,
                 "cut skeleton needs repair " + SkeletonRepair.NeedsRepair(s) + " (" + SkeletonRepair.KitsFor(s) + " kit), cut human " + SkeletonRepair.NeedsRepair(h));
+            Check("no tending", !cut.TendableNow() && !s.health.HasHediffsNeedingTend() && humanCut.TendableNow(),
+                "skeleton cut tendable " + cut.TendableNow() + ", skeleton needs tending " + s.health.HasHediffsNeedingTend() + ", human cut tendable " + humanCut.TendableNow());
             s.health.RemoveHediff(cut);
             h.health.RemoveHediff(humanCut);
             Check("bed users", RestUtility.CanUseBedEver(s, bed) && !RestUtility.CanUseBedEver(h, bed) && RestUtility.CanUseBedEver(s, hospitalBed),

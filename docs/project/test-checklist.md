@@ -43,6 +43,7 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | render | Skeleton body texture drawn | not seen |  |  |
 | repair | Crafter started repairing a skeleton with repair kits | not seen |  |  |
 | repair | Repair used up a kit | not seen |  |  |
+| repair | Repair sealed leaks or treated a tendable condition with kits | not seen |  |  |
 | repair | Skeleton fully repaired by a crafter | not seen |  |  |
 | bed | Non-skeleton kept out of a skeleton repair bed | not seen |  |  |
 | bed | Repair bed repairing a skeleton's injury | not seen |  |  |
@@ -108,6 +109,7 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | selftest | Self-test: skeleton injury healing is 0%, human's is not | not seen |  |  |
 | selftest | Self-test: skeleton repair is a Smith job using Crafting | not seen |  |  |
 | selftest | Self-test: a cut skeleton needs repair, a cut human does not | not seen |  |  |
+| selftest | Self-test: nothing on a skeleton is tendable with medicine; a human cut still is | not seen |  |  |
 | selftest | Self-test: only skeletons can use a repair bed; skeletons can still use hospital beds | not seen |  |  |
 | selftest | Self-test: removing the null chromosome restores a gender | passed | 7 | gender after removing null chromosome Male |
 | selftest | Self-test: no skeleton gene can roll in gene sets | not seen |  |  |
@@ -167,7 +169,9 @@ Things the log cannot show; tick them off by hand after looking in game.
 - [ ] After the kit research, the machining table has "make skeleton repair kit"; kits show the steel repair case with the wrench.
 - [ ] Repair kits are not offered as medicine (medical care settings, doctors never carry them to tend anyone).
 - [ ] A hurt skeleton does not heal on its own (health tab shows injury healing 0%). A colonist with Smith work fetches repair kits, kneels by it and its wounds close while the work goes on; kits are used up (about one per 20 damage) and leftovers are dropped.
-- [ ] A bleeding skeleton still lies down to be tended (first aid, no healing). With only tended wounds it keeps working unless a powered repair bed is free, then goes to it; with only scars it goes during its sleep hours.
+- [ ] No one tends a hurt skeleton (colonist, prisoner, slave or guest) with herbal or any other medicine: no doctor job, no self-tend, no drafted "Tend" option, no "needs tending" alert. The repair job, with kits, is the only treatment; with no kits it shows "No skeleton repair kits".
+- [ ] While repairing, the repairer shows the mechanitor repair sparks and sound over the skeleton, and the skeleton's wounds close.
+- [ ] A hurt skeleton keeps working unless downed or a powered repair bed is free, then goes to it; with only scars it goes during its sleep hours.
 - [ ] After the bed research, the skeleton repair bed is in Furniture and costs an AI persona core; deconstructing it gives the core back.
 - [ ] The repair bed shows the repair machine art, facing the right way in all four rotations (west mirrors east), and the skeleton lies on the deck.
 - [ ] The repair bed is medical by default and a hurt skeleton picks it over a hospital bed. A human cannot be assigned to or rest in it; a hurt skeleton resting in a powered one is repaired, scars included, and gets a "fully repaired" message. Unpowered, the bed says so and does nothing.
