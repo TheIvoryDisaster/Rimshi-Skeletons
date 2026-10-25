@@ -8,7 +8,7 @@
   <ThingDef ParentName="BedWithQualityBase">
     <defName>Rimshi_SkeletonRepairBed</defName>
     <label>skeleton repair bed</label>
-    <description>A powered cradle of clamps, tool arms and diagnostic cables, run by an AI persona core, of the kind the old empire kept for its skeletons. A skeleton lying in it is slowly repaired back to full health, scars and all, though it cannot rebuild a lost part. Only skeletons can use it. Without power it is just a hard bed.</description>
+    <description>A powered cradle of clamps, tool arms and diagnostic cables, run by an AI persona core, of the kind the old empire kept for its skeletons. A skeleton lying in it is slowly repaired back to full health, scars and all, though it cannot rebuild a lost part. It is also where skeletons deathrest: its tank burns about 35 chemfuel over one deathrest, with or without power. Only skeletons can use it. Without power it cannot repair.</description>
     <graphicData>
       <!-- 256x256 like the vanilla hospital bed: the 1x2 bed centred, sides transparent. West is east mirrored. -->
       <texPath>Rimshi/Buildings/RepairBed</texPath>
@@ -37,6 +37,26 @@
       <li Class="RimshiSkeletons.CompProperties_Rimshi_RepairBed">
         <repairPerDay>40</repairPerDay>
         <repairsScars>true</repairsScars>
+      </li>
+      <!-- The skeletons' deathrest casket (SkeletonDeathrest.cs): a 35 chemfuel tank, like a chemfuel generator's,
+           burned only while a skeleton deathrests in the bed, 35 over one full deathrest. -->
+      <li Class="CompProperties_Refuelable">
+        <fuelConsumptionRate>0</fuelConsumptionRate>
+        <fuelCapacity>35</fuelCapacity>
+        <consumeFuelOnlyWhenUsed>true</consumeFuelOnlyWhenUsed>
+        <autoRefuelPercent>0.5</autoRefuelPercent>
+        <fuelFilter>
+          <thingDefs>
+            <li>Chemfuel</li>
+          </thingDefs>
+        </fuelFilter>
+        <fuelLabel>Chemfuel</fuelLabel>
+        <fuelGizmoLabel>Chemfuel</fuelGizmoLabel>
+        <showAllowAutoRefuelToggle>true</showAllowAutoRefuelToggle>
+        <drawOutOfFuelOverlay>false</drawOutOfFuelOverlay>
+      </li>
+      <li Class="RimshiSkeletons.CompProperties_Rimshi_DeathrestFuel">
+        <fuelPerDeathrest>35</fuelPerDeathrest>
       </li>
     </comps>
     <size>(1,2)</size>

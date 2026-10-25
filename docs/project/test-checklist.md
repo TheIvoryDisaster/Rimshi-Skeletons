@@ -52,6 +52,11 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | diet | Skeleton consumed a component for maintenance (fails if it ate anything else) | not seen |  |  |
 | maintenance | Skeleton out of maintenance did not get malnutrition | not seen |  |  |
 | maintenance | Need bar and tooltips relabel needs (this line only appears when a patch target is missing) | not seen |  |  |
+| deathrest | Skeleton went to deathrest in a repair bed (gives its chemfuel) | not seen |  |  |
+| deathrest | Deathrest burning a repair bed's chemfuel | not seen |  |  |
+| deathrest | Deathrest paused: out of chemfuel or not in a repair bed | not seen |  |  |
+| deathrest | Skeleton due to deathrest found no roofed, fuelled repair bed | not seen |  |  |
+| deathrest | Skeletons from an older save got the deathrest gene | not seen |  |  |
 | reproduction | A pregnancy added to a skeleton was refused | not seen |  |  |
 | horde | Recall array inherited the mechband antenna graphic | not seen |  |  |
 | horde | Recall research on the research tab, overlapping nothing (gives its position) | not seen |  |  |
@@ -107,6 +112,9 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | selftest | Self-test: vanilla hunger thought nullified for skeleton | passed | 7 | NeedFood nullified |
 | selftest | Self-test: maintenance thought can apply to skeleton | not seen |  |  |
 | selftest | Self-test: with Dubs Bad Hygiene, no thirst or bladder and self-cleaning at half rate (passes when not loaded) | not seen |  |  |
+| selftest | Self-test: skeleton has deathrest (gene, need, icon); human does not | not seen |  |  |
+| selftest | Self-test: repair bed holds chemfuel for deathrest (tank and fuel per deathrest) | not seen |  |  |
+| selftest | Self-test: deathrest tooltip relabelled for skeletons | not seen |  |  |
 | selftest | Self-test: naked thought nullified for skeleton | passed | 7 | Naked nullified |
 | selftest | Self-test: human refuses components | not seen |  |  |
 | selftest | Self-test: human still eats meals | passed | 7 | simple meal suitable True |
@@ -173,6 +181,7 @@ Things the log cannot show; tick them off by hand after looking in game.
 - [ ] When maintenance drops to about 30% (about two days after a full bar), a skeleton walks to a component and strips it ("Stripping component for maintenance"), one at a time, and the bar fills back up.
 - [ ] A skeleton refuses ordinary meals (right-click shows "not suitable"), and a human or animal refuses components.
 - [ ] Without components, a skeleton gets "maintenance due", then "maintenance overdue", then "worn parts" at 0%, getting one stage worse per day (down to "falling apart", -22); the vanilla hunger thought shows as nullified, and it never gets malnutrition.
+- [ ] Deathrest: a skeleton's needs tab has a deathrest bar with the reactor core tooltip. A repair bed shows a chemfuel gauge and haulers fill it (35). When deathrest drops to 5%, the skeleton walks to a roofed repair bed with fuel and deathrests there for about 4 days, burning the tank down (about 35); with an empty tank it pauses with a message; with no fuelled bed it never deathrests and gets deathrest exhaustion.
 - [ ] With Dubs Bad Hygiene: a skeleton has no thirst or bladder bar, its hygiene bar reads "Self-cleaning" with the motor debris tooltip, and it drops about half as fast as a human's. The mechanical nature gene lists the changes and "hygiene rate factor x50%".
 - [ ] Naked, dark, wet and pain thoughts show as nullified by mechanical nature.
 - [ ] A skeleton never needs sleep (no rest bar).

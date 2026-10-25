@@ -192,6 +192,38 @@
     <biostatMet>3</biostatMet>
   </GeneDef>
 
+  <!-- Deathrest, the vanilla Biotech mechanic (Gene_Deathrest, the Deathrest need, deathrest capacity), but only in a fuelled
+       skeleton repair bed, which burns chemfuel instead of the sanguophage's casket (SkeletonDeathrest.cs). Deathrest
+       buildings and capacity items work as for sanguophages; ones of our own come in a later milestone. -->
+  <GeneDef ParentName="Rimshi_SkeletonGeneBase">
+    <defName>Rimshi_Deathrest</defName>
+    <label>reactor deathrest</label>
+    <labelShortAdj>dormant</labelShortAdj>
+    <description>Carriers of this gene must lie dormant every few weeks while their reactor core recharges. They can only do so in a skeleton repair bed, which burns chemfuel to bring the core back up. Going too long without deathrest leaves them exhausted.</description>
+    <geneClass>Gene_Deathrest</geneClass>
+    <iconPath>UI/Icons/Genes/Gene_Deathrest</iconPath>
+    <displayOrderInCategory>45</displayOrderInCategory>
+    <enablesNeeds>
+      <li>Deathrest</li>
+    </enablesNeeds>
+    <customEffectDescriptions>
+      <li>Deathrests only in a roofed skeleton repair bed with chemfuel in its tank</li>
+      <li>One full deathrest burns about 35 chemfuel; deathrest pauses while the tank is empty</li>
+    </customEffectDescriptions>
+    <modExtensions>
+      <li Class="RimshiSkeletons.NeedRelabelExtension">
+        <relabels>
+          <li>
+            <need>Deathrest</need>
+            <label>deathrest</label>
+            <description>A skeleton's reactor core slowly runs down. Every few weeks it must lie dormant for several days in a skeleton repair bed while the bed burns chemfuel to recharge the core. A skeleton that goes too long without deathrest is left exhausted.</description>
+          </li>
+        </relabels>
+      </li>
+    </modExtensions>
+    <biostatCpx>1</biostatCpx>
+  </GeneDef>
+
   <!-- Genderless, asexual, sterile: the "null chromosome pattern" approach from Rim-Hivers! - Biotech (VexedTrees). -->
   <GeneDef ParentName="Rimshi_SkeletonGeneBase">
     <defName>Rimshi_NullChromosome</defName>

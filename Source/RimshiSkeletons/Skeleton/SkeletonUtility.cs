@@ -13,6 +13,7 @@ namespace RimshiSkeletons
         public static GeneDef Rimshi_MechanicalNature;
         public static GeneDef Rimshi_FuelReactor;
         public static GeneDef Rimshi_NullChromosome;
+        public static GeneDef Rimshi_Deathrest;
 
         public static FactionDef Rimshi_SkeletalImperium;
         public static FactionDef Rimshi_PlayerSkeletons;

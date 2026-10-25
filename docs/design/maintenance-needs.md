@@ -29,3 +29,16 @@ The gene's effect list gains a line for each need removed or relabelled, only wh
 ## Tests
 
 Startup lines `defs | maintenance item` and `defs | need changes`; `diet | ate component`, `maintenance | no malnutrition`. Self-tests: eats components, maintenance rate, one component, maintenance label, no malnutrition, maintenance thought, dubs needs, human refuses components.
+
+## Deathrest (repair bed as casket)
+
+Asked for by Matthew on 2026-10-25, right after maintenance: skeletons deathrest like sanguophages, the skeleton repair bed is their casket, and one deathrest burns a modest amount of chemfuel (35, like a generator's tank). Extensions and capacity content come in a later milestone.
+
+| Part | How |
+| --- | --- |
+| Gene | `Rimshi_Deathrest` with vanilla `Gene_Deathrest` and `enablesNeeds` Deathrest, in the xenotype. Vanilla deathrest rules apply: the need falls over 30 days, a full deathrest takes 4 days (less with efficiency buildings), deathrest exhaustion at 0, deathrest capacity 1, the wake gizmo and auto-wake. Skeletons in older saves get the gene on load (`SkeletonDeathrest.AddMissingGenes`, xenotype genes only). The need tooltip is relabelled to the reactor core text. |
+| Bed | The repair bed gets a `CompRefuelable` (chemfuel, 35, `consumeFuelOnlyWhenUsed`, haulers top it up below half) and `CompRimshi_DeathrestFuel` (35 per deathrest). No `CompDeathrestBindable`: its rare tick rewrites the power output, which would break the bed's repair power draw, and nothing in the casket needs binding. Deathrest buildings in the room still link through vanilla's room scan. |
+| Where | `Patch_DeathrestInRepairBed` postfixes `JobGiver_GetDeathrest.TryGiveJob`: the nearest roofed, fuelled, free repair bed replaces vanilla's bed or ground spot. No bed means no job, so the need runs down. The repair bed is medical, and vanilla lets pawns use medical beds only while seeking medical rest, so `Patch_DeathrestMedicalBed` counts a skeleton deathresting or on its way to deathrest (runs after the repair bed's own postfix). |
+| Fuel | `Patch_DeathrestFuel` prefixes `Gene_Deathrest.TickDeathresting`: in a repair bed with fuel, it burns 35 / MinDeathrestTicks per tick; otherwise deathrest is paused (no progress, the need does not refill) with one message. Power is not needed; a powered bed also repairs the sleeper. |
+
+Not done: no "start deathrest" right-click on the repair bed (vanilla's option rejects medical beds), the vanilla deathrest chamber room role and lines-to-casket overlays still look for the vanilla casket, and vanilla's sunlight checks still apply (the bed must be roofed).
