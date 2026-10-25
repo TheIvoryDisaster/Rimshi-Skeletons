@@ -1,5 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using HarmonyLib;
 using LudeonTK;
 using RimWorld;
 using RimWorld.Planet;
@@ -51,6 +54,7 @@ namespace RimshiSkeletons
                 pawns.Add(human);
                 SkeletonChecks(skeleton, human);
                 HumanChecks(human);
+                GeneProofChecks(skeleton, human);
                 GeneRemovalCheck(skeleton);
                 FactionChecks(pawns);
             }
@@ -135,6 +139,60 @@ namespace RimshiSkeletons
             Check("human unchanged", h.gender != Gender.None && !ThoughtUtility.ThoughtNullified(h, NeedFood),
                 "gender " + h.gender + ", hunger thought nullified " + ThoughtUtility.ThoughtNullified(h, NeedFood));
         }
+
+        private static void GeneProofChecks(Pawn s, Pawn human)
+        {
+            List<GeneDef> ours = DefDatabase<GeneDef>.AllDefsListForReading.FindAll(SkeletonUtility.IsSkeletonGene);
+            List<GeneDef> rollable = ours.FindAll(g => g.canGenerateInGeneSet);
+            Check("gene set flag", ours.Count > 0 && rollable.Count == 0, ours.Count + " skeleton genes"
+                + (rollable.Count > 0 ? "; can roll in gene sets: " + string.Join(", ", rollable.ConvertAll(g => g.defName)) : ", none can roll in gene sets"));
+
+            int leaked = 0;
+            for (int i = 0; i < 200; i++)
+            {
+                if (GeneUtility.GenerateGeneSet().GenesListForReading.Any(SkeletonUtility.IsSkeletonGene))
+                {
+                    leaked++;
+                }
+            }
+            Check("gene sets clean", leaked == 0, leaked + " of 200 random gene sets held a skeleton gene");
+
+            GeneDef neversleep = DefDatabase<GeneDef>.GetNamed("Neversleep");
+            var pack = (Genepack)ThingMaker.MakeThing(ThingDefOf.Genepack);
+            pack.Initialize(new List<GeneDef> { RimshiDefOf.Rimshi_FuelReactor, neversleep });
+            List<GeneDef> packed = pack.GeneSet.GenesListForReading;
+            Check("genepack strip", !packed.Any(SkeletonUtility.IsSkeletonGene) && packed.Contains(neversleep),
+                "genepack holds " + string.Join(", ", packed.ConvertAll(g => g.defName)));
+            pack.Destroy();
+
+            Check("gene lock", GeneProofing.Refuses(s) && !GeneProofing.Refuses(human), "skeleton refused " + GeneProofing.Refuses(s) + ", baseliner refused " + GeneProofing.Refuses(human));
+
+            RecipeDef implant = DefDatabase<RecipeDef>.GetNamedSilentFail("ImplantXenogerm");
+            Check("implant bill", implant != null && !implant.Worker.AvailableOnNow(s), "implant xenogerm bill on skeleton available " + implant?.Worker.AvailableOnNow(s));
+
+            var unpatched = new List<string>();
+            foreach (MethodBase method in GeneProofTargets)
+            {
+                Patches info = method == null ? null : Harmony.GetPatchInfo(method);
+                if (info == null || !info.Owners.Contains(RimshiMod.HarmonyId))
+                {
+                    unpatched.Add(method == null ? "missing method" : method.DeclaringType.Name + "." + method.Name);
+                }
+            }
+            Check("gene lock patched", unpatched.Count == 0, unpatched.Count == 0 ? GeneProofTargets.Length + " gene lock patches applied" : "not patched: " + string.Join(", ", unpatched));
+        }
+
+        private static readonly MethodBase[] GeneProofTargets =
+        {
+            AccessTools.Method(typeof(Building_GeneExtractor), nameof(Building_GeneExtractor.CanAcceptPawn)),
+            AccessTools.Method(typeof(Xenogerm), nameof(Xenogerm.ValidateTarget)),
+            AccessTools.Method(typeof(Recipe_ImplantXenogerm), nameof(Recipe_ImplantXenogerm.AvailableOnNow)),
+            AccessTools.Method(typeof(CompAbilityEffect_ReimplantXenogerm), nameof(CompAbilityEffect_ReimplantXenogerm.Valid)),
+            AccessTools.Method(typeof(JobDriver_AbsorbXenogerm), nameof(JobDriver_AbsorbXenogerm.TryMakePreToilReservations)),
+            AccessTools.Method(typeof(GeneUtility), nameof(GeneUtility.ImplantXenogermItem)),
+            AccessTools.Method(typeof(GeneUtility), nameof(GeneUtility.ReimplantXenogerm)),
+            AccessTools.Method(typeof(Genepack), nameof(Genepack.Initialize)),
+        };
 
         private static void GeneRemovalCheck(Pawn s)
         {
