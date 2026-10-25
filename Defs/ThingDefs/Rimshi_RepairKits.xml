@@ -2,8 +2,7 @@
 <Defs>
 
   <!-- Used up by the skeleton repair job (JobDriver_Rimshi_RepairSkeleton), the way mechanitors repair mechs. Not
-       medicine: no MedicalPotency, so vanilla tending never picks it up and it never shows in medical care settings.
-       Vanilla industrial medicine art tinted grey until it has its own texture. -->
+       medicine: no MedicalPotency, so vanilla tending never picks it up and it never shows in medical care settings. -->
   <ThingDef ParentName="ResourceBase">
     <defName>Rimshi_RepairKit</defName>
     <label>skeleton repair kit</label>
@@ -18,10 +17,9 @@
     </thingCategories>
     <possessionCount>3</possessionCount>
     <graphicData>
-      <texPath>Things/Item/Resource/Medicine/MedicineIndustrial</texPath>
-      <graphicClass>Graphic_StackCount</graphicClass>
+      <texPath>Rimshi/Items/RepairKit</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
       <drawSize>0.85</drawSize>
-      <color>(150,152,158)</color>
     </graphicData>
     <techLevel>Industrial</techLevel>
     <statBases>

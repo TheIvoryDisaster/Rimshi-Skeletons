@@ -77,6 +77,16 @@ class DefTests(unittest.TestCase):
                 with self.subTest(file=f, icon=icon):
                     self.assertTrue(texture_exists(icon))
 
+    def test_own_thing_textures_exist(self):
+        """Graphic_Multi needs _south, _east and _north (west mirrors east); other graphics one file."""
+        for f, el in concrete("ThingDef"):
+            tex = el.findtext("graphicData/texPath")
+            if tex and tex.startswith("Rimshi/"):
+                multi = el.findtext("graphicData/graphicClass") == "Graphic_Multi"
+                for path in ([tex + "_" + d for d in DIRECTIONS] if multi else [tex]):
+                    with self.subTest(file=f, texture=path):
+                        self.assertTrue(texture_exists(path), path + ".png missing")
+
     def test_classes_exist(self):
         code = "\n".join(source_text().values())
         files = xml_files("Defs", "Patches")
