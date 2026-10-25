@@ -1,0 +1,1 @@
+Skeletons are psychically deaf: the mechanical nature gene sets psychic sensitivity to 0 as a factor (like vanilla's psychically deaf gene), so psychic drones, soothes, psycasts and other psychic effects never touch them and implants or psylinks cannot raise it. The original mod used 0.5. New self-test.
