@@ -1,0 +1,1 @@
+Skeleton chips groundwork: skeleton genes are now marked core or chip, with an empty chip gene category ready for the chip extractor, processor and assembler. Design in docs/design/skeleton-chips.md (no Vanilla Expanded Framework dependency).

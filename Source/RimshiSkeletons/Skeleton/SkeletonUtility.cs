@@ -62,8 +62,12 @@ namespace RimshiSkeletons
         /// <summary>Gene display category of every skeleton gene (Defs/GeneDefs/Rimshi_Genes.xml).</summary>
         public const string GeneCategory = "Rimshi_Skeleton";
 
-        /// <summary>True for our genes: everything in the skeleton gene category, plating colours included.</summary>
-        public static bool IsSkeletonGene(GeneDef gene) => gene?.displayCategory?.defName == GeneCategory;
+        /// <summary>
+        /// True for our genes: core genes (plating colours included) and chips, marked by SkeletonGeneExtension. The
+        /// category check catches a gene another mod puts in our category without inheriting from our bases.
+        /// </summary>
+        public static bool IsSkeletonGene(GeneDef gene) =>
+            gene != null && (gene.HasModExtension<SkeletonGeneExtension>() || gene.displayCategory?.defName == GeneCategory);
 
         /// <summary>True if the pawn has any skeleton gene, active or not, or the skeleton xenotype.</summary>
         public static bool CarriesSkeletonGenes(Pawn pawn)

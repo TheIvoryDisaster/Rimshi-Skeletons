@@ -113,6 +113,7 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | selftest | Self-test: only skeletons can use a repair bed; skeletons can still use hospital beds | not seen |  |  |
 | selftest | Self-test: removing the null chromosome restores a gender | passed | 7 | gender after removing null chromosome Male |
 | selftest | Self-test: no skeleton gene can roll in gene sets | not seen |  |  |
+| selftest | Self-test: every skeleton gene is marked core or chip, chip category loaded | not seen |  |  |
 | selftest | Self-test: 200 random gene sets hold no skeleton gene | not seen |  |  |
 | selftest | Self-test: a genepack drops skeleton genes and keeps the rest | not seen |  |  |
 | selftest | Self-test: gene buildings refuse the skeleton, not the baseliner | not seen |  |  |

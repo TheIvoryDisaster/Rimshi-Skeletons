@@ -15,6 +15,12 @@
     <iconColor>(0.75, 0.75, 0.75)</iconColor>
     <!-- Never rolled into genepacks (traders, quests); see GeneProofing.cs for the rest of the gene lock. -->
     <canGenerateInGeneSet>false</canGenerateInGeneSet>
+    <!-- Core skeleton gene: fixed, never a chip. Chips use Rimshi_SkeletonChipBase (Rimshi_ChipGenes.xml). -->
+    <modExtensions>
+      <li Class="RimshiSkeletons.SkeletonGeneExtension">
+        <kind>Core</kind>
+      </li>
+    </modExtensions>
   </GeneDef>
 
   <!-- Looks: skeleton body (drawn by the body render patch), the six skeleton heads, no tattoos. -->
@@ -180,6 +186,11 @@
     <displayCategory>Rimshi_Skeleton</displayCategory>
     <iconPath>UI/Icons/Genes/Gene_SkinColorOverride</iconPath>
     <canGenerateInGeneSet>false</canGenerateInGeneSet>
+    <modExtensions>
+      <li Class="RimshiSkeletons.SkeletonGeneExtension">
+        <kind>Core</kind>
+      </li>
+    </modExtensions>
   </GeneDef>
 
   <GeneDef ParentName="Rimshi_PlatingBase">
