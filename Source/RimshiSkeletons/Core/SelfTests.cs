@@ -8,6 +8,7 @@ using RimWorld;
 using RimWorld.Planet;
 using UnityEngine;
 using Verse;
+using Verse.AI;
 
 namespace RimshiSkeletons
 {
@@ -58,6 +59,7 @@ namespace RimshiSkeletons
                 GeneProofChecks(skeleton, human);
                 ProstheticsChecks(skeleton, human);
                 BloodChecks(skeleton, human);
+                DrugChecks(skeleton, human);
                 GeneRemovalCheck(skeleton);
                 FactionChecks(pawns);
                 ReproductionChecks(skeleton, human);
@@ -457,6 +459,64 @@ namespace RimshiSkeletons
             }
             Check("blood patched", unpatched.Count == 0, unpatched.Count == 0 ? BloodTargets.Length + " blood patches applied" : "not patched: " + string.Join(", ", unpatched));
         }
+
+        private static void DrugChecks(Pawn s, Pawn h)
+        {
+            ThingDef beer = ThingDefOf.Beer;
+            ThingDef penoxycyline = DefDatabase<ThingDef>.GetNamedSilentFail("Penoxycyline");
+            Check("drug refused", !s.CanTakeDrug(beer) && (h.CanTakeDrug(beer) || h.IsTeetotaler()) && penoxycyline != null
+                && !s.DrugIsSuitable(penoxycyline) && h.DrugIsSuitable(penoxycyline),
+                "beer: skeleton " + s.CanTakeDrug(beer) + ", baseliner " + h.CanTakeDrug(beer) + " (teetotaler " + h.IsTeetotaler()
+                + "); penoxycyline suitable: skeleton " + (penoxycyline != null && s.DrugIsSuitable(penoxycyline)) + ", baseliner " + (penoxycyline != null && h.DrugIsSuitable(penoxycyline)));
+
+            bool scheduled = s.drugs != null && DefDatabase<ThingDef>.AllDefsListForReading.Any(d => DrugLock.IsBlockedDrug(d)
+                && (s.drugs.AllowedToTakeScheduledEver(d) || s.drugs.AllowedToTakeToInventory(d)));
+            Check("drug policy", s.drugs != null && !scheduled, "skeleton policy " + s.drugs?.CurrentPolicy?.label + " schedules or carries a drug " + scheduled);
+
+            var administer = DefDatabase<RecipeDef>.AllDefsListForReading.FindAll(r => r.Worker is Recipe_AdministerIngestible && r.ingredients.Count > 0
+                && r.ingredients[0].filter.AllowedThingDefs.Any(DrugLock.IsBlockedDrug));
+            var offered = administer.FindAll(r => r.Worker.AvailableOnNow(s));
+            int humanOffered = administer.Count(r => r.Worker.AvailableOnNow(h));
+            Check("no administer bills", administer.Count > 0 && offered.Count == 0 && humanOffered > 0, administer.Count + " administer drug bills, "
+                + offered.Count + " offered on the skeleton" + (offered.Count > 0 ? " (" + string.Join(", ", offered.Take(5).Select(r => r.defName)) + ")" : "")
+                + ", " + humanOffered + " on the baseliner");
+
+            var binges = DefDatabase<MentalStateDef>.AllDefsListForReading.FindAll(d => d.stateClass != null && typeof(MentalState_BingingDrug).IsAssignableFrom(d.stateClass));
+            var possible = binges.FindAll(d => d.Worker.StateCanOccur(s));
+            Check("no drug binge", binges.Count > 0 && possible.Count == 0, binges.Count + " drug binge states, possible on the skeleton: "
+                + (possible.Count == 0 ? "none" : string.Join(", ", possible.Select(d => d.defName))));
+
+            var unpatched = new List<string>();
+            foreach (MethodBase method in DrugTargets)
+            {
+                Patches info = method == null ? null : Harmony.GetPatchInfo(method);
+                if (info == null || !info.Owners.Contains(RimshiMod.HarmonyId))
+                {
+                    unpatched.Add(method == null ? "missing method" : method.DeclaringType.Name + "." + method.Name);
+                }
+            }
+            Check("drugs patched", unpatched.Count == 0, unpatched.Count == 0 ? DrugTargets.Length + " drug lock patches applied" : "not patched: " + string.Join(", ", unpatched));
+        }
+
+        private static readonly MethodBase[] DrugTargets =
+        {
+            AccessTools.Method(typeof(PawnUtility), nameof(PawnUtility.CanTakeDrug)),
+            AccessTools.Method(typeof(FoodUtility), nameof(FoodUtility.DrugIsSuitable)),
+            AccessTools.Method(typeof(Pawn_DrugPolicyTracker), nameof(Pawn_DrugPolicyTracker.AllowedToTakeScheduledEver)),
+            AccessTools.Method(typeof(Pawn_DrugPolicyTracker), nameof(Pawn_DrugPolicyTracker.AllowedToTakeToInventory)),
+            AccessTools.Method(typeof(JoyGiver_Ingest), "CanIngestForJoy"),
+            AccessTools.Method(typeof(JoyGiver_SocialRelax), "TryFindIngestibleToNurse"),
+            AccessTools.Method(typeof(JobGiver_TakeCombatEnhancingDrug), "TryGiveJob"),
+            AccessTools.Method(typeof(JobGiver_SatisfyChemicalNeed), "TryGiveJob"),
+            AccessTools.Method(typeof(JobGiver_TakeDrugsForDrugPolicy), "TryGiveJob"),
+            AccessTools.Method(typeof(JobGiver_BingeDrug), "BestIngestTarget"),
+            AccessTools.Method(typeof(MentalStateWorker), nameof(MentalStateWorker.StateCanOccur)),
+            AccessTools.Method(typeof(Recipe_AdministerIngestible), nameof(Recipe_AdministerIngestible.AvailableOnNow)),
+            AccessTools.Method(typeof(PawnInventoryGenerator), "GiveCombatEnhancingDrugs"),
+            AccessTools.Method(typeof(CompDrug), nameof(CompDrug.PostIngested)),
+            AccessTools.Method(typeof(IngestionOutcomeDoer), nameof(IngestionOutcomeDoer.DoIngestionOutcome)),
+            AccessTools.Method(typeof(DrugPolicyUIUtility), nameof(DrugPolicyUIUtility.DoAssignDrugPolicyButtons)),
+        };
 
         private static readonly MethodBase[] BloodTargets =
         {

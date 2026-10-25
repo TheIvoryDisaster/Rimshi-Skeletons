@@ -89,7 +89,7 @@
     <defName>Rimshi_MechanicalNature</defName>
     <label>mechanical nature</label>
     <labelShortAdj>mechanical</labelShortAdj>
-    <description>Carriers of this gene are machines. They never fall ill, cannot be poisoned, do not mind the dark, the wet or going without clothes, have no blood to lose, and are psychically deaf: psychic drones, soothes, psycasts and other psychic effects do not touch them.</description>
+    <description>Carriers of this gene are machines. They never fall ill, cannot be poisoned, do not mind the dark, the wet or going without clothes, have no blood to lose, cannot take drugs, and are psychically deaf: psychic drones, soothes, psycasts and other psychic effects do not touch them.</description>
     <iconPath>UI/Icons/Genes/Gene_TotalToxicityResistance</iconPath>
     <displayOrderInCategory>20</displayOrderInCategory>
     <immuneToToxGasExposure>true</immuneToToxGasExposure>
@@ -108,6 +108,7 @@
       <li>Does not mind darkness, nakedness, wet clothes or pain</li>
       <li>Cannot take prosthetics, bionics, implants, organs or psylinks (a mechlink still fits)</li>
       <li>Has no blood and never bleeds; leaks black ancient oil when hit</li>
+      <li>Cannot take drugs of any kind, medical or recreational; drug policies do nothing</li>
     </customEffectDescriptions>
     <biostatCpx>4</biostatCpx>
     <biostatMet>-4</biostatMet>

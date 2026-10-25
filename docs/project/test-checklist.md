@@ -8,7 +8,7 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 
 **How to use it:** play with Development mode on, then tell Claude to check the logs. Claude pulls Player.log and Player-prev.log from `C:\Users\Matthew\AppData\LocalLow\Ludeon Studios\RimWorld by Ludeon Studios`, runs `tools/rimshi_testlog.py` over them and updates this table. Results add up across sessions; any exception that mentions the mod is reported too. A PR that only updates this file is merged by Claude without asking, and its description lists every test that ran and its outcome.
 
-**Self-tests:** with Development mode on, loading or starting a game runs the in-game self-tests once per session (also on demand: Debug actions > Rimshi Skeletons > Run self-tests). They generate a skeleton, a baseliner and a skeletal imperium town guard off the map, check genes, looks, diet, thoughts, immunity, the gene lock, the prosthetics lock, blood and ancient oil, backstory, faction, reproduction, the recall array and horde skeletons (gear, protocol, failsafe core, one reprogramming session), discard the pawns, and log one `selftest` line per check plus a summary.
+**Self-tests:** with Development mode on, loading or starting a game runs the in-game self-tests once per session (also on demand: Debug actions > Rimshi Skeletons > Run self-tests). They generate a skeleton, a baseliner and a skeletal imperium town guard off the map, check genes, looks, diet, thoughts, immunity, the gene lock, the prosthetics lock, blood and ancient oil, the drug lock, backstory, faction, reproduction, the recall array and horde skeletons (gear, protocol, failsafe core, one reprogramming session), discard the pawns, and log one `selftest` line per check plus a summary.
 
 **Unit tests:** `python3 -m unittest discover -s tests` runs the offline tests (def cross-references, textures, checklist coverage, the log reader, house style). CI runs them on every push.
 
@@ -75,6 +75,8 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | blood | A hit skeleton leaked ancient oil (black filth) instead of blood | not seen |  |  |
 | blood | A hit skeleton showed the black oil spray instead of the red blood spray | not seen |  |  |
 | blood | A sanguophage bit a skeleton and got no hemogen (bloodfeed ability or another mod) | not seen |  |  |
+| drugs | A skeleton was refused a drug (ingest menu, drug policy, recreation, AI job, binge or generation; one line per route) | not seen |  |  |
+| drugs | No drug reached a skeleton past the checks (this line only appears when one did; the drug did nothing) | not seen |  |  |
 | selftest | Self-tests: all passed (summary line) | failed | 7 | FAILED: 21 passed, 4 failed |
 | selftest | Self-test: skeleton and baseliner generate | passed | 7 | skeleton Acid, baseliner Norman |
 | selftest | Self-test: no exceptions while testing | not seen |  |  |
@@ -141,6 +143,11 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | selftest | Self-test: a cut skeleton has bleed rate 0, a cut baseliner bleeds | not seen |  |  |
 | selftest | Self-test: ancient oil filth and black hit effect loaded | not seen |  |  |
 | selftest | Self-test: the blood patches are applied | not seen |  |  |
+| selftest | Self-test: a skeleton cannot take beer or penoxycyline, a baseliner can | not seen |  |  |
+| selftest | Self-test: the skeleton's drug policy schedules and carries no drug | not seen |  |  |
+| selftest | Self-test: no administer drug bill is offered on a skeleton, some are on a baseliner | not seen |  |  |
+| selftest | Self-test: no drug binge mental state can start on a skeleton | not seen |  |  |
+| selftest | Self-test: the drug lock patches are applied | not seen |  |  |
 | selftest | Self-test: every old skeleton body part maps to its own human part (old mod loaded) | not seen |  |  |
 | selftest | Self-test: converted old skeleton is race Human with the human body | not seen |  |  |
 | selftest | Self-test: converted old skeleton has the Skeleton xenotype and no gender | not seen |  |  |
