@@ -13,6 +13,8 @@
   <GeneDef Name="Rimshi_SkeletonGeneBase" Abstract="True">
     <displayCategory>Rimshi_Skeleton</displayCategory>
     <iconColor>(0.75, 0.75, 0.75)</iconColor>
+    <!-- Never rolled into genepacks (traders, quests); see GeneProofing.cs for the rest of the gene lock. -->
+    <canGenerateInGeneSet>false</canGenerateInGeneSet>
   </GeneDef>
 
   <!-- Looks: skeleton body (drawn by the body render patch), the six skeleton heads, no tattoos. -->
@@ -163,6 +165,7 @@
   <GeneDef Name="Rimshi_PlatingBase" ParentName="GeneSkinColorOverride" Abstract="True">
     <displayCategory>Rimshi_Skeleton</displayCategory>
     <iconPath>UI/Icons/Genes/Gene_SkinColorOverride</iconPath>
+    <canGenerateInGeneSet>false</canGenerateInGeneSet>
   </GeneDef>
 
   <GeneDef ParentName="Rimshi_PlatingBase">

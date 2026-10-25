@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using HarmonyLib;
 using LudeonTK;
 using RimWorld;
 using RimWorld.Planet;
@@ -52,10 +54,12 @@ namespace RimshiSkeletons
                 pawns.Add(human);
                 SkeletonChecks(skeleton, human);
                 HumanChecks(human);
+                GeneProofChecks(skeleton, human);
                 GeneRemovalCheck(skeleton);
                 FactionChecks(pawns);
                 ReproductionChecks(skeleton, human);
                 HordeChecks(pawns, human);
+                ConversionChecks(pawns);
             }
             catch (Exception e)
             {
@@ -199,6 +203,46 @@ namespace RimshiSkeletons
             return weapon.def.weaponTags != null && weapon.def.weaponTags.Contains("SpacerGun");
         }
 
+        /// <summary>
+        /// Only with Rim-Skeletons (Continued) loaded: every old body part lands on a human part, and an old skeleton
+        /// generated off the map converts into one of ours.
+        /// </summary>
+        private static void ConversionChecks(List<Pawn> pawns)
+        {
+            ThingDef oldRace = OldSkeletonConversion.OldRace;
+            BodyDef oldBody = DefDatabase<BodyDef>.GetNamedSilentFail(OldSkeletonConversion.OldBodyName);
+            if (oldRace == null || oldBody == null)
+            {
+                return;
+            }
+            BodyDef human = ThingDefOf.Human.race.body;
+            var unmapped = oldBody.AllParts.Where(p => OldSkeletonConversion.MapPart(p, oldBody, human) == null).Select(p => p.def.defName).ToList();
+            var targets = oldBody.AllParts.Select(p => OldSkeletonConversion.MapPart(p, oldBody, human)).Where(p => p != null).ToList();
+            Check("convert parts", unmapped.Count == 0 && targets.Distinct().Count() == targets.Count,
+                oldBody.AllParts.Count + " old parts, unmapped: " + (unmapped.Count == 0 ? "none" : string.Join(", ", unmapped))
+                + ", shared targets " + (targets.Count - targets.Distinct().Count()));
+
+            PawnKindDef oldKind = DefDatabase<PawnKindDef>.GetNamedSilentFail("Skeleton_Colonist");
+            if (oldKind == null)
+            {
+                return;
+            }
+            Pawn old = PawnGenerator.GeneratePawn(new PawnGenerationRequest(oldKind, null, forceGenerateNewPawn: true, forceNoGear: true));
+            pawns.Add(old);
+            var lost = new List<string>();
+            OldSkeletonConversion.Convert(old, oldRace, lost);
+            Check("convert race", old.def == ThingDefOf.Human && old.RaceProps.body == human, "race " + old.def.defName + ", body " + old.RaceProps.body.defName);
+            Check("convert xenotype", old.genes.Xenotype == RimshiDefOf.Rimshi_Skeleton && old.gender == Gender.None, "xenotype " + old.genes.XenotypeLabel + ", gender " + old.gender);
+            Check("convert story", old.story.headType.defName.StartsWith("Rimshi_Head_") && old.story.Adulthood != null
+                && old.story.Adulthood.spawnCategories.Contains(SkeletonUtility.BackstoryCategory),
+                "head " + old.story.headType.defName + ", backstories " + old.story.Childhood?.defName + ", " + old.story.Adulthood?.defName);
+            Check("convert kind", old.kindDef.defName == "Rimshi_Colonist", "kind " + old.kindDef.defName);
+            Check("convert health", !old.health.hediffSet.hediffs.Any(h => h.def.defName == OldSkeletonConversion.OldHediffName)
+                && old.health.hediffSet.hediffs.All(h => h.Part == null || h.Part.body == human) && lost.Count == 0,
+                old.health.hediffSet.hediffs.Count + " health conditions, lost " + lost.Count);
+            Check("convert again", !OldSkeletonConversion.IsOldSkeleton(old, oldRace), "converted pawn no longer matches");
+        }
+
         private static void HumanChecks(Pawn h)
         {
             Check("human refuses fuel", !h.FoodIsSuitable(ThingDefOf.Chemfuel), "chemfuel suitable " + h.FoodIsSuitable(ThingDefOf.Chemfuel));
@@ -206,6 +250,60 @@ namespace RimshiSkeletons
             Check("human unchanged", h.gender != Gender.None && !ThoughtUtility.ThoughtNullified(h, NeedFood),
                 "gender " + h.gender + ", hunger thought nullified " + ThoughtUtility.ThoughtNullified(h, NeedFood));
         }
+
+        private static void GeneProofChecks(Pawn s, Pawn human)
+        {
+            List<GeneDef> ours = DefDatabase<GeneDef>.AllDefsListForReading.FindAll(SkeletonUtility.IsSkeletonGene);
+            List<GeneDef> rollable = ours.FindAll(g => g.canGenerateInGeneSet);
+            Check("gene set flag", ours.Count > 0 && rollable.Count == 0, ours.Count + " skeleton genes"
+                + (rollable.Count > 0 ? "; can roll in gene sets: " + string.Join(", ", rollable.ConvertAll(g => g.defName)) : ", none can roll in gene sets"));
+
+            int leaked = 0;
+            for (int i = 0; i < 200; i++)
+            {
+                if (GeneUtility.GenerateGeneSet().GenesListForReading.Any(SkeletonUtility.IsSkeletonGene))
+                {
+                    leaked++;
+                }
+            }
+            Check("gene sets clean", leaked == 0, leaked + " of 200 random gene sets held a skeleton gene");
+
+            GeneDef neversleep = DefDatabase<GeneDef>.GetNamed("Neversleep");
+            var pack = (Genepack)ThingMaker.MakeThing(ThingDefOf.Genepack);
+            pack.Initialize(new List<GeneDef> { RimshiDefOf.Rimshi_FuelReactor, neversleep });
+            List<GeneDef> packed = pack.GeneSet.GenesListForReading;
+            Check("genepack strip", !packed.Any(SkeletonUtility.IsSkeletonGene) && packed.Contains(neversleep),
+                "genepack holds " + string.Join(", ", packed.ConvertAll(g => g.defName)));
+            pack.Destroy();
+
+            Check("gene lock", GeneProofing.Refuses(s) && !GeneProofing.Refuses(human), "skeleton refused " + GeneProofing.Refuses(s) + ", baseliner refused " + GeneProofing.Refuses(human));
+
+            RecipeDef implant = DefDatabase<RecipeDef>.GetNamedSilentFail("ImplantXenogerm");
+            Check("implant bill", implant != null && !implant.Worker.AvailableOnNow(s), "implant xenogerm bill on skeleton available " + implant?.Worker.AvailableOnNow(s));
+
+            var unpatched = new List<string>();
+            foreach (MethodBase method in GeneProofTargets)
+            {
+                Patches info = method == null ? null : Harmony.GetPatchInfo(method);
+                if (info == null || !info.Owners.Contains(RimshiMod.HarmonyId))
+                {
+                    unpatched.Add(method == null ? "missing method" : method.DeclaringType.Name + "." + method.Name);
+                }
+            }
+            Check("gene lock patched", unpatched.Count == 0, unpatched.Count == 0 ? GeneProofTargets.Length + " gene lock patches applied" : "not patched: " + string.Join(", ", unpatched));
+        }
+
+        private static readonly MethodBase[] GeneProofTargets =
+        {
+            AccessTools.Method(typeof(Building_GeneExtractor), nameof(Building_GeneExtractor.CanAcceptPawn)),
+            AccessTools.Method(typeof(Xenogerm), nameof(Xenogerm.ValidateTarget)),
+            AccessTools.Method(typeof(Recipe_ImplantXenogerm), nameof(Recipe_ImplantXenogerm.AvailableOnNow)),
+            AccessTools.Method(typeof(CompAbilityEffect_ReimplantXenogerm), nameof(CompAbilityEffect_ReimplantXenogerm.Valid)),
+            AccessTools.Method(typeof(JobDriver_AbsorbXenogerm), nameof(JobDriver_AbsorbXenogerm.TryMakePreToilReservations)),
+            AccessTools.Method(typeof(GeneUtility), nameof(GeneUtility.ImplantXenogermItem)),
+            AccessTools.Method(typeof(GeneUtility), nameof(GeneUtility.ReimplantXenogerm)),
+            AccessTools.Method(typeof(Genepack), nameof(Genepack.Initialize)),
+        };
 
         private static void GeneRemovalCheck(Pawn s)
         {
@@ -256,9 +354,10 @@ namespace RimshiSkeletons
     }
 
     /// <summary>
-    /// When a save loads: replaces the old mod's factions if the mod setting is on. When a game loads or starts: runs the
-    /// self-tests once per session with Development mode on. Also keeps the recall horde schedule: hordes on their way
-    /// and how many times the recall codes have been broadcast in this game (each horde is larger).
+    /// When a save loads: replaces the old mod's factions and converts its skeletons if the mod setting is on. When a game
+    /// loads or starts: runs the self-tests once per session with Development mode on. Also keeps the recall horde
+    /// schedule: hordes on their way and how many times the recall codes have been broadcast in this game (each horde is
+    /// larger).
     /// </summary>
     public class RimshiGameComponent : GameComponent
     {
@@ -323,6 +422,8 @@ namespace RimshiSkeletons
             if (RimshiMod.Settings.replaceOldFactions)
             {
                 SkeletonFactions.ReplaceOldFactions();
+                // Pawns leave and re-enter the map while their race changes, which needs the main thread.
+                LongEventHandler.ExecuteWhenFinished(OldSkeletonConversion.ConvertAll);
             }
             LongEventHandler.ExecuteWhenFinished(SelfTests.RunIfDevMode);
         }
