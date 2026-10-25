@@ -76,14 +76,14 @@
     <biostatMet>-3</biostatMet>
   </GeneDef>
 
-  <!-- Marker gene: disease and chemical immunity, toxins, darkness, dulled psychic sense. The blocked thoughts and the
+  <!-- Marker gene: disease and chemical immunity, toxins, darkness, psychic deafness. The blocked thoughts and the
        immunity list are filled in at startup by SkeletonDefs, so defs from DLCs and mods that are not loaded are
        skipped instead of erroring. -->
   <GeneDef ParentName="Rimshi_SkeletonGeneBase">
     <defName>Rimshi_MechanicalNature</defName>
     <label>mechanical nature</label>
     <labelShortAdj>mechanical</labelShortAdj>
-    <description>Carriers of this gene are machines. They never fall ill, cannot be poisoned, do not mind the dark, the wet or going without clothes, and feel psychic effects only faintly.</description>
+    <description>Carriers of this gene are machines. They never fall ill, cannot be poisoned, do not mind the dark, the wet or going without clothes, and are psychically deaf: psychic drones, soothes, psycasts and other psychic effects do not touch them.</description>
     <iconPath>UI/Icons/Genes/Gene_TotalToxicityResistance</iconPath>
     <displayOrderInCategory>20</displayOrderInCategory>
     <immuneToToxGasExposure>true</immuneToToxGasExposure>
@@ -91,8 +91,12 @@
     <statOffsets>
       <ToxicResistance>1</ToxicResistance>
       <ToxicEnvironmentResistance>1</ToxicEnvironmentResistance>
-      <PsychicSensitivity>-0.5</PsychicSensitivity>
     </statOffsets>
+    <!-- A factor, not an offset, like vanilla PsychicAbility_Deaf: factors apply after offsets, so implants, psylinks
+         and other sources cannot raise it above 0. -->
+    <statFactors>
+      <PsychicSensitivity>0</PsychicSensitivity>
+    </statFactors>
     <customEffectDescriptions>
       <li>Immune to disease, infection, food poisoning, overdose and chemical damage</li>
       <li>Does not mind darkness, nakedness, wet clothes or pain</li>

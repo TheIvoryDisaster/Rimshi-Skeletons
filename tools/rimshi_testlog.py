@@ -84,6 +84,7 @@ CHECKLIST = [
     ("selftest", "no relations", "Self-test: skeleton generated without family"),
     ("selftest", "fertility", "Self-test: skeleton fertility is 0"),
     ("selftest", "toxic resistance", "Self-test: skeleton toxic resistance 100%"),
+    ("selftest", "psychically deaf", "Self-test: skeleton psychic sensitivity 0%"),
     ("selftest", "immunity", "Self-test: skeleton immune to flu"),
     ("selftest", "eats fuel", "Self-test: skeleton can eat chemfuel and uranium"),
     ("selftest", "refuses meals", "Self-test: skeleton refuses meals"),

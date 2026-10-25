@@ -83,6 +83,7 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | selftest | Self-test: skeleton generated without family | failed | 7 | FAILED: direct relations 2 |
 | selftest | Self-test: skeleton fertility is 0 | passed | 7 | fertility 0 |
 | selftest | Self-test: skeleton toxic resistance 100% | passed | 7 | toxic resistance 1 |
+| selftest | Self-test: skeleton psychic sensitivity 0% | not seen |  |  |
 | selftest | Self-test: skeleton immune to flu | passed | 7 | immune to flu |
 | selftest | Self-test: skeleton can eat chemfuel and uranium | failed | 7 | FAILED: chemfuel and uranium suitable |
 | selftest | Self-test: skeleton refuses meals | passed | 7 | simple meal suitable False |
