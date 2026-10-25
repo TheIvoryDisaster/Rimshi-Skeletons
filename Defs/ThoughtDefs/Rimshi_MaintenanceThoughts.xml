@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!-- Replaces the vanilla hunger thought for skeletons (vanilla NeedFood gets Rimshi_FuelReactor as a nullifying gene
+       at startup). ThoughtWorker_Maintenance: stage 0 while maintenance is due, 1 while overdue, then 2 on the first
+       day out of components and one stage more for each further day, up to stage 6. Skeletons never get malnutrition,
+       so this is the only cost of going without. -->
+  <ThoughtDef>
+    <defName>Rimshi_MaintenanceNeed</defName>
+    <workerClass>RimshiSkeletons.ThoughtWorker_Maintenance</workerClass>
+    <validWhileDespawned>true</validWhileDespawned>
+    <requiredGenes>
+      <li>Rimshi_FuelReactor</li>
+    </requiredGenes>
+    <stages>
+      <li>
+        <label>maintenance due</label>
+        <description>My joints are starting to grind. I will need a component soon.</description>
+        <baseMoodEffect>-3</baseMoodEffect>
+      </li>
+      <li>
+        <label>maintenance overdue</label>
+        <description>Seals are leaking and my servos whine with every step. I need a component.</description>
+        <baseMoodEffect>-6</baseMoodEffect>
+      </li>
+      <li>
+        <label>worn parts</label>
+        <description>I have nothing left to patch myself with. Everything I do grinds against worn-out parts.</description>
+        <baseMoodEffect>-10</baseMoodEffect>
+      </li>
+      <li>
+        <label>failing parts</label>
+        <description>Parts are failing faster than I can work around them. A day without repairs feels like a decade.</description>
+        <baseMoodEffect>-13</baseMoodEffect>
+      </li>
+      <li>
+        <label>severely failing parts</label>
+        <description>Systems are shutting down one by one to keep the core alight.</description>
+        <baseMoodEffect>-16</baseMoodEffect>
+      </li>
+      <li>
+        <label>critically failing parts</label>
+        <description>Every joint is seizing. I can feel my thoughts slowing down.</description>
+        <baseMoodEffect>-19</baseMoodEffect>
+      </li>
+      <li>
+        <label>falling apart</label>
+        <description>...This is how the Second Empire's last works end? Rusting for want of a few gears?</description>
+        <baseMoodEffect>-22</baseMoodEffect>
+      </li>
+    </stages>
+  </ThoughtDef>
+
+</Defs>

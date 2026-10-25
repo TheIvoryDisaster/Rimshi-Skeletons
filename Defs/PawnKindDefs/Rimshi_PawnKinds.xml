@@ -257,7 +257,7 @@
       <skipChance>0.9</skipChance>
       <subOptionsChooseOne>
         <li>
-          <thingDef>Uranium</thingDef>
+          <thingDef>ComponentIndustrial</thingDef>
           <countRange>1</countRange>
         </li>
       </subOptionsChooseOne>

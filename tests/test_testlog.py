@@ -5,8 +5,8 @@ from helpers import testlog_module
 LOG = """Some unrelated line
 [Rimshi][T] build | v7 | version v7, build 12 (ci), dll written now
 [Rimshi][T] gene | genderless | Bob: Male to None, body Male
-[Rimshi][T] selftest | eats fuel | FAILED: chemfuel suitable False
-[Rimshi][T] selftest | eats fuel | chemfuel and uranium suitable
+[Rimshi][T] selftest | eats components | FAILED: component suitable False
+[Rimshi][T] selftest | eats components | component suitable True
 NullReferenceException: Object reference not set
   at RimshiSkeletons.Patch_BodyGraphic.Postfix
 """
@@ -38,19 +38,19 @@ class TestLogTests(unittest.TestCase):
         self.assertTrue(m(("build", "*", ""), "build", "anything", ""))
         self.assertTrue(m(("gene", "frame", ""), "gene", "frame", ""))
         self.assertFalse(m(("gene", "frame", ""), "gene", "genderless", ""))
-        self.assertTrue(m(("diet", "*Chemfuel*", ""), "diet", "ate fuel", "Bob ate 3 Chemfuel"))
+        self.assertTrue(m(("diet", "*ComponentIndustrial*", ""), "diet", "ate component", "Bob consumed 1 ComponentIndustrial"))
 
     def test_pass_after_fail(self):
         lines, _ = self.mod.read([self.path])
         state = self.mod.update_state({}, lines)
-        st = state["selftest|eats fuel"]
+        st = state["selftest|eats components"]
         self.assertEqual((st["passes"], st["fails"], st["status"]), (1, 1, "passed after fail"))
         self.assertEqual(state["gene|genderless"]["status"], "passed")
 
     def test_failure_last(self):
         lines, _ = self.mod.read([self.path])
         state = self.mod.update_state({}, lines[:3])
-        self.assertEqual(state["selftest|eats fuel"]["status"], "failed")
+        self.assertEqual(state["selftest|eats components"]["status"], "failed")
 
     def test_state_accumulates(self):
         lines, _ = self.mod.read([self.path])

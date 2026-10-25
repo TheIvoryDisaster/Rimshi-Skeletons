@@ -109,21 +109,53 @@ namespace RimshiSkeletons
             HediffDef flu = DefDatabase<HediffDef>.GetNamedSilentFail("Flu");
             Check("immunity", flu != null && s.health.immunity.AnyGeneMakesFullyImmuneTo(flu), "immune to flu");
 
-            Check("eats fuel", s.FoodIsSuitable(ThingDefOf.Chemfuel) && s.FoodIsSuitable(ThingDefOf.Uranium), "chemfuel and uranium suitable");
+            ThingDef component = ThingDefOf.ComponentIndustrial;
+            Check("eats components", s.FoodIsSuitable(component), "component suitable " + s.FoodIsSuitable(component));
             Check("refuses meals", !s.FoodIsSuitable(ThingDefOf.MealSimple), "simple meal suitable " + s.FoodIsSuitable(ThingDefOf.MealSimple));
 
-            float skeletonRate = s.needs.food.FoodFallPerTickAssumingCategory(HungerCategory.Fed);
-            float humanRate = human.needs.food.FoodFallPerTickAssumingCategory(HungerCategory.Fed);
-            float ratio = humanRate > 0f ? skeletonRate / humanRate : -1f;
-            Check("hunger rate", ratio > 0f && ratio < 0.25f, "skeleton/human hunger " + ratio.ToString("0.000"));
+            float perDay = s.needs.food.FoodFallPerTickAssumingCategory(HungerCategory.Fed) * GenDate.TicksPerDay;
+            float nutrition = component.GetStatValueAbstract(StatDefOf.Nutrition);
+            float days = perDay > 0f ? nutrition / perDay : -1f;
+            Check("maintenance rate", Mathf.Abs(days - SkeletonNeeds.DaysPerItem) < 0.05f, "one component lasts " + days.ToString("0.00") + " days");
+            int toEat = FoodUtility.WillIngestStackCountOf(s, component, nutrition);
+            Check("one component", toEat == 1, "takes " + toEat + " at once");
+
+            NeedRelabel food = SkeletonNeeds.RelabelFor(s, NeedDefOf.Food);
+            Check("maintenance label", SkeletonNeeds.LabelCapFor(s.needs.food) == "Maintenance" && food != null && food.description.Contains("Second Empire")
+                && SkeletonNeeds.LabelCapFor(human.needs.food) == human.needs.food.LabelCap, "skeleton " + SkeletonNeeds.LabelCapFor(s.needs.food) + ", human "
+                + SkeletonNeeds.LabelCapFor(human.needs.food));
+            HealthUtility.AdjustSeverity(s, HediffDefOf.Malnutrition, 0.5f);
+            Check("no malnutrition", !s.health.hediffSet.HasHediff(HediffDefOf.Malnutrition), "malnutrition " + s.health.hediffSet.HasHediff(HediffDefOf.Malnutrition));
 
             Check("hunger thought", ThoughtUtility.ThoughtNullified(s, NeedFood), "NeedFood nullified");
-            ThoughtDef fuelNeed = DefDatabase<ThoughtDef>.GetNamedSilentFail("Rimshi_FuelNeed");
-            Check("fuel thought", fuelNeed != null && ThoughtUtility.CanGetThought(s, fuelNeed), "Rimshi_FuelNeed can apply");
+            ThoughtDef maintenance = DefDatabase<ThoughtDef>.GetNamedSilentFail("Rimshi_MaintenanceNeed");
+            Check("maintenance thought", maintenance != null && ThoughtUtility.CanGetThought(s, maintenance), "Rimshi_MaintenanceNeed can apply");
+            DubsNeedChecks(s, human);
             Check("blocked thought", ThoughtUtility.ThoughtNullified(s, ThoughtDefOf.Naked), "Naked nullified");
 
             Check("backstory", s.story.Adulthood != null && s.story.Adulthood.spawnCategories.Contains(SkeletonUtility.BackstoryCategory),
                 "backstories " + s.story.Childhood?.defName + ", " + s.story.Adulthood?.defName);
+        }
+
+        /// <summary>Dubs Bad Hygiene (optional): skeletons lose thirst and bladder, and hygiene is self-cleaning at half rate.</summary>
+        private static void DubsNeedChecks(Pawn s, Pawn human)
+        {
+            NeedDef thirst = DefDatabase<NeedDef>.GetNamedSilentFail("DBHThirst");
+            NeedDef bladder = DefDatabase<NeedDef>.GetNamedSilentFail("Bladder");
+            NeedDef hygiene = DefDatabase<NeedDef>.GetNamedSilentFail("Hygiene");
+            StatDef hygieneRate = DefDatabase<StatDef>.GetNamedSilentFail("HygieneRateMultiplier");
+            if (thirst == null && bladder == null && hygiene == null)
+            {
+                Check("dubs needs", true, "Dubs Bad Hygiene not loaded");
+                return;
+            }
+            bool removed = (thirst == null || (SkeletonNeeds.RemovesNeed(s, thirst) && s.needs.TryGetNeed(thirst) == null && !SkeletonNeeds.RemovesNeed(human, thirst)))
+                && (bladder == null || (SkeletonNeeds.RemovesNeed(s, bladder) && s.needs.TryGetNeed(bladder) == null));
+            NeedRelabel selfCleaning = hygiene == null ? null : SkeletonNeeds.RelabelFor(s, hygiene);
+            float rate = hygieneRate == null ? -1f : s.GetStatValue(hygieneRate);
+            Check("dubs needs", removed && (hygiene == null || (selfCleaning?.label == "self-cleaning" && SkeletonNeeds.RelabelFor(human, hygiene) == null))
+                && (hygieneRate == null || Mathf.Approximately(rate, 0.5f)),
+                "thirst and bladder removed " + removed + ", hygiene shown as " + (selfCleaning?.label ?? "hygiene") + ", hygiene rate " + rate);
         }
 
         private static void FactionChecks(List<Pawn> pawns)
@@ -249,7 +281,7 @@ namespace RimshiSkeletons
 
         private static void HumanChecks(Pawn h)
         {
-            Check("human refuses fuel", !h.FoodIsSuitable(ThingDefOf.Chemfuel), "chemfuel suitable " + h.FoodIsSuitable(ThingDefOf.Chemfuel));
+            Check("human refuses components", !h.FoodIsSuitable(ThingDefOf.ComponentIndustrial), "component suitable " + h.FoodIsSuitable(ThingDefOf.ComponentIndustrial));
             Check("human eats meals", h.FoodIsSuitable(ThingDefOf.MealSimple), "simple meal suitable " + h.FoodIsSuitable(ThingDefOf.MealSimple));
             Check("human unchanged", h.gender != Gender.None && !ThoughtUtility.ThoughtNullified(h, NeedFood),
                 "gender " + h.gender + ", hunger thought nullified " + ThoughtUtility.ThoughtNullified(h, NeedFood));

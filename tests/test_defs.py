@@ -109,11 +109,14 @@ class DefTests(unittest.TestCase):
             with self.subTest(defName=name):
                 self.assertIn(name, {el.findtext("defName") for _, el in concrete()})
 
-    def test_fuel_thought_has_seven_stages(self):
-        """ThoughtWorker_NeedFood indexes stages 0 to 6 (hungry, urgently hungry, five malnutrition stages)."""
-        for _, t in concrete("ThoughtDef"):
-            if t.findtext("workerClass") == "ThoughtWorker_NeedFood":
-                self.assertEqual(len(t.find("stages")), 7, t.findtext("defName"))
+    def test_maintenance_thought_stages(self):
+        """ThoughtWorker_Maintenance indexes stages 0 to MaxStage."""
+        code = source_text()["Source/RimshiSkeletons/Skeleton/SkeletonNeeds.cs"]
+        max_stage = int(re.search(r"MaxStage = (\d+);", code).group(1))
+        found = [t for _, t in concrete("ThoughtDef") if t.findtext("workerClass") == "RimshiSkeletons.ThoughtWorker_Maintenance"]
+        self.assertTrue(found)
+        for t in found:
+            self.assertEqual(len(t.find("stages")), max_stage + 1, t.findtext("defName"))
 
     def test_faction_pawn_kinds_exist(self):
         kinds = def_names("PawnKindDef") | VANILLA["PawnKindDef"]
