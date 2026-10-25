@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
 
-  <!-- The skeleton repair bed (docs/design/kenshi-lore-and-repair.md, section 3). Built like the hospital bed, drawn
-       with the hospital bed's art tinted grey until it has its own texture. Only skeletons can use it
+  <!-- The skeleton repair bed (docs/design/kenshi-lore-and-repair.md, section 3). Built like the hospital bed, with
+       its own art (a Kenshi-style repair machine). Only skeletons can use it
        (Patch_RepairBedOnlySkeletons); while powered, CompRimshi_RepairBed mends whoever lies in it. Medical by default,
        and its tend quality offset (0.12) beats the hospital bed's (0.10), so vanilla's patient bed search picks it first. -->
   <ThingDef ParentName="BedWithQualityBase">
@@ -10,12 +10,10 @@
     <label>skeleton repair bed</label>
     <description>A powered cradle of clamps, tool arms and diagnostic cables, run by an AI persona core, of the kind the old empire kept for its skeletons. A skeleton lying in it is slowly repaired back to full health, scars and all, though lost parts still need a prosthetic. Only skeletons can use it. Without power it is just a hard bed.</description>
     <graphicData>
-      <texPath>Things/Building/Furniture/Bed/HospitalBed</texPath>
+      <!-- 256x256 like the vanilla hospital bed: the 1x2 bed centred, sides transparent. West is east mirrored. -->
+      <texPath>Rimshi/Buildings/RepairBed</texPath>
       <graphicClass>Graphic_Multi</graphicClass>
-      <shaderType>CutoutComplex</shaderType>
       <drawSize>(2,2)</drawSize>
-      <color>(125,130,138)</color>
-      <colorTwo>(90,94,100)</colorTwo>
     </graphicData>
     <castEdgeShadows>True</castEdgeShadows>
     <tickerType>Rare</tickerType>
@@ -51,7 +49,7 @@
     <!-- All of it back on deconstruct, so the single AI persona core is never rounded away. -->
     <resourcesFractionWhenDeconstructed>1</resourcesFractionWhenDeconstructed>
     <building>
-      <bed_showSleeperBody>False</bed_showSleeperBody>
+      <bed_showSleeperBody>True</bed_showSleeperBody>
       <bed_healPerDay>0</bed_healPerDay>
       <bed_defaultMedical>true</bed_defaultMedical>
       <buildingSizeCategory>Small</buildingSizeCategory>

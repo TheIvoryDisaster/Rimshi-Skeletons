@@ -146,11 +146,12 @@ Things the log cannot show; tick them off by hand after looking in game.
 - [ ] With the setting on, a "Skeletons converted" letter names each old skeleton; they look like our skeletons (body, head, plating, bald), keep their names, skills, traits, gear and injuries, and show as xenotype Skeleton. After saving, removing Rim-Skeletons (Continued) and loading again, they are still there and the log has no "Null key" or "Could not resolve reference" errors for them.
 - [ ] In a world made before this mod, Debug actions > Rimshi Skeletons > Add the skeletal imperium adds the faction with one settlement.
 - [ ] Research tab: "skeleton repair kits" and "skeleton repair beds" sit right of Basic mechtech and need it; neither needs a mechanitor.
-- [ ] After the kit research, the machining table has "make skeleton repair kit"; kits look like grey industrial medicine.
+- [ ] After the kit research, the machining table has "make skeleton repair kit"; kits show the steel repair case with the wrench.
 - [ ] Repair kits are not offered as medicine (medical care settings, doctors never carry them to tend anyone).
 - [ ] A hurt skeleton does not heal on its own (health tab shows injury healing 0%). A colonist with Smith work fetches repair kits, kneels by it and its wounds close while the work goes on; kits are used up (about one per 20 damage) and leftovers are dropped.
 - [ ] A bleeding skeleton still lies down to be tended (first aid, no healing). With only tended wounds it keeps working unless a powered repair bed is free, then goes to it; with only scars it goes during its sleep hours.
 - [ ] After the bed research, the skeleton repair bed is in Furniture and costs an AI persona core; deconstructing it gives the core back.
+- [ ] The repair bed shows the repair machine art, facing the right way in all four rotations (west mirrors east), and the skeleton lies on the deck.
 - [ ] The repair bed is medical by default and a hurt skeleton picks it over a hospital bed. A human cannot be assigned to or rest in it; a hurt skeleton resting in a powered one is repaired, scars included, and gets a "fully repaired" message. Unpowered, the bed says so and does nothing.
 - [ ] A gene extractor will not take a skeleton (the menu option is greyed out with "Skeletons have no genes to extract").
 - [ ] A xenogerm's "Implant" gizmo will not target a skeleton, and the skeleton's health tab has no "Implant xenogerm" bill.
