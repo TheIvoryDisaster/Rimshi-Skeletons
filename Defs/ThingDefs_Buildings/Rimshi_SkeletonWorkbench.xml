@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!-- The skeleton workbench (docs/design/skeleton-parts.md): makes the skeleton intermediates (motor, robotic
+       component, skeleton muscle), the skeleton parts and the repair kits. Built like the machining table; BenchBase
+       makes it minifiable. Art is proposal C (docs/art/proposals/workbench/): 256x256 per view at drawSize (2,2), the 2x1
+       footprint centred and the arms using the space behind it. The worker side is the _north texture's bottom edge
+       (default rotation puts the interaction spot south, as on vanilla benches). -->
+  <ThingDef ParentName="BenchBase">
+    <defName>Rimshi_SkeletonWorkbench</defName>
+    <label>skeleton workbench</label>
+    <description>A powered workbench with two rail-mounted manipulator arms, built to the old empire's patterns for making skeleton parts. Crafters use it to make motors, robotic components and skeleton muscle, and to assemble those into replacement limbs, sensors, AI cores and repair kits.</description>
+    <thingClass>Building_WorkTable</thingClass>
+    <graphicData>
+      <texPath>Rimshi/Buildings/SkeletonWorkbench</texPath>
+      <graphicClass>Graphic_Multi</graphicClass>
+      <drawSize>(2,2)</drawSize>
+      <damageData>
+        <cornerTL>Damage/Corner</cornerTL>
+        <cornerTR>Damage/Corner</cornerTR>
+        <cornerBL>Damage/Corner</cornerBL>
+        <cornerBR>Damage/Corner</cornerBR>
+      </damageData>
+    </graphicData>
+    <castEdgeShadows>true</castEdgeShadows>
+    <staticSunShadowHeight>0.20</staticSunShadowHeight>
+    <costList>
+      <Steel>150</Steel>
+      <ComponentIndustrial>6</ComponentIndustrial>
+    </costList>
+    <altitudeLayer>Building</altitudeLayer>
+    <fillPercent>0.5</fillPercent>
+    <useHitPoints>True</useHitPoints>
+    <statBases>
+      <WorkToBuild>4000</WorkToBuild>
+      <MaxHitPoints>180</MaxHitPoints>
+      <Flammability>0</Flammability>
+      <Cleanliness>-2</Cleanliness>
+    </statBases>
+    <size>(2,1)</size>
+    <designationCategory>Production</designationCategory>
+    <uiOrder>2525</uiOrder>
+    <passability>PassThroughOnly</passability>
+    <pathCost>50</pathCost>
+    <hasInteractionCell>True</hasInteractionCell>
+    <interactionCellOffset>(0,0,-1)</interactionCellOffset>
+    <surfaceType>Item</surfaceType>
+    <constructionSkillPrerequisite>6</constructionSkillPrerequisite>
+    <inspectorTabs>
+      <li>ITab_Bills</li>
+    </inspectorTabs>
+    <comps>
+      <li Class="CompProperties_Power">
+        <compClass>CompPowerTrader</compClass>
+        <shortCircuitInRain>true</shortCircuitInRain>
+        <basePowerConsumption>300</basePowerConsumption>
+      </li>
+      <li Class="CompProperties_Flickable"/>
+      <li Class="CompProperties_AffectedByFacilities">
+        <linkableFacilities>
+          <li>ToolCabinet</li>
+        </linkableFacilities>
+      </li>
+      <li Class="CompProperties_Breakdownable"/>
+    </comps>
+    <building>
+      <spawnedConceptLearnOpportunity>BillsTab</spawnedConceptLearnOpportunity>
+      <workTableRoomRole>Workshop</workTableRoomRole>
+      <workTableNotInRoomRoleFactor>0.8</workTableNotInRoomRoleFactor>
+    </building>
+    <constructEffect>ConstructMetal</constructEffect>
+    <researchPrerequisites>
+      <li>Rimshi_SkeletonFabrication</li>
+    </researchPrerequisites>
+    <placeWorkers>
+      <li>PlaceWorker_ShowFacilitiesConnections</li>
+      <li>PlaceWorker_PreventInteractionSpotOverlap</li>
+    </placeWorkers>
+  </ThingDef>
+
+</Defs>

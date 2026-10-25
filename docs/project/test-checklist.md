@@ -8,7 +8,7 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 
 **How to use it:** play with Development mode on, then tell Claude to check the logs. Claude pulls Player.log and Player-prev.log from `C:\Users\Matthew\AppData\LocalLow\Ludeon Studios\RimWorld by Ludeon Studios`, runs `tools/rimshi_testlog.py` over them and updates this table. Results add up across sessions; any exception that mentions the mod is reported too. A PR that only updates this file is merged by Claude without asking, and its description lists every test that ran and its outcome.
 
-**Self-tests:** with Development mode on, loading or starting a game runs the in-game self-tests once per session (also on demand: Debug actions > Rimshi Skeletons > Run self-tests). They generate a skeleton, a baseliner and a skeletal imperium town guard off the map, check genes, looks, diet, thoughts, immunity, the gene lock, the prosthetics lock, blood and ancient oil, the drug lock, backstory, faction, reproduction, the recall array and horde skeletons (gear, protocol, failsafe core, one reprogramming session), discard the pawns, and log one `selftest` line per check plus a summary.
+**Self-tests:** with Development mode on, loading or starting a game runs the in-game self-tests once per session (also on demand: Debug actions > Rimshi Skeletons > Run self-tests). They generate a skeleton, a baseliner and a skeletal imperium town guard off the map, check genes, looks, diet, thoughts, immunity, the gene lock, the prosthetics lock, skeleton parts (install bills, KLR arm armour, AI core repair), blood and ancient oil, the drug lock, backstory, faction, reproduction, the recall array and horde skeletons (gear, protocol, failsafe core, one reprogramming session), discard the pawns, and log one `selftest` line per check plus a summary.
 
 **Unit tests:** `python3 -m unittest discover -s tests` runs the offline tests (def cross-references, textures, checklist coverage, the log reader, house style). CI runs them on every push.
 
@@ -80,6 +80,11 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | prosthetics | Skeleton refused a self-installed implant (neuroformer or another mod's; mechlinks still allowed) | not seen |  |  |
 | prosthetics | A psylink was refused on a skeleton (royal title, bestowing, anima tree, dev mode) | not seen |  |  |
 | prosthetics | No install surgery reached a skeleton past the checks (this line only appears when one did) | not seen |  |  |
+| parts | Skeleton fabrication and advanced parts research placed on the research tab without overlaps | not seen |  |  |
+| parts | A skeleton part was installed on a skeleton (names the part) | not seen |  |  |
+| parts | A KLR or industrial part took reduced damage (first hit each session) | not seen |  |  |
+| parts | A steady arm knocked a weapon out of an enemy's hands in melee | not seen |  |  |
+| parts | A second AI core repaired a damaged one (names what it removed) | not seen |  |  |
 | blood | A hit skeleton leaked ancient oil (black filth) instead of blood | not seen |  |  |
 | blood | A hit skeleton showed the black oil spray instead of the red blood spray | not seen |  |  |
 | blood | A sanguophage bit a skeleton and got no hemogen (bloodfeed ability or another mod) | not seen |  |  |
@@ -154,6 +159,10 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | selftest | Self-test: mechlink allowed and psylink neuroformer refused for skeletons | not seen |  |  |
 | selftest | Self-test: giving a skeleton a psylink adds none and no psycast, a baseliner gets one (Royalty only) | not seen |  |  |
 | selftest | Self-test: the prosthetics lock patches are applied | not seen |  |  |
+| selftest | Self-test: every skeleton part install is offered on a skeleton and not on a baseliner | not seen |  |  |
+| selftest | Self-test: a KLR arm installs on a skeleton's shoulder | not seen |  |  |
+| selftest | Self-test: 10 damage on a KLR arm makes an injury of 8 | not seen |  |  |
+| selftest | Self-test: an AI core installs, and a second one repairs a damaged core | not seen |  |  |
 | selftest | Self-test: skeleton cannot bleed, baseliner can | not seen |  |  |
 | selftest | Self-test: a cut skeleton has bleed rate 0, a cut baseliner bleeds | not seen |  |  |
 | selftest | Self-test: ancient oil filth and black hit effect loaded | not seen |  |  |

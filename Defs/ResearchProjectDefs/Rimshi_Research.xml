@@ -21,11 +21,12 @@
   <ResearchProjectDef>
     <defName>Rimshi_SkeletonRepairKits</defName>
     <label>skeleton repair kits</label>
-    <description>Work out how the ancient skeleton frames were patched up in the field, and make repair kits for them. Skeletons do not heal on their own; a crafter with a repair kit can work on a damaged skeleton until it is whole.</description>
+    <description>Work out how the ancient skeleton frames were patched up in the field, and make repair kits for them at the skeleton workbench. Skeletons do not heal on their own; a crafter with a repair kit can work on a damaged skeleton until it is whole.</description>
     <baseCost>600</baseCost>
     <techLevel>Industrial</techLevel>
     <prerequisites>
       <li>BasicMechtech</li>
+      <li>Rimshi_SkeletonFabrication</li>
     </prerequisites>
     <researchViewX>10.00</researchViewX>
     <researchViewY>6.00</researchViewY>
@@ -43,6 +44,37 @@
     <requiredResearchBuilding>HiTechResearchBench</requiredResearchBuilding>
     <researchViewX>10.00</researchViewX>
     <researchViewY>6.60</researchViewY>
+  </ResearchProjectDef>
+
+  <!-- Skeleton parts (docs/design/skeleton-parts.md). Fabrication unlocks the skeleton workbench, the intermediates, the
+       economy and standard limbs and the senses; it now comes before repair kits, which are made at the workbench.
+       Advanced parts unlocks the KLR, industrial and steady limbs and the AI core. Startup logs where both sit and any
+       project they overlap ("parts | research"). -->
+  <ResearchProjectDef>
+    <defName>Rimshi_SkeletonFabrication</defName>
+    <label>skeleton fabrication</label>
+    <description>Reverse-engineer the old empire's skeleton parts. Unlocks the skeleton workbench, where crafters make motors, robotic components and skeleton muscle, and assemble them into replacement limbs, optical sensors and audio receivers for skeletons.</description>
+    <baseCost>800</baseCost>
+    <techLevel>Industrial</techLevel>
+    <prerequisites>
+      <li>BasicMechtech</li>
+    </prerequisites>
+    <researchViewX>10.00</researchViewX>
+    <researchViewY>7.20</researchViewY>
+  </ResearchProjectDef>
+
+  <ResearchProjectDef>
+    <defName>Rimshi_AdvancedSkeletonParts</defName>
+    <label>advanced skeleton parts</label>
+    <description>Rebuild the old empire's better limb patterns: the hard-wearing KLR limbs, heavy industrial limbs and precise steady limbs, and the AI core that houses a skeleton's mind.</description>
+    <baseCost>1600</baseCost>
+    <techLevel>Industrial</techLevel>
+    <prerequisites>
+      <li>Rimshi_SkeletonFabrication</li>
+    </prerequisites>
+    <requiredResearchBuilding>HiTechResearchBench</requiredResearchBuilding>
+    <researchViewX>11.00</researchViewX>
+    <researchViewY>7.20</researchViewY>
   </ResearchProjectDef>
 
 </Defs>
