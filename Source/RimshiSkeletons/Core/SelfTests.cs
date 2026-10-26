@@ -199,6 +199,13 @@ namespace RimshiSkeletons
             SoftCycle.Cancel(s, SoftCycleKind.RepairBed, "self-test");
             Hediff overload = CpuOverload.Of(s);
             Check("cancel overloads", overload != null && need != null && need.CurLevel <= 0f, "integrity " + need?.CurLevelPercentage.ToStringPercent() + ", overload " + (overload != null));
+            ThoughtDef exhaustion = DefDatabase<ThoughtDef>.AllDefsListForReading.FirstOrDefault(t => t.workerClass == typeof(ThoughtWorker_DeathrestExhaustion));
+            Check("no exhaustion thought", exhaustion != null && need != null && need.CurLevel <= 0f && !exhaustion.Worker.CurrentState(s).Active,
+                "vanilla thought " + (exhaustion?.defName ?? "missing") + " active " + exhaustion?.Worker.CurrentState(s).Active + " at integrity " + need?.CurLevelPercentage.ToStringPercent());
+            Gene_Deathrest cpuGene = SoftCycle.GeneOf(s);
+            List<Gizmo> gizmos = cpuGene == null ? new List<Gizmo>() : Patch_SoftCycleGizmos.Postfix(new Gizmo[] { new GeneGizmo_DeathrestCapacity(cpuGene) }, cpuGene).ToList();
+            Check("cpu gizmo", gizmos.OfType<GeneGizmo_Rimshi_CpuIntegrity>().Count() == 1 && !gizmos.Any(g => g.GetType() == typeof(GeneGizmo_DeathrestCapacity)),
+                "gizmos " + string.Join(", ", gizmos.Select(g => g.GetType().Name)));
             if (overload != null)
             {
                 float moving = OverloadFactor(overload, PawnCapacityDefOf.Moving);

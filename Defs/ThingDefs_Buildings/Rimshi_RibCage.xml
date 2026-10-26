@@ -12,7 +12,7 @@
   <ThingDef ParentName="BuildingBase">
     <defName>Rimshi_RibCage</defName>
     <label>rib cage</label>
-    <description>An upright frame of curved metal ribs, somewhere between a cross and a gibbet, that clamps a skeleton in place. A skeleton hanging in it is held in stasis: its CPU integrity stops falling, any CPU overload stops advancing, and none of its needs change. Skeletons can step in by choice, and colonists carry downed skeletons here when no repair bed is free. A skeleton can also run a soft reset while hanging in one, safe from being knocked over. Only skeletons can use it.</description>
+    <description>An upright frame of curved metal ribs, somewhere between a cross and a gibbet, that clamps a skeleton in place. A skeleton hanging in it is held perfectly still, as if time had stopped for it. Skeletons can step in by choice, colonists can carry downed skeletons here, and a skeleton can even reset its CPU while hanging in one. Only skeletons can use it.</description>
     <thingClass>Building_Bed</thingClass>
     <graphicData>
       <texPath>Rimshi/Buildings/RibCage</texPath>

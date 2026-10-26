@@ -207,11 +207,9 @@
       <li>Deathrest</li>
     </enablesNeeds>
     <customEffectDescriptions>
-      <li>CPU integrity falls to 0% over 30 days, then the CPU overloads</li>
-      <li>A soft cycle in a powered skeleton repair bed takes 48 hours; losing power or stopping early cancels it with 0% integrity</li>
-      <li>Without a repair bed: a 5 day soft reset standing still or hanging in a rib cage</li>
-      <li>A finished cycle flushes short-term memories and wears away a little skill</li>
-      <li>Suspended in a rib cage, CPU integrity holds</li>
+      <li>Memories and feelings slowly build up in the CPU</li>
+      <li>Needs a periodic CPU soft cycle, best run in a powered skeleton repair bed</li>
+      <li>A soft cycle flushes short-term memories</li>
     </customEffectDescriptions>
     <modExtensions>
       <li Class="RimshiSkeletons.NeedRelabelExtension">
@@ -219,7 +217,7 @@
           <li>
             <need>Deathrest</need>
             <label>CPU integrity</label>
-            <description>Living forever without a way to express what they feel, or to feel and touch the world, slowly erodes a skeleton's sanity. To bear it, skeletons periodically run a soft cycle: the CPU and memory buffer reset, long-term memory and programming stay intact, but short-term memories and some skill are lost. Famous skeletons like Cat-Lon, the Elder and Tinfist avoided resets for centuries to keep what they had learned, and many suspect that is what drives some skeletons mad with paranoia.\n\nCPU integrity falls over about 30 days. At 0% the CPU overloads until a soft cycle finishes.</description>
+            <description>Living forever without a way to express what they feel, or to feel and touch the world, slowly erodes a skeleton's sanity. To bear it, skeletons periodically run a soft cycle: the CPU and memory buffer reset, long-term memory and programming stay intact, but short-term memories and some skill are lost. Famous skeletons like Cat-Lon, the Elder and Tinfist avoided resets for centuries to keep what they had learned, and many suspect that is what drives some skeletons mad with paranoia.</description>
           </li>
         </relabels>
       </li>

@@ -11,8 +11,9 @@ namespace RimshiSkeletons
     /// <summary>
     /// CPU overload (docs/design/cpu-soft-cycle.md): what a skeleton gets when its CPU integrity runs out or a soft cycle is
     /// cancelled, until a soft cycle finishes. Severity counts days overloaded; it does not advance while the skeleton is
-    /// soft cycling or suspended in a rib cage. Days 0 to 2 sluggish, 2 to 4 steady, then lucid paranoia: quicker and
-    /// sharper, a mood penalty growing a point a day, and only violent mental breaks.
+    /// soft cycling or suspended in a rib cage. Days 0 to 2 sluggish, 2 to 4 recalibrating, then vigilant (lucid
+    /// paranoia): quicker and sharper, a mood penalty growing a point a day, and only violent mental breaks. Player text
+    /// never forecasts the next stage (no-spoiler rule); the numbers live in the design doc.
     /// </summary>
     public static class CpuOverload
     {
@@ -44,7 +45,7 @@ namespace RimshiSkeletons
             RimshiLog.Test("overload", "begin", pawn.LabelShort + ": " + reason);
             if (PawnUtility.ShouldSendNotificationAbout(pawn))
             {
-                Messages.Message(pawn.LabelShort + "'s CPU is overloading (" + reason + "). A soft cycle will clear it.", pawn, MessageTypeDefOf.NegativeEvent);
+                Messages.Message(pawn.LabelShort + "'s CPU has overloaded.", pawn, MessageTypeDefOf.NegativeEvent);
             }
         }
 
@@ -96,9 +97,9 @@ namespace RimshiSkeletons
                 if (PawnUtility.ShouldSendNotificationAbout(Pawn))
                 {
                     string text = stage == CpuOverload.SteadyStage
-                        ? Pawn.LabelShort + "'s overloaded CPU has steadied. It will not last."
-                        : Pawn.LabelShort + "'s overloaded CPU has turned lucid and paranoid: quicker and sharper, but growing unhappier every day, and any mental break will be violent.";
-                    Messages.Message(text, Pawn, stage == CpuOverload.MadnessStage ? MessageTypeDefOf.NegativeEvent : MessageTypeDefOf.NeutralEvent);
+                        ? Pawn.LabelShort + "'s CPU is recalibrating to the overload."
+                        : "Something old is stirring in " + Pawn.LabelShort + "'s CPU.";
+                    Messages.Message(text, Pawn, MessageTypeDefOf.NeutralEvent);
                 }
             }
             lastStage = stage;
@@ -106,30 +107,7 @@ namespace RimshiSkeletons
 
         public override string CompLabelInBracketsExtra => Holding ? "holding" : null;
 
-        public override string CompTipStringExtra
-        {
-            get
-            {
-                string text = "Overloaded for " + parent.Severity.ToString("0.0") + " days.";
-                if (Holding)
-                {
-                    text += " The overload holds while soft cycling or suspended in a rib cage.";
-                }
-                else if (parent.Severity < CpuOverload.SteadyDays)
-                {
-                    text += " Steadies in " + (CpuOverload.SteadyDays - parent.Severity).ToString("0.0") + " days.";
-                }
-                else if (parent.Severity < CpuOverload.MadnessDays)
-                {
-                    text += " Turns paranoid in " + (CpuOverload.MadnessDays - parent.Severity).ToString("0.0") + " days.";
-                }
-                else
-                {
-                    text += " Mood penalty " + (-CpuOverload.MadnessPenalty(parent)) + "; any mental break will be violent.";
-                }
-                return text + " A finished soft cycle clears it.";
-            }
-        }
+        public override string CompTipStringExtra => Holding ? "For now, the overload is holding where it is." : null;
 
         public override void CompExposeData()
         {
@@ -143,7 +121,7 @@ namespace RimshiSkeletons
         protected override ThoughtState CurrentStateInternal(Pawn p) => CpuOverload.Of(p)?.CurStageIndex == CpuOverload.SluggishStage ? ThoughtState.ActiveDefault : ThoughtState.Inactive;
     }
 
-    /// <summary>The paranoid stage: active with a penalty that grows each day (Thought_Rimshi_CpuMadness).</summary>
+    /// <summary>The vigilant (paranoid) stage: active with a penalty that grows each day (Thought_Rimshi_CpuMadness).</summary>
     public class ThoughtWorker_Rimshi_CpuMadness : ThoughtWorker
     {
         protected override ThoughtState CurrentStateInternal(Pawn p) => CpuOverload.Mad(p) ? ThoughtState.ActiveDefault : ThoughtState.Inactive;
@@ -163,7 +141,7 @@ namespace RimshiSkeletons
 
         public override string LabelCap => Line.LabelCap;
 
-        public override string Description => Line.description + "\n\nCPU overload, day " + (Day + 1) + " of paranoia.";
+        public override string Description => Line.description;
     }
 
     /// <summary>A paranoid overloaded skeleton only has violent mental breaks; if none fits the break's intensity, any violent one that can happen.</summary>
@@ -193,6 +171,22 @@ namespace RimshiSkeletons
             if (logged.Add(___pawn.thingIDNumber))
             {
                 RimshiLog.Test("overload", "violent breaks", ___pawn.LabelShort + " can only break violently: " + string.Join(", ", violent.Select(d => d.defName)));
+            }
+        }
+    }
+
+    /// <summary>
+    /// Vanilla's "deathrest exhaustion" mood (-12) fires for anyone whose deathrest need sits at 0%, whatever the hediff
+    /// says. A skeleton at 0% CPU integrity is overloaded instead, with the overload's own moods.
+    /// </summary>
+    [HarmonyPatch(typeof(ThoughtWorker_DeathrestExhaustion), "CurrentStateInternal")]
+    public static class Patch_NoDeathrestExhaustionThought
+    {
+        public static void Postfix(Pawn p, ref ThoughtState __result)
+        {
+            if (__result.Active && SkeletonUtility.HasFrame(p))
+            {
+                __result = ThoughtState.Inactive;
             }
         }
     }

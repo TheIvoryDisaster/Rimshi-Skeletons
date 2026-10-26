@@ -9,9 +9,10 @@ Still Biotech's deathrest underneath: the `Rimshi_Deathrest` gene (defName kept 
 | Rule | How |
 | --- | --- |
 | Falls 1/30 a day (empty in 30 days) | `Patch_CpuIntegrity` replaces `Need_Deathrest.NeedInterval` for skeletons. Holds while the need is frozen, while cycling (cycles raise it themselves) and while suspended in a rib cage. |
-| At 0%: CPU overload | Same patch, instead of vanilla's deathrest exhaustion. |
-| Tooltip | `Patch_CpuIntegrityTip`: integrity, days until overload or cycle progress, then the lore. |
-| Buttons | `Patch_SoftCycleGizmos` drops vanilla's wake and auto-wake for skeletons and adds: **Soft cycle** (go to the nearest usable repair bed now; greyed with the reason when there is none), **Begin soft reset** (target a cell or rib cage), **Stop soft cycle / Stop soft reset** (with a confirmation), and in dev mode **DEV: Set CPU integrity**. The vanilla deathrest capacity gizmo stays (for the future capacity content). |
+| At 0%: CPU overload | Same patch, instead of vanilla's deathrest exhaustion hediff. Vanilla's "deathrest exhaustion" mood (-12) reads the need directly (`ThoughtWorker_DeathrestExhaustion`: active at 0%), so `Patch_NoDeathrestExhaustionThought` switches it off for skeletons; they get the overload's own moods. |
+| Tooltip | `Patch_CpuIntegrityTip`: integrity, one lore line on the CPU's current state (`SoftCycle.StateLine`: running clean, memories piling up, crowded buffer, overloaded, or cycle/reset progress), then the lore. No countdown. |
+| Buttons | `Patch_SoftCycleGizmos` drops vanilla's wake and auto-wake for skeletons and adds: **Soft cycle** (`SoftCycle.CycleGizmo`, a targeting button: a usable repair bed starts the bed cycle, a free rib cage or any spot the skeleton can stand on starts the slow soft reset; Matthew 2026-10-26: it must never be greyed out just because the repair bed is taken), **Stop soft cycle / Stop soft reset** (with a confirmation), and in dev mode **DEV: Set CPU integrity**. |
+| Gizmo by the draft button | Vanilla's deathrest gizmo ("Deathrest", the need bar, deathrest building count) becomes `GeneGizmo_Rimshi_CpuIntegrity`: "CPU integrity", the bar with the integrity tooltip, and the CPU's state (Running, Soft cycling, Soft resetting, Suspended, Overloaded) with the state line as its tooltip. |
 | Labels | The deathrest hediff reads "CPU soft cycle", the job report "soft cycling: 40%". |
 
 ## Bed soft cycle
@@ -31,7 +32,7 @@ The AI still starts a cycle on its own at 5% integrity (vanilla's threshold), in
 
 ## Soft reset without a repair bed
 
-For colonies without the repair bed and its AI persona core. **Begin soft reset** targets a cell (the skeleton walks there and stands still facing south) or a free rib cage (it hangs there). `Hediff_Rimshi_SoftReset` counts the time and raises integrity along `StandingCurve`:
+For colonies without the repair bed and its AI persona core. **Soft cycle** on a cell (or a rib cage) instead of a repair bed: (the skeleton walks there and stands still facing south) or a free rib cage (it hangs there). `Hediff_Rimshi_SoftReset` counts the time and raises integrity along `StandingCurve`:
 
 | Day | 1 | 2 | 3 | 4 | 5 |
 | --- | --- | --- | --- | --- | --- |
@@ -56,10 +57,20 @@ The memory flush and skill loss are Claude's reading of "short term memories and
 | Days | Stage | Effects |
 | --- | --- | --- |
 | 0 to 2 | sluggish | Moving and manipulation x80%, "CPU overloaded" -8 mood |
-| 2 to 4 | steady | none |
-| 4+ | paranoid | Moving and manipulation x110%, negotiation ability and trade price improvement x110%, a mood penalty of -1 on the first day and one more each day (capped at -30), and only violent mental breaks |
+| 2 to 4 | recalibrating | none |
+| 4+ | vigilant (paranoid) | Moving and manipulation x110%, negotiation ability and trade price improvement x110%, a mood penalty of -1 on the first day and one more each day (capped at -30), and only violent mental breaks |
 
 The paranoid thought (`Thought_Rimshi_CpuMadness`) shows one of Matthew's four lines as its label, a new one each day: "Stobe... gave everything...", "We used to outnumber the humans...", "Flashes of the old empire come to me in dreams... I think they're dreams...", "Skeletons are always crying". `Patch_CpuMadnessBreaks` keeps only mental breaks whose state is aggro (berserk, tantrums, sadistic rage, murderous rage); if none fits the intensity it picks any violent break that can happen.
+
+### Player text (no spoilers)
+
+Matthew, 2026-10-26: player-facing text never explains the mechanics or warns what comes next; Kenshi is about not knowing and finding out. Each overload stage's tooltip (`overrideTooltip` on the stage) describes only that state and its in-world cause:
+
+* sluggish: centuries of memory backed up through the CPU, motors lagging; nothing has flushed the buffer in a long time (a nudge toward the soft cycle);
+* recalibrating: the CPU has stopped fighting and is rebalancing around the load as the new normal;
+* vigilant: running hot is passively waking old defensive protocols; sharper and quicker, "perhaps this is for the better", but it watches everyone a little too closely.
+
+Messages say only what just happened ("X's CPU has overloaded.", "X's CPU is recalibrating to the overload.", "Something old is stirring in X's CPU."). Gizmo, gene, building and hediff descriptions drop durations, percentages and consequences (the numbers above stay in this doc and the test checklist). The repair bed's inspect line still shows the cycle draw in W, since the player has to plan the grid for it.
 
 ## Rib cage
 
@@ -68,7 +79,7 @@ The paranoid thought (`Thought_Rimshi_CpuMadness`) shows one of Matthew's four l
 | Rule | How |
 | --- | --- |
 | Stasis | `Patch_RibCageStasis` freezes every need of a pawn lying in a rib cage (`Need.IsFrozen`), so integrity, maintenance and the rest hold; the overload clock holds too. |
-| Enter by choice | Right-click it with a skeleton: **Hang in rib cage** (stays until given another order) or **Begin soft reset in rib cage**. |
+| Enter by choice | Right-click it with a skeleton: **Hang in rib cage** (stays until given another order) or **Soft cycle in rib cage** (the slow soft reset). |
 | Rescue | A downed skeleton is carried to the best free medical bed it can use: the repair bed (tend offset 0.12), then a rib cage (0.11), then hospital beds (0.10). A skeleton mid-cycle outside a repair bed is downed by vanilla's deathrest, so it is rescued the same way and held there. |
 | Looks | Vanilla draws a pawn in a south-facing bed upright, so the skeleton hangs upright. The building texture is the frame behind it; `CompRimshi_RibCage` draws the front ribs over it. Not minifiable: a reinstalled unrotatable building would face north and hang the skeleton upside down. |
 

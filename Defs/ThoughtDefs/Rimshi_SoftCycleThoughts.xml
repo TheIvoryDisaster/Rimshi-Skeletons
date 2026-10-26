@@ -54,7 +54,7 @@
     </stages>
   </ThoughtDef>
 
-  <!-- CPU overload, paranoid stage (stage 2). Thought_Rimshi_CpuMadness sets the mood (-1 on the first day, one more each
+  <!-- CPU overload, vigilant (paranoid) stage (stage 2). Thought_Rimshi_CpuMadness sets the mood (-1 on the first day, one more each
        day, down to -30) and shows one of these four lines as the label, a new one each day. Their mood effects are
        not used. -->
   <ThoughtDef>

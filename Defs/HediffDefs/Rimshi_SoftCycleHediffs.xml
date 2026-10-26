@@ -3,11 +3,12 @@
 
   <!-- CPU overload (CpuOverload.cs, docs/design/cpu-soft-cycle.md). Severity is days overloaded, advanced by the comp
        except while soft cycling or suspended in a rib cage. Only a finished soft cycle removes it. Moods come from
-       Rimshi_CpuSluggish (stage 0) and Rimshi_CpuMadness (stage 2). -->
+       Rimshi_CpuSluggish (stage 0) and Rimshi_CpuMadness (stage 2). Player text follows the no-spoiler rule
+       (docs/design/cpu-soft-cycle.md): each stage's tooltip describes only the state it is in, never what comes next. -->
   <HediffDef>
     <defName>Rimshi_CpuOverload</defName>
     <label>CPU overload</label>
-    <description>The weight of centuries of memory and feeling, with no way to express them, has overloaded this skeleton's CPU. For two days it is sluggish and dazed; then it steadies for two days; after that it turns lucid and paranoid, quicker and sharper but more miserable each day, and any mental break it suffers will be violent. Only a finished CPU soft cycle clears it.</description>
+    <description>This skeleton's CPU is overloaded.</description>
     <hediffClass>HediffWithComps</hediffClass>
     <defaultLabelColor>(0.9, 1.0, 0.35)</defaultLabelColor>
     <initialSeverity>0.001</initialSeverity>
@@ -20,6 +21,7 @@
     <stages>
       <li>
         <label>sluggish</label>
+        <overrideTooltip>Centuries of memory and feeling, never expressed and never cleared, have backed up through {PAWN_labelShort}'s CPU. Every thought has to drag itself through the weight of them, and its motors lag a beat behind what it means to do. Nothing has flushed its memory buffer in a very long time.</overrideTooltip>
         <capMods>
           <li>
             <capacity>Moving</capacity>
@@ -33,11 +35,13 @@
       </li>
       <li>
         <minSeverity>2</minSeverity>
-        <label>steady</label>
+        <label>recalibrating</label>
+        <overrideTooltip>{PAWN_labelShort} has stopped fighting the overload. Its CPU is recalibrating, rebalancing its processes around the constant load as if it were the way things have always been.</overrideTooltip>
       </li>
       <li>
         <minSeverity>4</minSeverity>
-        <label>paranoid</label>
+        <label>vigilant</label>
+        <overrideTooltip>The overload is simply how {PAWN_labelShort}'s CPU runs now, and running this hot for this long is passively waking defensive protocols that have not stirred since the old empire's wars. It feels quicker and sharper than it has in years. Perhaps this is for the better. Lately, though, it watches everyone a little too closely.</overrideTooltip>
         <capMods>
           <li>
             <capacity>Moving</capacity>
@@ -60,7 +64,7 @@
   <HediffDef>
     <defName>Rimshi_SoftResetting</defName>
     <label>CPU soft reset</label>
-    <description>This skeleton is resetting its CPU and memory buffer without a repair bed. It must stay where it is for 5 days; integrity comes back slowly for three days and quickly on the last. Interrupting it cancels the reset with 0% CPU integrity and a CPU overload.</description>
+    <description>This skeleton is resetting its CPU and memory buffer the hard way, without a repair bed. It has to stay perfectly still while its processes wind down and start over.</description>
     <hediffClass>RimshiSkeletons.Hediff_Rimshi_SoftReset</hediffClass>
     <defaultLabelColor>(149, 189, 252)</defaultLabelColor>
     <isBad>false</isBad>

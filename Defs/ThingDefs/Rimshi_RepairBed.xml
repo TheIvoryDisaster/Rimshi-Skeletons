@@ -8,7 +8,7 @@
   <ThingDef ParentName="BedWithQualityBase">
     <defName>Rimshi_SkeletonRepairBed</defName>
     <label>skeleton repair bed</label>
-    <description>A powered cradle of clamps, tool arms and diagnostic cables, run by an AI persona core, of the kind the old empire kept for its skeletons. A skeleton lying in it is slowly repaired back to full health, scars and all, though it cannot rebuild a lost part. It is also where skeletons run a CPU soft cycle: 48 hours of uninterrupted power, drawing 15 W for every skill level the skeleton has learned. If the power fails before the cycle is done, the cycle is cancelled and the skeleton's CPU overloads. Only skeletons can use it. Draws 50 W on standby and 400 W while repairing.</description>
+    <description>A powered cradle of clamps, tool arms and diagnostic cables, run by an AI persona core, of the kind the old empire kept for its skeletons. A skeleton lying in it is slowly repaired back to full health, scars and all, though it cannot rebuild a lost part. It is also where skeletons run a CPU soft cycle, which draws heavily on the power grid while it runs. Only skeletons can use it.</description>
     <graphicData>
       <!-- 256x256 like the vanilla hospital bed: the 1x2 bed centred, sides transparent. West is east mirrored. -->
       <texPath>Rimshi/Buildings/RepairBed</texPath>

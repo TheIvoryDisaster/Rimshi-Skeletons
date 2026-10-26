@@ -212,7 +212,8 @@ namespace RimshiSkeletons
             }
             bool wasOverloaded = CpuOverload.End(pawn);
             int forgotten = ForgetShortTermMemories(pawn);
-            List<string> lost = LoseSkills(pawn, kind == SoftCycleKind.RepairBed ? 1 : 2);
+            var lostSkills = new List<string>();
+            List<string> lost = LoseSkills(pawn, kind == SoftCycleKind.RepairBed ? 1 : 2, lostSkills);
             ThoughtDef thought = kind == SoftCycleKind.RepairBed ? RimshiDefOf.Rimshi_SoftCycleHoned : RimshiDefOf.Rimshi_SoftResetForeign;
             pawn.needs?.mood?.thoughts?.memories?.TryGainMemory(thought);
             string detail = pawn.LabelShort + ": integrity 100%, overload cleared " + wasOverloaded + ", " + forgotten + " memories forgotten, skill lost: "
@@ -227,9 +228,8 @@ namespace RimshiSkeletons
             }
             if (PawnUtility.ShouldSendNotificationAbout(pawn))
             {
-                string text = pawn.LabelShort + " finished a CPU soft " + (kind == SoftCycleKind.RepairBed ? "cycle" : "reset") + ". CPU integrity is back to 100%"
-                    + (wasOverloaded ? " and the overload has cleared" : "") + ". Short-term memories were flushed"
-                    + (lost.Count > 0 ? "; skill lost: " + string.Join(", ", lost) : "") + ".";
+                string text = pawn.LabelShort + " finished a CPU soft " + (kind == SoftCycleKind.RepairBed ? "cycle" : "reset") + ". Its thoughts run clean again"
+                    + (lostSkills.Count > 0 ? ", though some of what it knew of " + string.Join(" and ", lostSkills) + " has slipped away" : "") + ".";
                 Messages.Message(text, pawn, MessageTypeDefOf.PositiveEvent);
             }
         }
@@ -253,8 +253,7 @@ namespace RimshiSkeletons
             }
             if (PawnUtility.ShouldSendNotificationAbout(pawn))
             {
-                Messages.Message(pawn.LabelShort + "'s CPU soft " + (kind == SoftCycleKind.RepairBed ? "cycle" : "reset") + " was cancelled (" + reason
-                    + "). CPU integrity dropped to 0% and the CPU is overloading.", pawn, MessageTypeDefOf.NegativeEvent);
+                Messages.Message(pawn.LabelShort + "'s CPU soft " + (kind == SoftCycleKind.RepairBed ? "cycle" : "reset") + " was cut short (" + reason + ").", pawn, MessageTypeDefOf.NegativeEvent);
             }
         }
 
@@ -275,7 +274,7 @@ namespace RimshiSkeletons
         }
 
         /// <summary>Takes 3 to 6% of the total XP from up to count skills, picked weighted by level like vanilla's deathrest damage.</summary>
-        private static List<string> LoseSkills(Pawn pawn, int count)
+        private static List<string> LoseSkills(Pawn pawn, int count, List<string> lostLabels = null)
         {
             var lost = new List<string>();
             if (pawn.skills == null)
@@ -288,6 +287,7 @@ namespace RimshiSkeletons
                 float xp = skill.XpTotalEarned * SkillLossRange.RandomInRange;
                 skill.Learn(-xp, direct: true);
                 lost.Add(skill.def.label + " -" + ((int)xp) + " XP");
+                lostLabels?.Add(skill.def.label);
                 candidates.Remove(skill);
             }
             return lost;
@@ -341,7 +341,6 @@ namespace RimshiSkeletons
 
         private static readonly CachedTexture StopTex = new CachedTexture("UI/Gizmos/Wake");
         private static readonly CachedTexture CycleTex = new CachedTexture("UI/Icons/Genes/Gene_Deathrest");
-        private static readonly CachedTexture ResetTex = new CachedTexture("UI/Gizmos/DeathrestAutoWake");
 
         /// <summary>The skeleton's soft cycle buttons, in place of vanilla's wake and auto-wake.</summary>
         public static IEnumerable<Gizmo> Gizmos(Pawn pawn, Gene_Deathrest gene)
@@ -354,8 +353,7 @@ namespace RimshiSkeletons
                     var stop = new Command_Action
                     {
                         defaultLabel = "Stop soft cycle",
-                        defaultDesc = pawn.LabelShort + " has been soft cycling for " + BedTicksDone(gene).ToStringTicksToPeriod() + " of "
-                            + BedTicksTotal(gene).ToStringTicksToPeriod() + ".\n\nStopping before the cycle finishes cancels it: CPU integrity drops to 0% and the CPU overloads.",
+                        defaultDesc = pawn.LabelShort + " has been soft cycling for " + BedTicksDone(gene).ToStringTicksToPeriod() + ". Cutting a soft cycle short is not kind to a CPU.",
                         icon = StopTex.Texture,
                         action = delegate
                         {
@@ -364,8 +362,7 @@ namespace RimshiSkeletons
                                 gene.Wake();
                                 return;
                             }
-                            Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation("Stop " + pawn.LabelShort + "'s soft cycle? It is not finished: CPU integrity will drop to 0% and "
-                                + pawn.LabelShort + " will overload.", delegate
+                            Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation("Stop " + pawn.LabelShort + "'s soft cycle? It is not finished.", delegate
                                 {
                                     pendingCancelReason = "stopped by the player";
                                     gene.Wake();
@@ -386,37 +383,18 @@ namespace RimshiSkeletons
                     yield return new Command_Action
                     {
                         defaultLabel = "Stop soft reset",
-                        defaultDesc = "Stopping before the reset finishes cancels it: CPU integrity drops to 0% and the CPU overloads.",
+                        defaultDesc = "Cutting a soft reset short is not kind to a CPU.",
                         icon = StopTex.Texture,
                         action = delegate
                         {
-                            Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation("Stop " + pawn.LabelShort + "'s soft reset? CPU integrity will drop to 0% and "
-                                + pawn.LabelShort + " will overload.", delegate { StandingReset.Cancel(pawn, "stopped by the player"); }, destructive: true));
+                            Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation("Stop " + pawn.LabelShort + "'s soft reset? It is not finished.", delegate { StandingReset.Cancel(pawn, "stopped by the player"); }, destructive: true));
                         }
                     };
                 }
             }
             else if (pawn.IsColonistPlayerControlled && pawn.Spawned)
             {
-                Building_Bed bed = BestBedFor(pawn, out string reason);
-                var cycle = new Command_Action
-                {
-                    defaultLabel = "Soft cycle",
-                    defaultDesc = "Go to the nearest powered skeleton repair bed and run a CPU soft cycle: 48 hours that must not lose power. The bed draws "
-                        + WattsPerLevel + " W for each of " + pawn.LabelShort + "'s skill levels (" + SkillLevels(pawn) + ") while it runs. Finishing restores CPU integrity to 100% and clears any overload, "
-                        + "but flushes short-term memories and wears away a little of one skill. Stopping early or losing power cancels it with 0% integrity and an overload.",
-                    icon = CycleTex.Texture,
-                    action = delegate
-                    {
-                        pawn.jobs.TryTakeOrderedJob(JobMaker.MakeJob(JobDefOf.Deathrest, bed), JobTag.Misc);
-                    }
-                };
-                if (bed == null)
-                {
-                    cycle.Disable(reason.CapitalizeFirst() + ".");
-                }
-                yield return cycle;
-                yield return StandingReset.BeginGizmo(pawn, ResetTex.Texture);
+                yield return CycleGizmo(pawn);
             }
             if (DebugSettings.ShowDevGizmos)
             {
@@ -447,8 +425,104 @@ namespace RimshiSkeletons
             }
         }
 
-        /// <summary>Watts per skill level, for the gizmo text (the repair bed def holds the real value).</summary>
-        private static float WattsPerLevel => RimshiDefOf.Rimshi_SkeletonRepairBed.GetCompProperties<CompProperties_Rimshi_RepairBed>()?.cycleWattsPerSkillLevel ?? 0f;
+        /// <summary>
+        /// The one "Soft cycle" button: target a skeleton repair bed for the bed cycle, or a rib cage or any spot the
+        /// skeleton can stand on for the slow soft reset (StandingReset).
+        /// </summary>
+        public static Command CycleGizmo(Pawn pawn)
+        {
+            var command = new Command_Target
+            {
+                defaultLabel = "Soft cycle",
+                defaultDesc = "Have " + pawn.LabelShort + " reset its CPU and memory buffer. Choose a powered skeleton repair bed, a rib cage, or any spot where it can stand perfectly still. "
+                    + "Without a repair bed, a soft reset is slow and rough. Either way, it is best not interrupted.",
+                icon = CycleTex.Texture,
+                targetingParams = new TargetingParameters
+                {
+                    canTargetLocations = true,
+                    canTargetBuildings = true,
+                    canTargetPawns = false,
+                    validator = t => ValidTarget(pawn, t.Cell, out _)
+                },
+                action = target => OrderCycle(pawn, target)
+            };
+            if (pawn.Downed || pawn.InMentalState)
+            {
+                command.Disable(pawn.LabelShort + " cannot start a soft cycle now.");
+            }
+            return command;
+        }
+
+        /// <summary>A repair bed on the cell, if any.</summary>
+        public static Building_Bed RepairBedAt(IntVec3 cell, Map map)
+        {
+            if (map == null || !cell.InBounds(map))
+            {
+                return null;
+            }
+            return cell.GetThingList(map).OfType<Building_Bed>().FirstOrDefault(b => RepairBedOf(b) != null);
+        }
+
+        /// <summary>A repair bed the skeleton can cycle in, a rib cage it can hang in, or a cell it can stand on.</summary>
+        public static bool ValidTarget(Pawn pawn, LocalTargetInfo target, out string reason)
+        {
+            Building_Bed bed = RepairBedAt(target.Cell, pawn.Map);
+            if (bed != null)
+            {
+                return CanCycleIn(pawn, bed, out reason);
+            }
+            return StandingReset.ValidTarget(pawn, target, out reason);
+        }
+
+        public static void OrderCycle(Pawn pawn, LocalTargetInfo target)
+        {
+            Building_Bed bed = RepairBedAt(target.Cell, pawn.Map);
+            if (bed == null)
+            {
+                StandingReset.Order(pawn, target);
+                return;
+            }
+            if (!CanCycleIn(pawn, bed, out string reason))
+            {
+                Messages.Message("Cannot soft cycle there: " + reason + ".", MessageTypeDefOf.RejectInput, false);
+                return;
+            }
+            pawn.jobs.TryTakeOrderedJob(JobMaker.MakeJob(JobDefOf.Deathrest, bed), JobTag.Misc);
+        }
+
+        /// <summary>
+        /// One line on where the skeleton's CPU is right now, in lore voice. Never a countdown or a forecast (no-spoiler
+        /// rule, docs/design/cpu-soft-cycle.md).
+        /// </summary>
+        public static string StateLine(Need_Deathrest need, Pawn pawn)
+        {
+            Gene_Deathrest gene = GeneOf(pawn);
+            if (pawn.Deathresting && gene != null)
+            {
+                return "Soft cycling: " + gene.DeathrestPercent.ToStringPercent("F0") + ".";
+            }
+            if (StandingReset.InProgress(pawn))
+            {
+                return "Soft resetting: " + StandingReset.FractionDone(pawn).ToStringPercent("F0") + ".";
+            }
+            if (RibCage.Suspended(pawn))
+            {
+                return "Suspended in a rib cage. Nothing in its mind is moving.";
+            }
+            if (CpuOverload.Of(pawn) != null || need.CurLevel <= 0f)
+            {
+                return "Overloaded.".Colorize(ColorLibrary.RedReadable);
+            }
+            if (need.CurLevelPercentage > 0.7f)
+            {
+                return "Its processes run clean.";
+            }
+            if (need.CurLevelPercentage > 0.3f)
+            {
+                return "Stray memories are piling up in its buffer.";
+            }
+            return "Its buffer is crowded. Old memories surface at odd moments, uninvited.";
+        }
 
         /// <summary>The integrity tooltip, replacing vanilla's deathrest one for skeletons.</summary>
         public static string TipString(Need_Deathrest need, Pawn pawn)
@@ -456,27 +530,7 @@ namespace RimshiSkeletons
             NeedRelabel relabel = SkeletonNeeds.RelabelFor(pawn, need.def);
             string label = relabel?.label.CapitalizeFirst() ?? need.LabelCap;
             string text = (label + ": " + need.CurLevelPercentage.ToStringPercent()).Colorize(ColoredText.TipSectionTitleColor) + "\n";
-            Gene_Deathrest gene = GeneOf(pawn);
-            if (pawn.Deathresting && gene != null)
-            {
-                text += "Soft cycling: " + gene.DeathrestPercent.ToStringPercent("F0") + " done, " + BedTicksLeft(gene).ToStringTicksToPeriod() + " to go.";
-            }
-            else if (StandingReset.InProgress(pawn))
-            {
-                text += "Soft resetting without a repair bed: " + StandingReset.FractionDone(pawn).ToStringPercent("F0") + " done.";
-            }
-            else if (RibCage.Suspended(pawn))
-            {
-                text += "Suspended in a rib cage: CPU integrity is holding.";
-            }
-            else if (need.CurLevel > 0f)
-            {
-                text += "The CPU will overload in " + "PeriodDays".Translate((need.CurLevel / IntegrityFallPerDay).ToString("F1")) + " without a soft cycle.";
-            }
-            else
-            {
-                text += ("CPU overloaded. " + pawn.LabelShort + " needs a soft cycle.").Colorize(ColorLibrary.RedReadable);
-            }
+            text += StateLine(need, pawn);
             return text + "\n\n" + (relabel?.description ?? need.def.description);
         }
     }
@@ -676,7 +730,10 @@ namespace RimshiSkeletons
         }
     }
 
-    /// <summary>Skeletons get the soft cycle buttons in place of vanilla's wake and auto-wake (a finished cycle always ends by itself).</summary>
+    /// <summary>
+    /// Skeletons get the soft cycle buttons in place of vanilla's wake and auto-wake (a finished cycle always ends by
+    /// itself), and the CPU integrity gizmo in place of the deathrest one.
+    /// </summary>
     [HarmonyPatch(typeof(Gene_Deathrest), nameof(Gene_Deathrest.GetGizmos))]
     public static class Patch_SoftCycleGizmos
     {
@@ -690,6 +747,12 @@ namespace RimshiSkeletons
             {
                 if (skeleton && gizmo is Command command && (command.defaultLabel == wake || command.defaultLabel == autoWake))
                 {
+                    continue;
+                }
+                if (skeleton && gizmo is GeneGizmo_DeathrestCapacity)
+                {
+                    // "Deathrest" and the deathrest building count become "CPU integrity" and the CPU's state
+                    yield return GeneGizmo_Rimshi_CpuIntegrity.For(__instance);
                     continue;
                 }
                 yield return gizmo;
