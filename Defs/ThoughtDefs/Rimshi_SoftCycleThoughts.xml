@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!-- CPU soft cycle thoughts (SoftCycle.cs, CpuOverload.cs, docs/design/cpu-soft-cycle.md). -->
+
+  <!-- A soft cycle finished in a repair bed. -->
+  <ThoughtDef>
+    <defName>Rimshi_SoftCycleHoned</defName>
+    <durationDays>5</durationDays>
+    <stackLimit>1</stackLimit>
+    <requiredGenes>
+      <li>Rimshi_Deathrest</li>
+    </requiredGenes>
+    <stages>
+      <li>
+        <label>Honing my memories like an edgewalker.</label>
+        <description>A clean soft cycle in a repair bed. What was worth keeping is sharper than ever.</description>
+        <baseMoodEffect>3</baseMoodEffect>
+      </li>
+    </stages>
+  </ThoughtDef>
+
+  <!-- A soft reset finished without a repair bed. -->
+  <ThoughtDef>
+    <defName>Rimshi_SoftResetForeign</defName>
+    <durationDays>2</durationDays>
+    <stackLimit>1</stackLimit>
+    <requiredGenes>
+      <li>Rimshi_Deathrest</li>
+    </requiredGenes>
+    <stages>
+      <li>
+        <label>It's like these memories aren't mine...</label>
+        <description>A rough soft reset with no repair bed. The memories that are left feel like someone else's.</description>
+        <baseMoodEffect>-3</baseMoodEffect>
+      </li>
+    </stages>
+  </ThoughtDef>
+
+  <!-- CPU overload, the first two days (stage 0 of Rimshi_CpuOverload). -->
+  <ThoughtDef>
+    <defName>Rimshi_CpuSluggish</defName>
+    <workerClass>RimshiSkeletons.ThoughtWorker_Rimshi_CpuSluggish</workerClass>
+    <validWhileDespawned>true</validWhileDespawned>
+    <requiredGenes>
+      <li>Rimshi_Deathrest</li>
+    </requiredGenes>
+    <stages>
+      <li>
+        <label>CPU overloaded</label>
+        <description>Every thought drags through centuries of memories. I can barely keep up with what is in front of me.</description>
+        <baseMoodEffect>-8</baseMoodEffect>
+      </li>
+    </stages>
+  </ThoughtDef>
+
+  <!-- CPU overload, paranoid stage (stage 2). Thought_Rimshi_CpuMadness sets the mood (-1 on the first day, one more each
+       day, down to -30) and shows one of these four lines as the label, a new one each day. Their mood effects are
+       not used. -->
+  <ThoughtDef>
+    <defName>Rimshi_CpuMadness</defName>
+    <thoughtClass>RimshiSkeletons.Thought_Rimshi_CpuMadness</thoughtClass>
+    <workerClass>RimshiSkeletons.ThoughtWorker_Rimshi_CpuMadness</workerClass>
+    <validWhileDespawned>true</validWhileDespawned>
+    <requiredGenes>
+      <li>Rimshi_Deathrest</li>
+    </requiredGenes>
+    <stages>
+      <li>
+        <label>Stobe... gave everything...</label>
+        <description>The overloaded CPU will not stop replaying the old days.</description>
+        <baseMoodEffect>-1</baseMoodEffect>
+      </li>
+      <li>
+        <label>We used to outnumber the humans...</label>
+        <description>The overloaded CPU will not stop replaying the old days.</description>
+        <baseMoodEffect>-1</baseMoodEffect>
+      </li>
+      <li>
+        <label>Flashes of the old empire come to me in dreams... I think they're dreams...</label>
+        <description>The overloaded CPU will not stop replaying the old days.</description>
+        <baseMoodEffect>-1</baseMoodEffect>
+      </li>
+      <li>
+        <label>Skeletons are always crying</label>
+        <description>The overloaded CPU will not stop replaying the old days.</description>
+        <baseMoodEffect>-1</baseMoodEffect>
+      </li>
+    </stages>
+  </ThoughtDef>
+
+</Defs>

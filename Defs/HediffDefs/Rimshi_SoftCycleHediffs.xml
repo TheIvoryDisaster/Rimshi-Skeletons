@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!-- CPU overload (CpuOverload.cs, docs/design/cpu-soft-cycle.md). Severity is days overloaded, advanced by the comp
+       except while soft cycling or suspended in a rib cage. Only a finished soft cycle removes it. Moods come from
+       Rimshi_CpuSluggish (stage 0) and Rimshi_CpuMadness (stage 2). -->
+  <HediffDef>
+    <defName>Rimshi_CpuOverload</defName>
+    <label>CPU overload</label>
+    <description>The weight of centuries of memory and feeling, with no way to express them, has overloaded this skeleton's CPU. For two days it is sluggish and dazed; then it steadies for two days; after that it turns lucid and paranoid, quicker and sharper but more miserable each day, and any mental break it suffers will be violent. Only a finished CPU soft cycle clears it.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <defaultLabelColor>(0.9, 1.0, 0.35)</defaultLabelColor>
+    <initialSeverity>0.001</initialSeverity>
+    <maxSeverity>9999</maxSeverity>
+    <isBad>true</isBad>
+    <everCurableByItem>false</everCurableByItem>
+    <comps>
+      <li Class="RimshiSkeletons.HediffCompProperties_Rimshi_CpuOverload"/>
+    </comps>
+    <stages>
+      <li>
+        <label>sluggish</label>
+        <capMods>
+          <li>
+            <capacity>Moving</capacity>
+            <postFactor>0.8</postFactor>
+          </li>
+          <li>
+            <capacity>Manipulation</capacity>
+            <postFactor>0.8</postFactor>
+          </li>
+        </capMods>
+      </li>
+      <li>
+        <minSeverity>2</minSeverity>
+        <label>steady</label>
+      </li>
+      <li>
+        <minSeverity>4</minSeverity>
+        <label>paranoid</label>
+        <capMods>
+          <li>
+            <capacity>Moving</capacity>
+            <postFactor>1.1</postFactor>
+          </li>
+          <li>
+            <capacity>Manipulation</capacity>
+            <postFactor>1.1</postFactor>
+          </li>
+        </capMods>
+        <statFactors>
+          <NegotiationAbility>1.1</NegotiationAbility>
+          <TradePriceImprovement>1.1</TradePriceImprovement>
+        </statFactors>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <!-- The soft reset without a repair bed (StandingReset.cs): tracks progress; removed when the reset ends either way. -->
+  <HediffDef>
+    <defName>Rimshi_SoftResetting</defName>
+    <label>CPU soft reset</label>
+    <description>This skeleton is resetting its CPU and memory buffer without a repair bed. It must stay where it is for 5 days; integrity comes back slowly for three days and quickly on the last. Interrupting it cancels the reset with 0% CPU integrity and a CPU overload.</description>
+    <hediffClass>RimshiSkeletons.Hediff_Rimshi_SoftReset</hediffClass>
+    <defaultLabelColor>(149, 189, 252)</defaultLabelColor>
+    <isBad>false</isBad>
+    <everCurableByItem>false</everCurableByItem>
+  </HediffDef>
+
+</Defs>

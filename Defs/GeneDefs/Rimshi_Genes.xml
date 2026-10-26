@@ -192,14 +192,14 @@
     <biostatMet>3</biostatMet>
   </GeneDef>
 
-  <!-- Deathrest, the vanilla Biotech mechanic (Gene_Deathrest, the Deathrest need, deathrest capacity), but only in a fuelled
-       skeleton repair bed, which burns chemfuel instead of the sanguophage's casket (SkeletonDeathrest.cs). Deathrest
-       buildings and capacity items work as for sanguophages; ones of our own come in a later milestone. -->
+  <!-- The CPU soft cycle (docs/design/cpu-soft-cycle.md): vanilla Biotech deathrest underneath (Gene_Deathrest and the
+       Deathrest need, shown as CPU integrity). SoftCycle.cs, StandingReset.cs, CpuOverload.cs and RibCage.cs change what
+       the need and deathrest do for skeletons. defName kept for saves. -->
   <GeneDef ParentName="Rimshi_SkeletonGeneBase">
     <defName>Rimshi_Deathrest</defName>
-    <label>reactor deathrest</label>
-    <labelShortAdj>dormant</labelShortAdj>
-    <description>Carriers of this gene must lie dormant every few weeks while their reactor core recharges. They can only do so in a skeleton repair bed, which burns chemfuel to bring the core back up. Going too long without deathrest leaves them exhausted.</description>
+    <label>CPU soft cycle</label>
+    <labelShortAdj>soft-cycling</labelShortAdj>
+    <description>Carriers of this gene carry centuries of memory and feeling with no way to express them. Unless they periodically flush their short-term memory buffer with a CPU soft cycle, the weight of their experiences overloads the CPU.</description>
     <geneClass>Gene_Deathrest</geneClass>
     <iconPath>UI/Icons/Genes/Gene_Deathrest</iconPath>
     <displayOrderInCategory>45</displayOrderInCategory>
@@ -207,16 +207,19 @@
       <li>Deathrest</li>
     </enablesNeeds>
     <customEffectDescriptions>
-      <li>Deathrests only in a roofed skeleton repair bed with chemfuel in its tank</li>
-      <li>One full deathrest burns about 35 chemfuel; deathrest pauses while the tank is empty</li>
+      <li>CPU integrity falls to 0% over 30 days, then the CPU overloads</li>
+      <li>A soft cycle in a powered skeleton repair bed takes 48 hours; losing power or stopping early cancels it with 0% integrity</li>
+      <li>Without a repair bed: a 5 day soft reset standing still or hanging in a rib cage</li>
+      <li>A finished cycle flushes short-term memories and wears away a little skill</li>
+      <li>Suspended in a rib cage, CPU integrity holds</li>
     </customEffectDescriptions>
     <modExtensions>
       <li Class="RimshiSkeletons.NeedRelabelExtension">
         <relabels>
           <li>
             <need>Deathrest</need>
-            <label>deathrest</label>
-            <description>A skeleton's reactor core slowly runs down. Every few weeks it must lie dormant for several days in a skeleton repair bed while the bed burns chemfuel to recharge the core. A skeleton that goes too long without deathrest is left exhausted.</description>
+            <label>CPU integrity</label>
+            <description>Living forever without a way to express what they feel, or to feel and touch the world, slowly erodes a skeleton's sanity. To bear it, skeletons periodically run a soft cycle: the CPU and memory buffer reset, long-term memory and programming stay intact, but short-term memories and some skill are lost. Famous skeletons like Cat-Lon, the Elder and Tinfist avoided resets for centuries to keep what they had learned, and many suspect that is what drives some skeletons mad with paranoia.\n\nCPU integrity falls over about 30 days. At 0% the CPU overloads until a soft cycle finishes.</description>
           </li>
         </relabels>
       </li>

@@ -54,11 +54,22 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | maintenance | Need bar and tooltips relabel needs (this line only appears when a patch target is missing) | not seen |  |  |
 | maintenance | Components allowed in the save's food policies and Skeletons policy added (once per save) | not seen |  |  |
 | maintenance | Skeleton picking up a component to carry | not seen |  |  |
-| deathrest | Skeleton went to deathrest in a repair bed (gives its chemfuel) | not seen |  |  |
-| deathrest | Deathrest burning a repair bed's chemfuel | not seen |  |  |
-| deathrest | Deathrest paused: out of chemfuel or not in a repair bed | not seen |  |  |
-| deathrest | Skeleton due to deathrest found no roofed, fuelled repair bed | not seen |  |  |
+| softcycle | Skeleton went to soft cycle in a repair bed (gives the cycle's power draw) | not seen |  |  |
+| softcycle | Skeleton soft cycling in a powered repair bed (48 hours, power draw, integrity) | not seen |  |  |
+| softcycle | Soft cycle held outside a repair bed (carried, in a rib cage, older save) | not seen |  |  |
+| softcycle | Skeleton due a soft cycle found no usable repair bed (gives the reason) | not seen |  |  |
+| softcycle | Soft cycle finished in a repair bed (integrity 100%, memories flushed, skill lost, +3 thought) | not seen |  |  |
+| softcycle | Soft cycle cancelled: power lost or stopped early (integrity 0%) | not seen |  |  |
+| softcycle | Skeleton began a soft reset standing or hanging in a rib cage | not seen |  |  |
+| softcycle | Soft reset finished without a repair bed (integrity 100%, -3 thought) | not seen |  |  |
+| softcycle | Soft reset cancelled: stopped, drafted, downed or interrupted (integrity 0%) | not seen |  |  |
+| softcycle | Skeletons with deathrest exhaustion from an older save got CPU overload instead | not seen |  |  |
 | deathrest | Skeletons from an older save got the deathrest gene | not seen |  |  |
+| overload | CPU overload started (integrity ran out or a cycle was cancelled) | not seen |  |  |
+| overload | CPU overload moved to its next stage (steady at day 2, paranoid at day 4) | not seen |  |  |
+| overload | Paranoid overloaded skeleton limited to violent mental breaks | not seen |  |  |
+| overload | CPU overload cleared by a finished soft cycle | not seen |  |  |
+| ribcage | Skeleton hanging in a rib cage (needs frozen) | not seen |  |  |
 | reproduction | A pregnancy added to a skeleton was refused | not seen |  |  |
 | horde | Recall array inherited the mechband antenna graphic | not seen |  |  |
 | horde | Recall research on the research tab, overlapping nothing (gives its position) | not seen |  |  |
@@ -120,8 +131,19 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | selftest | Self-test: maintenance thought can apply to skeleton | not seen |  |  |
 | selftest | Self-test: with Dubs Bad Hygiene, no thirst or bladder and self-cleaning at half rate (passes when not loaded) | not seen |  |  |
 | selftest | Self-test: skeleton has deathrest (gene, need, icon); human does not | not seen |  |  |
-| selftest | Self-test: repair bed holds chemfuel for deathrest (tank and fuel per deathrest) | not seen |  |  |
-| selftest | Self-test: deathrest tooltip relabelled for skeletons | not seen |  |  |
+| selftest | Self-test: deathrest need shown as CPU integrity with the soft cycle tooltip | not seen |  |  |
+| selftest | Self-test: repair bed draws 15 W per skill level for a cycle and has no chemfuel tank | not seen |  |  |
+| selftest | Self-test: a bed soft cycle takes 48 hours | not seen |  |  |
+| selftest | Self-test: soft reset is slow for 3 days and speeds up to 100% at 5 days | not seen |  |  |
+| selftest | Self-test: a cycle raises integrity in step and ends at 100% | not seen |  |  |
+| selftest | Self-test: a cancelled cycle leaves 0% integrity and a CPU overload | not seen |  |  |
+| selftest | Self-test: overload stages (sluggish x0.8, steady at day 2, paranoid x1.1 at day 4, -1 mood a day) | not seen |  |  |
+| selftest | Self-test: paranoid thought has the four lines and applies to the skeleton only | not seen |  |  |
+| selftest | Self-test: violent break filter patched (berserk counts, sad wander does not) | not seen |  |  |
+| selftest | Self-test: a finished cycle clears the overload, fills integrity and flushes memories | not seen |  |  |
+| selftest | Self-test: rib cage is a 1x2 unrotatable medical bed, 80 steel + 3 components, basic mechtech, skeletons only | not seen |  |  |
+| selftest | Self-test: rib cage back and front textures load | not seen |  |  |
+| selftest | Self-test: rib cage freezes needs and ranks between the repair bed and hospital bed for rescue | not seen |  |  |
 | selftest | Self-test: component packing patch applied | not seen |  |  |
 | selftest | Self-test: Skeletons food policy allows only components | not seen |  |  |
 | selftest | Self-test: naked thought nullified for skeleton | passed | 7 | Naked nullified |
@@ -195,7 +217,11 @@ Things the log cannot show; tick them off by hand after looking in game.
 - [ ] In a save from before components were edible, the food policies now allow components and there is a Skeletons policy allowing only components; a hungry skeleton walks to a component, and idle skeletons pick up one component to carry and strip it when hungry. Disallowing components in a skeleton's policy stops it eating them, and the change sticks after a reload.
 - [ ] A skeleton refuses ordinary meals (right-click shows "not suitable"), and a human or animal refuses components.
 - [ ] Without components, a skeleton gets "maintenance due", then "maintenance overdue", then "worn parts" at 0%, getting one stage worse per day (down to "falling apart", -22); the vanilla hunger thought shows as nullified, and it never gets malnutrition.
-- [ ] Deathrest: a skeleton's needs tab has a deathrest bar with the reactor core tooltip. A repair bed shows a chemfuel gauge and haulers fill it (35). When deathrest drops to 5%, the skeleton walks to a roofed repair bed with fuel and deathrests there for about 4 days, burning the tank down (about 35); with an empty tank it pauses with a message; with no fuelled bed it never deathrests and gets deathrest exhaustion.
+- [ ] CPU integrity: a skeleton's needs tab shows "CPU integrity" with the soft cycle tooltip (days until overload). The skeleton's gene buttons are "Soft cycle" (greyed with a reason when no repair bed is usable) and "Begin soft reset"; vanilla's wake buttons are gone.
+- [ ] Bed soft cycle: a repair bed draws 50 W idle, 400 W more while repairing, and 15 W per skill level of a cycling skeleton (inspect the bed and the power grid). The cycle takes 48 hours, the bar climbs to 100%, the skeleton gets "Honing my memories like an edgewalker." (+3, 5 days), its other memories are gone and one skill lost a little XP. Flicking the bed off, cutting power, a solar flare or "Stop soft cycle" cancels it: 0% integrity and CPU overload.
+- [ ] Standing soft reset: "Begin soft reset" targets a cell; the skeleton walks there, stands facing south for 5 days (slow for 3 days, fast on the last), then gets "It's like these memories aren't mine..." (-3, 2 days). Drafting it or "Stop soft reset" cancels with an overload. Targeting a rib cage makes it hang there instead.
+- [ ] CPU overload: sluggish for 2 days (moving and manipulation x80%, "CPU overloaded" -8), then steady with no effects for 2 days, then paranoid (x110% moving and manipulation, negotiation and trade price improvement x110%), a mood line that changes daily through the four quotes and gets 1 worse a day, and only violent mental breaks. A finished cycle clears it.
+- [ ] Rib cage: 1x2, cannot be rotated, 80 steel and 3 components after basic mechtech; no medical toggle or owner assignment; only skeletons can use it. Right-click with a skeleton: "Hang in rib cage" (it stays there, needs frozen, integrity and overload hold) and "Begin soft reset in rib cage". A downed skeleton is rescued to a repair bed first, then a rib cage. The skeleton draws upright behind the front ribs.
 - [ ] With Dubs Bad Hygiene: a skeleton has no thirst or bladder bar, its hygiene bar reads "Self-cleaning" with the motor debris tooltip, and it drops about half as fast as a human's. The mechanical nature gene lists the changes and "hygiene rate factor x50%".
 - [ ] Naked, dark, wet and pain thoughts show as nullified by mechanical nature.
 - [ ] A skeleton never needs sleep (no rest bar).

@@ -34,6 +34,8 @@ Startup lines `defs | maintenance item` and `defs | need changes`; `diet | ate c
 
 ## Deathrest (repair bed as casket)
 
+Replaced on 2026-10-26 by the CPU soft cycle (cpu-soft-cycle.md): no chemfuel, a powered 48 hour cycle. Kept below as the record of PR #23.
+
 Asked for by Matthew on 2026-10-25, right after maintenance: skeletons deathrest like sanguophages, the skeleton repair bed is their casket, and one deathrest burns a modest amount of chemfuel (35, like a generator's tank). Extensions and capacity content come in a later milestone.
 
 | Part | How |
