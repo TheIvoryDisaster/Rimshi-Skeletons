@@ -7,7 +7,7 @@
        reinstalled unrotatable building would face north and hang its skeleton upside down. Medical by default and the
        medical toggle is hidden, so it is never assigned. Its tend offset (0.11) sits just below the repair bed's (0.12),
        so rescuers carry a downed skeleton to a repair bed first, then a rib cage, then any other bed.
-       Art: proposal A (the cross) redrawn in oblique view and painted through ComfyUI (docs/art/proposals/ribcage/oblique/). The back texture is the building;
+       Art: proposal A (the cross) seen from above like a bed and painted through ComfyUI (docs/art/proposals/ribcage/topdown/). The back texture is the building;
        the front ribs are drawn over the skeleton by CompRimshi_RibCage. -->
   <ThingDef ParentName="BuildingBase">
     <defName>Rimshi_RibCage</defName>
