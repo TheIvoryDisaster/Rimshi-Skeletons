@@ -61,11 +61,12 @@ namespace RimshiSkeletons
                 PartsChecks(skeleton, human);
                 BloodChecks(skeleton, human);
                 DrugChecks(skeleton, human);
-                GeneRemovalCheck(skeleton);
                 FactionChecks(pawns);
                 ReproductionChecks(skeleton, human);
                 HordeChecks(pawns, human);
                 ConversionChecks(pawns);
+                // Last: it takes the null chromosome off the skeleton, and every check above needs it.
+                GeneRemovalCheck(skeleton);
             }
             catch (Exception e)
             {
@@ -317,8 +318,10 @@ namespace RimshiSkeletons
             Check("repair research", mechtech != null && kitResearch.prerequisites.Contains(mechtech) && bedResearch.prerequisites.Contains(mechtech),
                 kitResearch.defName + " and " + bedResearch.defName + " need " + mechtech?.defName);
             RecipeDef kitRecipe = DefDatabase<RecipeDef>.AllDefs.FirstOrDefault(r => r.ProducedThingDef == kit);
-            Check("kit gated", kitRecipe != null && kitRecipe.researchPrerequisite == kitResearch,
-                "recipe " + kitRecipe?.defName + " needs " + kitRecipe?.researchPrerequisite?.defName);
+            List<ResearchProjectDef> kitNeeds = kitRecipe == null ? new List<ResearchProjectDef>()
+                : (kitRecipe.researchPrerequisites ?? new List<ResearchProjectDef>()).Concat(kitRecipe.researchPrerequisite != null ? new[] { kitRecipe.researchPrerequisite } : new ResearchProjectDef[0]).ToList();
+            Check("kit gated", kitRecipe != null && kitNeeds.Contains(kitResearch),
+                "recipe " + kitRecipe?.defName + " needs " + string.Join(", ", kitNeeds.ConvertAll(r => r.defName)));
             Check("bed gated", bed.researchPrerequisites != null && bed.researchPrerequisites.Contains(bedResearch)
                 && bed.CostList.Any(c => c.thingDef == DefDatabase<ThingDef>.GetNamed("AIPersonaCore")), "bed needs " + string.Join(", ", bed.researchPrerequisites?.ConvertAll(r => r.defName) ?? new List<string>()));
             Check("kit not medicine", !kit.IsMedicine, "repair kit is medicine " + kit.IsMedicine + "; vanilla tending never uses it");
@@ -520,9 +523,12 @@ namespace RimshiSkeletons
                 "beer: skeleton " + s.CanTakeDrug(beer) + ", baseliner " + h.CanTakeDrug(beer) + " (teetotaler " + h.IsTeetotaler()
                 + "); penoxycyline suitable: skeleton " + (penoxycyline != null && s.DrugIsSuitable(penoxycyline)) + ", baseliner " + (penoxycyline != null && h.DrugIsSuitable(penoxycyline)));
 
-            bool scheduled = s.drugs != null && DefDatabase<ThingDef>.AllDefsListForReading.Any(d => DrugLock.IsBlockedDrug(d)
-                && (s.drugs.AllowedToTakeScheduledEver(d) || s.drugs.AllowedToTakeToInventory(d)));
-            Check("drug policy", s.drugs != null && !scheduled, "skeleton policy " + s.drugs?.CurrentPolicy?.label + " schedules or carries a drug " + scheduled);
+            // The test pawns have no faction, so they have no drug policy tracker; give them one on a policy that schedules
+            // every drug, then one that carries every drug (a policy entry can't do both).
+            int skeletonAllowed = PolicyAllowedDrugs(s);
+            int humanAllowed = PolicyAllowedDrugs(h);
+            Check("drug policy", skeletonAllowed == 0 && humanAllowed > 0,
+                "policy allowing every drug: skeleton schedules or carries " + skeletonAllowed + ", baseliner " + humanAllowed);
 
             var administer = DefDatabase<RecipeDef>.AllDefsListForReading.FindAll(r => r.Worker is Recipe_AdministerIngestible && r.ingredients.Count > 0
                 && r.ingredients[0].filter.AllowedThingDefs.Any(DrugLock.IsBlockedDrug));
@@ -595,6 +601,38 @@ namespace RimshiSkeletons
             AccessTools.Method(typeof(Hediff_Psylink), nameof(Hediff_Psylink.ChangeLevel), new[] { typeof(int), typeof(bool) }),
         };
 
+        private static int PolicyAllowedDrugs(Pawn pawn)
+        {
+            if (pawn.drugs == null)
+            {
+                pawn.drugs = new Pawn_DrugPolicyTracker(pawn);
+            }
+            var policy = new DrugPolicy(-1, "Rimshi self-test");
+            pawn.drugs.CurrentPolicy = policy;
+            var allowed = new HashSet<ThingDef>();
+            for (int i = 0; i < policy.Count; i++)
+            {
+                policy[i].allowScheduled = true;
+            }
+            for (int i = 0; i < policy.Count; i++)
+            {
+                if (DrugLock.IsBlockedDrug(policy[i].drug) && pawn.drugs.AllowedToTakeScheduledEver(policy[i].drug))
+                {
+                    allowed.Add(policy[i].drug);
+                }
+                policy[i].allowScheduled = false;
+                policy[i].takeToInventory = 1;
+            }
+            for (int i = 0; i < policy.Count; i++)
+            {
+                if (DrugLock.IsBlockedDrug(policy[i].drug) && pawn.drugs.AllowedToTakeToInventory(policy[i].drug))
+                {
+                    allowed.Add(policy[i].drug);
+                }
+            }
+            return allowed.Count;
+        }
+
         private static void GeneRemovalCheck(Pawn s)
         {
             Gene gene = s.genes.GetGene(RimshiDefOf.Rimshi_NullChromosome);
@@ -649,10 +687,17 @@ namespace RimshiSkeletons
             bool installed = s.health.hediffSet.hediffs.Any(h => h.def == klr.addsHediff && h.Part == shoulder);
             Check("part install", installed, "KLR arm on " + shoulder.Label + ": " + installed);
 
+            // Other mods and stats (IncomingDamageFactor) can scale the hit before it reaches the part, so the check is on the
+            // reduction itself: the arm takes 20% off whatever arrives, and the injury is what is left.
+            Patch_PartDamageResistance.lastBefore = Patch_PartDamageResistance.lastAfter = -1f;
             var dinfo = new DamageInfo(DamageDefOf.Bullet, 10f, 99f, -1f, null, shoulder);
             s.TakeDamage(dinfo);
             float severity = s.health.hediffSet.hediffs.OfType<Hediff_Injury>().Where(h => h.Part == shoulder).Sum(h => h.Severity);
-            Check("part armour", severity > 7.9f && severity < 8.1f, "10 bullet damage on the KLR arm made an injury of " + severity.ToString("0.##") + " (expected 8)");
+            float before = Patch_PartDamageResistance.lastBefore;
+            float after = Patch_PartDamageResistance.lastAfter;
+            Check("part armour", before > 0f && Mathf.Abs(after - before * 0.8f) < 0.05f && Mathf.Abs(severity - after) < 0.05f,
+                "10 bullet damage on the KLR arm arrived as " + before.ToString("0.##") + ", reduced to " + after.ToString("0.##")
+                + " (expected " + (before * 0.8f).ToString("0.##") + "), injury " + severity.ToString("0.##"));
 
             RecipeDef core = DefDatabase<RecipeDef>.GetNamed("Rimshi_Install_AICore");
             BodyPartRecord brain = s.health.hediffSet.GetBrain();

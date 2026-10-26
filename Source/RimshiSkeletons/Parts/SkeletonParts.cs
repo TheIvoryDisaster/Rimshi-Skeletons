@@ -101,6 +101,10 @@ namespace RimshiSkeletons
     {
         private static bool logged;
 
+        /// <summary>The last reduction made, damage before and after, for the self-test (other mods and stats can scale damage first).</summary>
+        public static float lastBefore = -1f;
+        public static float lastAfter = -1f;
+
         public static void Prefix(Pawn pawn, ref float totalDamage, DamageInfo dinfo)
         {
             BodyPartRecord hit = dinfo.HitPart;
@@ -116,6 +120,8 @@ namespace RimshiSkeletons
                 {
                     float before = totalDamage;
                     totalDamage *= ext.damageFactor;
+                    lastBefore = before;
+                    lastAfter = totalDamage;
                     if (!logged)
                     {
                         logged = true;

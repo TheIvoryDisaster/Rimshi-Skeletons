@@ -1,0 +1,1 @@
+Fixed five self-tests that failed on save load: the null chromosome removal check now runs last so the reproduction checks see a real skeleton, the repair kit check reads the recipe's research list, the drug policy check gives the faction-less test pawns a policy that allows every drug, and the KLR arm check measures its 20% off whatever damage reaches the arm.
