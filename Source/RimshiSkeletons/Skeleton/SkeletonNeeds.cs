@@ -5,6 +5,7 @@ using System.Reflection;
 using HarmonyLib;
 using RimWorld;
 using Verse;
+using Verse.AI;
 
 namespace RimshiSkeletons
 {
@@ -286,6 +287,65 @@ namespace RimshiSkeletons
                 RimshiLog.Test("maintenance", "no malnutrition", pawn.LabelShort + ": out of maintenance, malnutrition refused");
             }
             return false;
+        }
+    }
+
+    /// <summary>
+    /// Food policies do not apply to maintenance pawns. They consume only maintenance items anyway, and a policy saved
+    /// before components were edible does not allow them (a saved filter never picks up new foods), which left skeletons
+    /// in older saves ignoring components when hungry.
+    /// </summary>
+    [HarmonyPatch(typeof(Pawn_FoodRestrictionTracker), nameof(Pawn_FoodRestrictionTracker.GetCurrentRespectedRestriction))]
+    public static class Patch_NoFoodPolicy
+    {
+        private static readonly HashSet<int> logged = new HashSet<int>();
+
+        public static void Postfix(Pawn ___pawn, ref FoodPolicy __result)
+        {
+            if (__result == null || !SkeletonUtility.HasFuelReactor(___pawn))
+            {
+                return;
+            }
+            if (logged.Add(___pawn.thingIDNumber))
+            {
+                ThingDef item = SkeletonNeeds.MaintenanceItem;
+                RimshiLog.Test("maintenance", "policy ignored", ___pawn.LabelShort + ": food policy " + __result.label + " ignored"
+                    + (item != null && !__result.Allows(item) ? " (it does not allow " + item.label + ")" : ""));
+            }
+            __result = null;
+        }
+    }
+
+    /// <summary>
+    /// Maintenance pawns keep one maintenance item in their inventory, as colonists pack a meal. Vanilla's food packing
+    /// only takes stacks worth 0.8 nutrition (one component is 0.7) and only when the colony has plenty of human food, so
+    /// when it gives nothing a skeleton without an item fetches one from within 30 cells.
+    /// </summary>
+    [HarmonyPatch(typeof(JobGiver_PackFood), "TryGiveJob")]
+    public static class Patch_PackComponent
+    {
+        private const float SearchRadius = 30f;
+
+        public static bool Prepare() => PatchTarget.Exists(typeof(JobGiver_PackFood), "TryGiveJob");
+
+        public static bool Carries(Pawn pawn) => pawn.inventory.innerContainer.Any(t => t.def.HasModExtension<MaintenanceItemExtension>());
+
+        public static void Postfix(Pawn pawn, ref Job __result)
+        {
+            if (__result != null || pawn.inventory == null || !pawn.Spawned || SkeletonNeeds.MaintenanceItem == null || !SkeletonUtility.HasFuelReactor(pawn) || Carries(pawn) || MassUtility.IsOverEncumbered(pawn))
+            {
+                return;
+            }
+            Thing item = GenClosest.ClosestThing_Global_Reachable(pawn.Position, pawn.Map, pawn.Map.listerThings.ThingsOfDef(SkeletonNeeds.MaintenanceItem),
+                PathEndMode.ClosestTouch, TraverseParms.For(pawn), SearchRadius,
+                t => !t.IsForbidden(pawn) && pawn.CanReserve(t) && pawn.WillEat(t) && MassUtility.CountToPickUpUntilOverEncumbered(pawn, t) > 0);
+            if (item == null)
+            {
+                return;
+            }
+            __result = JobMaker.MakeJob(JobDefOf.TakeInventory, item);
+            __result.count = 1;
+            RimshiLog.Test("maintenance", "packed", pawn.LabelShort + " picking up 1 " + item.def.defName + " to carry, from " + item.Position);
         }
     }
 

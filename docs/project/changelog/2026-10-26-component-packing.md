@@ -1,0 +1,1 @@
+Skeletons now reach for components when their maintenance runs low in older saves too: food policies no longer apply to skeletons, since a policy saved before components were edible never allowed them. Skeletons also keep one component in their inventory, picking one up from nearby the way colonists pack a meal. 1 new self-test.
