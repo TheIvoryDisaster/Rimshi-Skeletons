@@ -10,10 +10,11 @@
     <label>skeleton repair bed</label>
     <description>A powered cradle of clamps, tool arms and diagnostic cables, run by an AI persona core, of the kind the old empire kept for its skeletons. A skeleton lying in it is slowly repaired back to full health, scars and all, though it cannot rebuild a lost part. It is also where skeletons run a CPU soft cycle, which draws heavily on the power grid while it runs. Only skeletons can use it.</description>
     <graphicData>
-      <!-- 256x256 like the vanilla hospital bed: the 1x2 bed centred, sides transparent. West is east mirrored. -->
+      <!-- 256x256 like the vanilla hospital bed: the 1x2 bed centred, sides transparent. West is east mirrored.
+           Drawn 20% larger than the hospital bed's (2,2) at Matthew's ask, so it overhangs its cells a little. -->
       <texPath>Rimshi/Buildings/RepairBed</texPath>
       <graphicClass>Graphic_Multi</graphicClass>
-      <drawSize>(2,2)</drawSize>
+      <drawSize>(2.4,2.4)</drawSize>
     </graphicData>
     <castEdgeShadows>True</castEdgeShadows>
     <tickerType>Rare</tickerType>

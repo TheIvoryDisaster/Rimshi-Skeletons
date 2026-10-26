@@ -19,6 +19,8 @@
       <graphicClass>Graphic_Single</graphicClass>
       <drawSize>(1.25,2.5)</drawSize>
       <drawOffset>(0,0,0.15)</drawOffset>
+      <!-- Unrotatable but placed facing south: without this Graphic_Single turns the texture 180 degrees. -->
+      <drawRotated>false</drawRotated>
     </graphicData>
     <drawerType>MapMeshAndRealTime</drawerType>
     <altitudeLayer>Building</altitudeLayer>
@@ -72,6 +74,8 @@
       <bed_showSleeperBody>True</bed_showSleeperBody>
       <bed_healPerDay>0</bed_healPerDay>
       <bed_defaultMedical>true</bed_defaultMedical>
+      <!-- Keeps the painted brown and grey; otherwise the medical sheet colour tints the whole texture blue. -->
+      <bed_UseSheetColor>false</bed_UseSheetColor>
       <buildingSizeCategory>Small</buildingSizeCategory>
       <ai_chillDestination>false</ai_chillDestination>
       <buildingTags>

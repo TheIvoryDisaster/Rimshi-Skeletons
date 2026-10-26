@@ -206,6 +206,12 @@ namespace RimshiSkeletons
             List<Gizmo> gizmos = cpuGene == null ? new List<Gizmo>() : Patch_SoftCycleGizmos.Postfix(new Gizmo[] { new GeneGizmo_DeathrestCapacity(cpuGene) }, cpuGene).ToList();
             Check("cpu gizmo", gizmos.OfType<GeneGizmo_Rimshi_CpuIntegrity>().Count() == 1 && !gizmos.Any(g => g.GetType() == typeof(GeneGizmo_DeathrestCapacity)),
                 "gizmos " + string.Join(", ", gizmos.Select(g => g.GetType().Name)));
+            string tip = need?.GetTipString() ?? "";
+            Check("cpu tip", tip.Contains("CPU integrity") && tip.IndexOf("deathrest", System.StringComparison.OrdinalIgnoreCase) < 0,
+                "integrity tooltip: " + tip.Replace("\n", " / "));
+            ThingDef ribCage = DefDatabase<ThingDef>.GetNamedSilentFail("Rimshi_RibCage");
+            Check("rib cage draw", ribCage != null && !ribCage.graphicData.drawRotated && !ribCage.building.bed_UseSheetColor,
+                "rib cage drawRotated " + ribCage?.graphicData.drawRotated + ", sheet colour " + ribCage?.building.bed_UseSheetColor);
             if (overload != null)
             {
                 float moving = OverloadFactor(overload, PawnCapacityDefOf.Moving);
