@@ -209,6 +209,9 @@ namespace RimshiSkeletons
             string tip = need?.GetTipString() ?? "";
             Check("cpu tip", tip.Contains("CPU integrity") && tip.IndexOf("deathrest", System.StringComparison.OrdinalIgnoreCase) < 0,
                 "integrity tooltip: " + tip.Replace("\n", " / "));
+            MethodBase[] wakeOnly = { AccessTools.Method(typeof(Pawn_JobTracker), nameof(Pawn_JobTracker.TryTakeOrderedJob)), AccessTools.PropertySetter(typeof(Pawn_DraftController), nameof(Pawn_DraftController.Drafted)), AccessTools.Method(typeof(Pawn_DraftController), "GetGizmos") };
+            List<string> unguarded = wakeOnly.Where(m => m == null || !(Harmony.GetPatchInfo(m)?.Owners.Contains(RimshiMod.HarmonyId) ?? false)).Select(m => m == null ? "missing method" : m.DeclaringType.Name + "." + m.Name).ToList();
+            Check("wake only", unguarded.Count == 0, unguarded.Count == 0 ? "orders, drafting and the draft button are guarded during a standing soft cycle" : "not patched: " + string.Join(", ", unguarded));
             ThingDef ribCage = DefDatabase<ThingDef>.GetNamedSilentFail("Rimshi_RibCage");
             Check("rib cage draw", ribCage != null && !ribCage.graphicData.drawRotated && !ribCage.building.bed_UseSheetColor,
                 "rib cage drawRotated " + ribCage?.graphicData.drawRotated + ", sheet colour " + ribCage?.building.bed_UseSheetColor);

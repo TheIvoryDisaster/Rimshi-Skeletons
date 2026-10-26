@@ -225,12 +225,13 @@
     <biostatCpx>1</biostatCpx>
   </GeneDef>
 
-  <!-- Genderless, asexual, sterile: the "null chromosome pattern" approach from Rim-Hivers! - Biotech (VexedTrees). -->
+  <!-- Genderless, asexual, sterile: the "null chromosome pattern" approach from Rim-Hivers! - Biotech (VexedTrees). Shown
+       as "ancient" (Matthew: skeletons have no chromosomes); defName and class kept for saves. -->
   <GeneDef ParentName="Rimshi_SkeletonGeneBase">
     <defName>Rimshi_NullChromosome</defName>
-    <label>null chromosome pattern</label>
-    <labelShortAdj>genderless</labelShortAdj>
-    <description>Carriers of this gene have no sex at all. They are always asexual, cannot have children, and are never generated with family.</description>
+    <label>ancient</label>
+    <labelShortAdj>ancient</labelShortAdj>
+    <description>Carriers of this gene are so old that they predate the very constructs of gender. They have no sex at all, feel no attraction, cannot have children, and have no family left.</description>
     <geneClass>RimshiSkeletons.Gene_NullChromosome</geneClass>
     <iconPath>UI/Icons/Genes/Gene_Sterile</iconPath>
     <displayOrderInCategory>50</displayOrderInCategory>

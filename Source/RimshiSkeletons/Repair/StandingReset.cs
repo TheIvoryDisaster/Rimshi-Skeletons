@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using HarmonyLib;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -10,7 +11,9 @@ namespace RimshiSkeletons
     /// The soft reset without a repair bed (docs/design/cpu-soft-cycle.md): ordered from the skeleton's "Soft cycle"
     /// button (SoftCycle.CycleGizmo) onto a cell, where it stands still for 5 days, or onto a free rib cage, where it hangs. Integrity comes
     /// back slowly for three days and quickly on the last (SoftCycle.StandingCurve). The job ending early for any reason
-    /// (stopped, drafted, downed, a mental break) cancels it with 0% integrity and an overload.
+    /// (woken, downed, a mental break) cancels it with 0% integrity and an overload. Once it has begun, only the "Wake up"
+    /// button ends it on the player's side: orders are refused and drafting is disabled (Patch_SoftResetRefusesOrders,
+    /// Patch_SoftResetNoDraft), so a stray click cannot cost the cycle.
     /// </summary>
     public static class StandingReset
     {
@@ -180,6 +183,9 @@ namespace RimshiSkeletons
             return pawn.Reserve(job.targetA, job, 1, -1, null, errorOnFailed);
         }
 
+        // Once begun, vanilla treats the reset like deathrest: no player order interrupts it (the patches below refuse them).
+        public override bool PlayerInterruptable => !StandingReset.InProgress(pawn);
+
         public override string GetReport()
         {
             return "soft resetting CPU: " + StandingReset.FractionDone(pawn).ToStringPercent("F0");
@@ -223,6 +229,61 @@ namespace RimshiSkeletons
                 }
             });
             yield return reset;
+        }
+    }
+
+    /// <summary>
+    /// A skeleton in a standing soft cycle refuses player orders (right-click jobs, move orders, forced work) instead of
+    /// queueing them, so nothing ends the cycle except "Wake up". The reset's own job is still let through.
+    /// </summary>
+    [HarmonyPatch(typeof(Pawn_JobTracker), nameof(Pawn_JobTracker.TryTakeOrderedJob))]
+    public static class Patch_SoftResetRefusesOrders
+    {
+        public static bool Prefix(Job job, Pawn ___pawn, ref bool __result)
+        {
+            if (job == null || job.def == RimshiDefOf.Rimshi_SoftReset || !StandingReset.InProgress(___pawn))
+            {
+                return true;
+            }
+            Messages.Message(___pawn.LabelShort + " is soft cycling and will not respond until woken.", ___pawn, MessageTypeDefOf.RejectInput, false);
+            RimshiLog.Test("softcycle", "order refused", ___pawn.LabelShort + " refused " + job.def.defName + " while soft resetting");
+            __result = false;
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Drafting a skeleton in a standing soft cycle: the draft button is disabled, and the setter ignores drafting from
+    /// anywhere else (hotkeys, multi-select, other mods).
+    /// </summary>
+    [HarmonyPatch(typeof(Pawn_DraftController), nameof(Pawn_DraftController.Drafted), MethodType.Setter)]
+    public static class Patch_SoftResetNoDraft
+    {
+        public static bool Prefix(Pawn_DraftController __instance, bool value)
+        {
+            if (!value || !StandingReset.InProgress(__instance.pawn))
+            {
+                return true;
+            }
+            RimshiLog.Test("softcycle", "draft refused", __instance.pawn.LabelShort + " was not drafted while soft resetting");
+            return false;
+        }
+    }
+
+    [HarmonyPatch(typeof(Pawn_DraftController), "GetGizmos")]
+    public static class Patch_SoftResetDraftGizmo
+    {
+        public static IEnumerable<Gizmo> Postfix(IEnumerable<Gizmo> __result, Pawn_DraftController __instance)
+        {
+            bool resetting = StandingReset.InProgress(__instance.pawn);
+            foreach (Gizmo gizmo in __result)
+            {
+                if (resetting && gizmo is Command_Toggle toggle && toggle.hotKey == KeyBindingDefOf.Command_ColonistDraft && !toggle.Disabled)
+                {
+                    toggle.Disable(__instance.pawn.LabelShort + " is soft cycling. Wake it up first.");
+                }
+                yield return gizmo;
+            }
         }
     }
 }

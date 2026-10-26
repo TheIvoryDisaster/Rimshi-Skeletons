@@ -107,3 +107,7 @@ Log lines `softcycle | start, cycling, held, no bed, complete bed, cancelled bed
 * Vanilla's low deathrest alert still says "needs deathrest" (and doesn't know about resets or rib cages).
 * The connected soft cycle buildings and capacity content (future milestone).
 * A skeleton standing in a soft reset can't be carried into a rib cage mid-reset; carrying it ends the reset.
+
+## Wake only
+
+Matthew, 2026-10-26: once a standing soft cycle has begun (the skeleton is in place), nothing the player does by accident may end it. `Patch_SoftResetRefusesOrders` refuses `TryTakeOrderedJob` for any other job (with a reject message, so nothing is queued either), `Patch_SoftResetNoDraft` ignores drafting from any source, `Patch_SoftResetDraftGizmo` disables the draft button, and the job driver reports itself not player-interruptible. The only player route out is the "Wake up" button (both bed and standing cycles), whose tooltip warns that waking early has a price without naming it, followed by a confirmation. Downing and mental breaks still cancel it. The walk to the spot can still be redirected, since nothing has started.

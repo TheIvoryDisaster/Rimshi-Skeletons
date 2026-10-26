@@ -343,6 +343,9 @@ namespace RimshiSkeletons
         private static readonly CachedTexture StopTex = new CachedTexture("UI/Gizmos/Wake");
         private static readonly CachedTexture CycleTex = new CachedTexture("UI/Icons/Genes/Gene_Deathrest");
 
+        /// <summary>The wake buttons' warning: there is a price, without saying what it is.</summary>
+        public const string WakeWarning = "Waking a skeleton before its soft cycle is finished tears the CPU out of it half done, and it will pay for that.";
+
         /// <summary>The skeleton's soft cycle buttons, in place of vanilla's wake and auto-wake.</summary>
         public static IEnumerable<Gizmo> Gizmos(Pawn pawn, Gene_Deathrest gene)
         {
@@ -353,8 +356,8 @@ namespace RimshiSkeletons
                 {
                     var stop = new Command_Action
                     {
-                        defaultLabel = "Stop soft cycle",
-                        defaultDesc = pawn.LabelShort + " has been soft cycling for " + BedTicksDone(gene).ToStringTicksToPeriod() + ". Cutting a soft cycle short is not kind to a CPU.",
+                        defaultLabel = "Wake up",
+                        defaultDesc = pawn.LabelShort + " has been soft cycling for " + BedTicksDone(gene).ToStringTicksToPeriod() + ". " + WakeWarning,
                         icon = StopTex.Texture,
                         action = delegate
                         {
@@ -363,7 +366,7 @@ namespace RimshiSkeletons
                                 gene.Wake();
                                 return;
                             }
-                            Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation("Stop " + pawn.LabelShort + "'s soft cycle? It is not finished.", delegate
+                            Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation("Wake " + pawn.LabelShort + "? Its soft cycle is not finished.", delegate
                                 {
                                     pendingCancelReason = "stopped by the player";
                                     gene.Wake();
@@ -383,12 +386,12 @@ namespace RimshiSkeletons
                 {
                     yield return new Command_Action
                     {
-                        defaultLabel = "Stop soft reset",
-                        defaultDesc = "Cutting a soft reset short is not kind to a CPU.",
+                        defaultLabel = "Wake up",
+                        defaultDesc = WakeWarning + " Nothing else will disturb " + pawn.LabelShort + " while it stands here: it ignores orders and cannot be drafted until it wakes.",
                         icon = StopTex.Texture,
                         action = delegate
                         {
-                            Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation("Stop " + pawn.LabelShort + "'s soft reset? It is not finished.", delegate { StandingReset.Cancel(pawn, "stopped by the player"); }, destructive: true));
+                            Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation("Wake " + pawn.LabelShort + "? Its soft cycle is not finished.", delegate { StandingReset.Cancel(pawn, "stopped by the player"); }, destructive: true));
                         }
                     };
                 }
