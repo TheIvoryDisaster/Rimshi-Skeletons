@@ -72,6 +72,10 @@ Matthew, 2026-10-26: player-facing text never explains the mechanics or warns wh
 
 Messages say only what just happened ("X's CPU has overloaded.", "X's CPU is recalibrating to the overload.", "Something old is stirring in X's CPU."). Gizmo, gene, building and hediff descriptions drop durations, percentages and consequences (the numbers above stay in this doc and the test checklist). The repair bed's inspect line still shows the cycle draw in W, since the player has to plan the grid for it.
 
+The CPU integrity tooltip (gizmo and needs tab) is `SoftCycle.TipString`: "CPU integrity: N%", the state line, then the gene's relabel description, a lore account of the CPU, the memory buffer and the soft cycle. It never falls back to vanilla's deathrest description. The gizmo draws that tooltip itself (the bar's own tooltip is off), and `GetTipString` is swapped both on `Need_Deathrest` (where it overrides) and on base `Need` (where a game version does not override it and would add vanilla's "comes from gene" line).
+
+Art flags: the rib cage has `drawRotated` false (it is unrotatable but placed facing south, so `Graphic_Single` would turn it 180 degrees) and `bed_UseSheetColor` false (as a medical bed it would otherwise take the blue sheet colour). The repair bed is drawn at (2.4,2.4), 20% over the hospital bed's size.
+
 ## Rib cage
 
 `Rimshi_RibCage`: 1x2, never rotated, 80 steel and 3 components after basic mechtech. A `Building_Bed` that is always medical (the medical toggle is hidden), so it is never assigned. Only skeletons can use it.

@@ -140,6 +140,8 @@ CHECKLIST = [
     ("selftest", "cancel overloads", "Self-test: a cancelled cycle leaves 0% integrity and a CPU overload"),
     ("selftest", "no exhaustion thought", "Self-test: a skeleton at 0% CPU integrity gets no vanilla deathrest exhaustion thought"),
     ("selftest", "cpu gizmo", "Self-test: skeleton shows the CPU integrity gizmo and one soft cycle button instead of vanilla's deathrest gizmo"),
+    ("selftest", "cpu tip", "Self-test: the CPU integrity tooltip is skeleton lore with no vanilla deathrest text"),
+    ("selftest", "rib cage draw", "Self-test: the rib cage texture is drawn unrotated and without the medical sheet tint"),
     ("selftest", "overload stages", "Self-test: overload stages (sluggish x0.8, recalibrating at day 2, vigilant x1.1 at day 4, -1 mood a day)"),
     ("selftest", "madness thought", "Self-test: vigilant (paranoid) thought has the four lines and applies to the skeleton only"),
     ("selftest", "violent breaks", "Self-test: violent break filter patched (berserk counts, sad wander does not)"),

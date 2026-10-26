@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using HarmonyLib;
 using RimWorld;
 using UnityEngine;
@@ -524,14 +525,19 @@ namespace RimshiSkeletons
             return "Its buffer is crowded. Old memories surface at odd moments, uninvited.";
         }
 
-        /// <summary>The integrity tooltip, replacing vanilla's deathrest one for skeletons.</summary>
+        /// <summary>Lore for the integrity tooltip if the gene's relabel is missing (say, a custom xenotype without it).</summary>
+        public const string FallbackDescription = "A skeleton's mind runs on a CPU and a memory buffer that were never built to carry centuries. Everything it lives through leaves something behind in the buffer, and a soft cycle is how a skeleton clears it.";
+
+        /// <summary>
+        /// The integrity tooltip, replacing vanilla's deathrest one for skeletons: never vanilla's deathrest text, its
+        /// countdown or its "comes from gene" line.
+        /// </summary>
         public static string TipString(Need_Deathrest need, Pawn pawn)
         {
             NeedRelabel relabel = SkeletonNeeds.RelabelFor(pawn, need.def);
-            string label = relabel?.label.CapitalizeFirst() ?? need.LabelCap;
-            string text = (label + ": " + need.CurLevelPercentage.ToStringPercent()).Colorize(ColoredText.TipSectionTitleColor) + "\n";
+            string text = ("CPU integrity: " + need.CurLevelPercentage.ToStringPercent()).Colorize(ColoredText.TipSectionTitleColor) + "\n";
             text += StateLine(need, pawn);
-            return text + "\n\n" + (relabel?.description ?? need.def.description);
+            return text + "\n\n" + (relabel?.description ?? FallbackDescription);
         }
     }
 
@@ -713,21 +719,38 @@ namespace RimshiSkeletons
     }
 
     /// <summary>The skeleton's integrity tooltip (vanilla's speaks of deathrest and exhaustion).</summary>
-    [HarmonyPatch(typeof(Need_Deathrest), nameof(Need_Deathrest.GetTipString))]
+    [HarmonyPatch]
     public static class Patch_CpuIntegrityTip
     {
-        private static readonly AccessTools.FieldRef<Need, Pawn> NeedPawn = AccessTools.FieldRefAccess<Need, Pawn>("pawn");
+        internal static readonly AccessTools.FieldRef<Need, Pawn> NeedPawn = AccessTools.FieldRefAccess<Need, Pawn>("pawn");
 
-        public static bool Prefix(Need_Deathrest __instance, ref string __result)
+        // Only where Need_Deathrest overrides it; otherwise Patch_CpuIntegrityTipBase catches it on Need.
+        public static bool Prepare() => TargetMethod() != null;
+
+        public static MethodBase TargetMethod() => AccessTools.DeclaredMethod(typeof(Need_Deathrest), nameof(Need.GetTipString));
+
+        public static bool Prefix(Need __instance, ref string __result) => Swap(__instance, ref __result);
+
+        internal static bool Swap(Need need, ref string result)
         {
-            Pawn pawn = NeedPawn(__instance);
-            if (!SkeletonUtility.HasFrame(pawn))
+            Pawn pawn = NeedPawn(need);
+            if (!(need is Need_Deathrest deathrest) || !SkeletonUtility.HasFrame(pawn))
             {
                 return true;
             }
-            __result = SoftCycle.TipString(__instance, pawn);
+            result = SoftCycle.TipString(deathrest, pawn);
             return false;
         }
+    }
+
+    /// <summary>
+    /// The same swap on the base Need.GetTipString, for game versions where Need_Deathrest has no override of its own
+    /// (that base adds vanilla's "comes from gene: deathrest" line). Harmless where it does override: never reached then.
+    /// </summary>
+    [HarmonyPatch(typeof(Need), nameof(Need.GetTipString))]
+    public static class Patch_CpuIntegrityTipBase
+    {
+        public static bool Prefix(Need __instance, ref string __result) => Patch_CpuIntegrityTip.Swap(__instance, ref __result);
     }
 
     /// <summary>

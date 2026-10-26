@@ -6,8 +6,8 @@ using Verse;
 namespace RimshiSkeletons
 {
     /// <summary>
-    /// The skeleton's version of vanilla's deathrest gizmo beside the draft button: "CPU integrity" over the bar (whose
-    /// tooltip is SoftCycle.TipString), and a line on the CPU's current state where vanilla counts deathrest buildings.
+    /// The skeleton's version of vanilla's deathrest gizmo beside the draft button: "CPU integrity" over the bar (with
+    /// SoftCycle.TipString as its tooltip), and a line on the CPU's current state where vanilla counts deathrest buildings.
     /// Swapped in by Patch_SoftCycleGizmos. Text follows the no-spoiler rule: state only, no forecasts.
     /// </summary>
     public class GeneGizmo_Rimshi_CpuIntegrity : GeneGizmo_DeathrestCapacity
@@ -53,7 +53,14 @@ namespace RimshiSkeletons
             Need_Deathrest need = gene.DeathrestNeed;
             if (need != null)
             {
-                need.DrawOnGUI(new Rect(0f, row, inner.width, row + 2f), int.MaxValue, 2f, drawArrows: false, doTooltip: true, new Rect(0f, 0f, inner.width, row * 2f), drawLabel: false);
+                // Our own tooltip rather than the bar's, so no game version can slip vanilla's deathrest text in
+                Rect tipRect = new Rect(0f, 0f, inner.width, row * 2f);
+                need.DrawOnGUI(new Rect(0f, row, inner.width, row + 2f), int.MaxValue, 2f, drawArrows: false, doTooltip: false, tipRect, drawLabel: false);
+                if (Mouse.IsOver(tipRect))
+                {
+                    Widgets.DrawHighlight(tipRect);
+                    TooltipHandler.TipRegion(tipRect, SoftCycle.TipString(need, gene.pawn));
+                }
             }
             Rect state = new Rect(0f, row * 2f, inner.width, Text.LineHeight);
             Text.Anchor = TextAnchor.UpperCenter;

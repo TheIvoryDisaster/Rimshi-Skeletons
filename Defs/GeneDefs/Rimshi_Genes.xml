@@ -217,7 +217,7 @@
           <li>
             <need>Deathrest</need>
             <label>CPU integrity</label>
-            <description>Living forever without a way to express what they feel, or to feel and touch the world, slowly erodes a skeleton's sanity. To bear it, skeletons periodically run a soft cycle: the CPU and memory buffer reset, long-term memory and programming stay intact, but short-term memories and some skill are lost. Famous skeletons like Cat-Lon, the Elder and Tinfist avoided resets for centuries to keep what they had learned, and many suspect that is what drives some skeletons mad with paranoia.</description>
+            <description>A skeleton's mind runs on a CPU and a memory buffer that were never built to carry centuries. Everything it lives through leaves something behind in the buffer, and nothing there fades on its own. A soft cycle is how a skeleton clears it: it goes still, the CPU and buffer reset, and it wakes with its programming and long-term memory intact, though what was recent may not survive. Skeletons would rather cycle in a powered repair bed. Famous skeletons like Cat-Lon, the Elder and Tinfist went centuries without a reset to keep what they had learned, and many suspect that is what drives some skeletons mad with paranoia.</description>
           </li>
         </relabels>
       </li>
