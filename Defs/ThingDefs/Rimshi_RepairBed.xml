@@ -58,6 +58,15 @@
       <li Class="RimshiSkeletons.CompProperties_Rimshi_DeathrestFuel">
         <fuelPerDeathrest>35</fuelPerDeathrest>
       </li>
+      <!-- Vanilla BedBase gives every bed PlaceWorker_ShowFacilitiesConnections, which throws in the build menu unless the
+           bed links to facilities. The hospital bed's list: a vitals monitor works with this bed too. -->
+      <li Class="CompProperties_AffectedByFacilities">
+        <linkableFacilities>
+          <li>VitalsMonitor</li>
+          <li>EndTable</li>
+          <li>Dresser</li>
+        </linkableFacilities>
+      </li>
     </comps>
     <size>(1,2)</size>
     <costList>

@@ -24,7 +24,7 @@ Made at the workbench with Crafting. While being made, they show as vanilla's un
 | Robotic component | 2 components, 30 steel, 10 silver | 150 | 8 |
 | Skeleton muscle | 2 components, 30 steel, 10 plasteel | 200 | 8 |
 
-Vanilla components and advanced components are also used. The placeholder art is the vanilla advanced component recoloured black with caution-yellow trim, until Matthew picks from the ComfyUI proposals.
+Vanilla components and advanced components are also used. Art: Matthew picked motor A, robotic component A and skeleton muscle C from the ComfyUI proposals (docs/art/proposals/intermediates/).
 
 ## Parts
 
@@ -51,6 +51,5 @@ Notes:
 
 ## Open
 
-- Final art for the intermediates: 3 ComfyUI proposals each in docs/art/proposals/intermediates/, waiting for Matthew's pick.
 - The repair kit's new cost (1 robotic component, 5 steel, Proposed:) raises its price. It used 1 component.
 - Install surgery uses Medicine like vanilla. It could use Crafting like the repair job.
