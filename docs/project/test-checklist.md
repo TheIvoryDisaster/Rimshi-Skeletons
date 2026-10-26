@@ -161,14 +161,14 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | selftest | Self-test: the prosthetics lock patches are applied | not seen |  |  |
 | selftest | Self-test: every skeleton part install is offered on a skeleton and not on a baseliner | not seen |  |  |
 | selftest | Self-test: a KLR arm installs on a skeleton's shoulder | not seen |  |  |
-| selftest | Self-test: 10 damage on a KLR arm makes an injury of 8 | not seen |  |  |
+| selftest | Self-test: a KLR arm takes 20% off the damage that reaches it | not seen |  |  |
 | selftest | Self-test: an AI core installs, and a second one repairs a damaged core | not seen |  |  |
 | selftest | Self-test: skeleton cannot bleed, baseliner can | not seen |  |  |
 | selftest | Self-test: a cut skeleton has bleed rate 0, a cut baseliner bleeds | not seen |  |  |
 | selftest | Self-test: ancient oil filth and black hit effect loaded | not seen |  |  |
 | selftest | Self-test: the blood patches are applied | not seen |  |  |
 | selftest | Self-test: a skeleton cannot take beer or penoxycyline, a baseliner can | not seen |  |  |
-| selftest | Self-test: the skeleton's drug policy schedules and carries no drug | not seen |  |  |
+| selftest | Self-test: a policy allowing every drug schedules and carries none for the skeleton, some for a baseliner | not seen |  |  |
 | selftest | Self-test: no administer drug bill is offered on a skeleton, some are on a baseliner | not seen |  |  |
 | selftest | Self-test: no drug binge mental state can start on a skeleton | not seen |  |  |
 | selftest | Self-test: the drug lock patches are applied | not seen |  |  |
