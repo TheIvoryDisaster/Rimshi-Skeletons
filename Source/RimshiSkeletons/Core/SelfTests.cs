@@ -136,6 +136,20 @@ namespace RimshiSkeletons
             Check("maintenance thought", maintenance != null && ThoughtUtility.CanGetThought(s, maintenance), "Rimshi_MaintenanceNeed can apply");
             DubsNeedChecks(s, human);
             DeathrestChecks(s, human);
+            var foodPatches = new List<string>();
+            foreach (MethodBase method in new MethodBase[]
+            {
+                AccessTools.Method(typeof(Pawn_FoodRestrictionTracker), nameof(Pawn_FoodRestrictionTracker.GetCurrentRespectedRestriction)),
+                AccessTools.Method(typeof(JobGiver_PackFood), "TryGiveJob"),
+            })
+            {
+                Patches info = method == null ? null : Harmony.GetPatchInfo(method);
+                if (info == null || !info.Owners.Contains(RimshiMod.HarmonyId))
+                {
+                    foodPatches.Add(method == null ? "missing method" : method.DeclaringType.Name + "." + method.Name);
+                }
+            }
+            Check("component patches", foodPatches.Count == 0, foodPatches.Count == 0 ? "food policy and packing patches applied" : "not patched: " + string.Join(", ", foodPatches));
             Check("blocked thought", ThoughtUtility.ThoughtNullified(s, ThoughtDefOf.Naked), "Naked nullified");
 
             Check("backstory", s.story.Adulthood != null && s.story.Adulthood.spawnCategories.Contains(SkeletonUtility.BackstoryCategory),
