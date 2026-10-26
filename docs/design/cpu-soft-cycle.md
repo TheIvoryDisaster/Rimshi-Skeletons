@@ -72,7 +72,7 @@ The paranoid thought (`Thought_Rimshi_CpuMadness`) shows one of Matthew's four l
 | Rescue | A downed skeleton is carried to the best free medical bed it can use: the repair bed (tend offset 0.12), then a rib cage (0.11), then hospital beds (0.10). A skeleton mid-cycle outside a repair bed is downed by vanilla's deathrest, so it is rescued the same way and held there. |
 | Looks | Vanilla draws a pawn in a south-facing bed upright, so the skeleton hangs upright. The building texture is the frame behind it; `CompRimshi_RibCage` draws the front ribs over it. Not minifiable: a reinstalled unrotatable building would face north and hang the skeleton upside down. |
 
-Art: placeholder (`Textures/Rimshi/Buildings/RibCage` and `RibCage_front`, 256x512 at drawSize 1.25x2.5) until Matthew picks a proposal from docs/art/proposals/ribcage/.
+Art: `Textures/Rimshi/Buildings/RibCage` (frame) and `RibCage_front` (ribs over the skeleton), 256x512 at drawSize 1.25x2.5. Three proposals in docs/art/proposals/ribcage/ (A cross, B gibbet, C ribbed sarcophagus; `_preview` shows each with a stand-in skeleton), drawn by tools/art/ribcage_proposals.py because ComfyUI on Matthew's PC did not respond. A is wired in until Matthew picks.
 
 ## Calls Claude made (for Matthew to confirm)
 
