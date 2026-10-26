@@ -1,13 +1,13 @@
-"""Cuts the ComfyUI img2img pass of the oblique rib cage back out into game textures.
-The img2img run (denoise 0.5) keeps ribcage_oblique.py's layout, so that script's own alpha masks still fit: the
+"""Cuts a ComfyUI img2img pass of the rib cage line art back out into game textures.
+The img2img run (denoise 0.5 or so) keeps the line art script's layout, so that script's own alpha masks still fit: the
 building texture is the painted image inside the frame's silhouette (with the ground shadow redrawn), and the front
 texture is the painted image inside the front ribs' mask.
-Usage: ribcage_cutout.py PAINTED.png OUT_DIR"""
+Usage: ribcage_cutout.py PAINTED.png OUT_DIR [LINE_ART_MODULE, default ribcage_topdown]"""
 import os, sys
 import numpy as np
 from PIL import Image, ImageFilter
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-import ribcage_oblique as r
+import importlib
 
 BG = np.array([214, 210, 202], dtype=float)
 
@@ -28,6 +28,7 @@ def cut(painted, alpha_tight, alpha_wide):
 
 if __name__ == "__main__":
     src, out = sys.argv[1], sys.argv[2]
+    r = importlib.import_module(sys.argv[3] if len(sys.argv) > 3 else "ribcage_topdown")
     os.makedirs(out, exist_ok=True)
     painted = Image.open(src).convert("RGB")
     back, front = r.draw()

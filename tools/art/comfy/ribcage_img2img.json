@@ -28,7 +28,7 @@
     "2",
     1
    ],
-   "text": "rimworld item, game sprite, oblique top-down view, an upright metal rib cage torture frame, curved iron ribs as hoops around a rusty spine post, crossbar at the top like a cross, heavy riveted steel base plate, weathered rusty brown and dull grey scrap metal, Kenshi, hand painted, flat colors, soft shading, thick dark outline, clean, plain light background"
+   "text": "rimworld item, game sprite, top-down view from directly above, a metal restraint frame lying flat on the floor like a bed, rusty cross-shaped board on a riveted steel floor plate, curved steel rib bands across the chest area, side rails, weathered rusty brown and dull grey scrap metal, Kenshi, hand painted, flat colors, soft shading, thick dark outline, clean, plain light background"
   }
  },
  "4": {
@@ -44,7 +44,7 @@
  "9": {
   "class_type": "LoadImage",
   "inputs": {
-   "image": "ribcage_i2i_input.png"
+   "image": "ribcage_td_input.png"
   }
  },
  "10": {
@@ -89,12 +89,12 @@
     "11",
     0
    ],
-   "seed": 5505,
+   "seed": 6606,
    "steps": 30,
    "cfg": 6.0,
    "sampler_name": "dpmpp_2m",
    "scheduler": "karras",
-   "denoise": 0.5
+   "denoise": 0.55
   }
  },
  "7": {
@@ -117,7 +117,7 @@
     "7",
     0
    ],
-   "filename_prefix": "rimshi_ribcage_i2i_50"
+   "filename_prefix": "rimshi_ribcage_td_55"
   }
  }
 }
