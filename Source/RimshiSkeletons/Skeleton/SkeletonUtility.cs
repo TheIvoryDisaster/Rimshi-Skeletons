@@ -34,6 +34,13 @@ namespace RimshiSkeletons
         public static ThingDef Rimshi_SkeletonWorkbench;
         public static ResearchProjectDef Rimshi_SkeletonFabrication;
         public static ResearchProjectDef Rimshi_AdvancedSkeletonParts;
+        public static HediffDef Rimshi_CpuOverload;
+        public static HediffDef Rimshi_SoftResetting;
+        public static JobDef Rimshi_SoftReset;
+        public static JobDef Rimshi_HangInRibCage;
+        public static ThingDef Rimshi_RibCage;
+        public static ThoughtDef Rimshi_SoftCycleHoned;
+        public static ThoughtDef Rimshi_SoftResetForeign;
 
         static RimshiDefOf()
         {

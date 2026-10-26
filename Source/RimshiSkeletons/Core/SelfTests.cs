@@ -65,6 +65,7 @@ namespace RimshiSkeletons
                 ReproductionChecks(skeleton, human);
                 HordeChecks(pawns, human);
                 ConversionChecks(pawns);
+                SoftCycleChecks(skeleton, human);
                 // Last: it takes the null chromosome off the skeleton, and every check above needs it.
                 GeneRemovalCheck(skeleton);
             }
@@ -151,19 +152,103 @@ namespace RimshiSkeletons
                 "backstories " + s.story.Childhood?.defName + ", " + s.story.Adulthood?.defName);
         }
 
-        /// <summary>Deathrest: skeletons have the vanilla deathrest need and gene, and the repair bed holds and burns their chemfuel.</summary>
+        /// <summary>Deathrest underneath the CPU soft cycle: skeletons have the vanilla deathrest need (CPU integrity) and gene.</summary>
         private static void DeathrestChecks(Pawn s, Pawn human)
         {
             NeedDef deathrest = DefDatabase<NeedDef>.GetNamedSilentFail("Deathrest");
             Check("deathrest", s.CanDeathrest() && deathrest != null && s.needs.TryGetNeed(deathrest) != null && !human.CanDeathrest()
                 && ContentFinder<Texture2D>.Get(RimshiDefOf.Rimshi_Deathrest.iconPath, false) != null,
                 "skeleton deathrests " + s.CanDeathrest() + ", need " + (deathrest != null && s.needs.TryGetNeed(deathrest) != null) + ", human deathrests " + human.CanDeathrest());
+            NeedRelabel integrity = SkeletonNeeds.RelabelFor(s, deathrest);
+            Check("deathrest label", integrity != null && integrity.label == "CPU integrity" && integrity.description.Contains("soft cycle"), "need shown as " + integrity?.label);
+        }
+
+        /// <summary>
+        /// CPU soft cycle (docs/design/cpu-soft-cycle.md): bed power and length, the integrity curve, completing and
+        /// cancelling, the overload stages and the rib cage. Changes the skeleton's memories, skills and hediffs, so it runs
+        /// after the other skeleton checks.
+        /// </summary>
+        private static void SoftCycleChecks(Pawn s, Pawn human)
+        {
             ThingDef bed = RimshiDefOf.Rimshi_SkeletonRepairBed;
-            CompProperties_Refuelable tank = bed.GetCompProperties<CompProperties_Refuelable>();
-            CompProperties_Rimshi_DeathrestFuel burn = bed.GetCompProperties<CompProperties_Rimshi_DeathrestFuel>();
-            Check("deathrest bed", tank != null && tank.consumeFuelOnlyWhenUsed && tank.fuelFilter.Allows(ThingDefOf.Chemfuel) && burn != null && burn.fuelPerDeathrest <= tank.fuelCapacity,
-                "tank " + tank?.fuelCapacity + " chemfuel, " + burn?.fuelPerDeathrest + " per deathrest");
-            Check("deathrest label", SkeletonNeeds.RelabelFor(s, deathrest)?.description.Contains("repair bed") ?? false, "deathrest tooltip relabelled for skeletons");
+            CompProperties_Rimshi_RepairBed bedProps = bed.GetCompProperties<CompProperties_Rimshi_RepairBed>();
+            Check("soft cycle bed", bedProps != null && bedProps.cycleWattsPerSkillLevel == 15f && bed.GetCompProperties<CompProperties_Refuelable>() == null,
+                "cycle draw " + bedProps?.cycleWattsPerSkillLevel + " W per skill level (" + SoftCycle.SkillLevels(s) * (bedProps?.cycleWattsPerSkillLevel ?? 0f) + " W for the test skeleton), chemfuel tank "
+                + (bed.GetCompProperties<CompProperties_Refuelable>() != null));
+            Gene_Deathrest gene = SoftCycle.GeneOf(s);
+            Check("soft cycle length", gene != null && Mathf.Abs(SoftCycle.BedTicksTotal(gene) - SoftCycle.BedCycleTicks) < 60, "bed cycle " + (gene == null ? "no gene" : SoftCycle.BedTicksTotal(gene).ToStringTicksToPeriod()));
+
+            SimpleCurve curve = SoftCycle.StandingCurve;
+            bool rising = true;
+            for (int day = 1; day <= 5; day++)
+            {
+                rising &= curve.Evaluate(day) > curve.Evaluate(day - 1) && (day < 2 || curve.Evaluate(day) - curve.Evaluate(day - 1) >= curve.Evaluate(day - 1) - curve.Evaluate(day - 2));
+            }
+            Check("standing curve", rising && curve.Evaluate(3f) <= 0.2f && curve.Evaluate(5f) >= 1f, "after 3 days " + curve.Evaluate(3f).ToStringPercent() + ", after 4 " + curve.Evaluate(4f).ToStringPercent());
+
+            Need_Deathrest need = SoftCycle.Integrity(s);
+            if (need != null)
+            {
+                need.CurLevel = 0.5f;
+                SoftCycle.Raise(s, 0f, 0.5f);
+                float half = need.CurLevel;
+                SoftCycle.Raise(s, 0.5f, 1f);
+                Check("integrity raise", Mathf.Abs(half - 0.75f) < 0.01f && need.CurLevel >= 0.999f, "50% integrity, half a cycle " + half.ToStringPercent() + ", whole cycle " + need.CurLevel.ToStringPercent());
+            }
+
+            SoftCycle.Cancel(s, SoftCycleKind.RepairBed, "self-test");
+            Hediff overload = CpuOverload.Of(s);
+            Check("cancel overloads", overload != null && need != null && need.CurLevel <= 0f, "integrity " + need?.CurLevelPercentage.ToStringPercent() + ", overload " + (overload != null));
+            if (overload != null)
+            {
+                float moving = OverloadFactor(overload, PawnCapacityDefOf.Moving);
+                overload.Severity = 3f;
+                int steady = overload.CurStageIndex;
+                overload.Severity = 5.5f;
+                bool mad = CpuOverload.Mad(s);
+                float fast = OverloadFactor(overload, PawnCapacityDefOf.Moving);
+                Check("overload stages", Mathf.Approximately(moving, 0.8f) && steady == CpuOverload.SteadyStage && mad && Mathf.Approximately(fast, 1.1f) && CpuOverload.MadnessPenalty(overload) == 2,
+                    "moving x" + moving + " sluggish, stage " + steady + " at day 3, paranoid " + mad + " moving x" + fast + ", penalty -" + CpuOverload.MadnessPenalty(overload) + " on day 5.5");
+                ThoughtDef madness = DefDatabase<ThoughtDef>.GetNamedSilentFail("Rimshi_CpuMadness");
+                Check("madness thought", madness != null && madness.stages.Count == 4 && madness.Worker.CurrentState(s).Active && ThoughtUtility.CanGetThought(s, madness)
+                    && !madness.Worker.CurrentState(human).Active, "paranoid thought active " + madness?.Worker.CurrentState(s).Active);
+            }
+            MentalBreakDef berserk = DefDatabase<MentalBreakDef>.GetNamedSilentFail("Berserk");
+            MentalBreakDef sad = DefDatabase<MentalBreakDef>.GetNamedSilentFail("Wander_Sad");
+            MethodBase breaks = AccessTools.PropertyGetter(typeof(MentalBreaker), "CurrentPossibleMoodBreaks");
+            Check("violent breaks", CpuOverload.IsViolent(berserk) && !CpuOverload.IsViolent(sad) && breaks != null && (Harmony.GetPatchInfo(breaks)?.Owners.Contains(RimshiMod.HarmonyId) ?? false),
+                "berserk violent " + CpuOverload.IsViolent(berserk) + ", sad wander violent " + CpuOverload.IsViolent(sad));
+
+            s.needs.mood?.thoughts.memories.TryGainMemory(ThoughtDefOf.AteWithoutTable);
+            SoftCycle.Complete(s, SoftCycleKind.RepairBed);
+            List<Thought_Memory> memories = s.needs.mood?.thoughts.memories.Memories;
+            Check("cycle complete", CpuOverload.Of(s) == null && need != null && need.CurLevel >= 0.999f && memories != null && memories.Count == 1 && memories[0].def == RimshiDefOf.Rimshi_SoftCycleHoned,
+                "overload " + (CpuOverload.Of(s) != null) + ", integrity " + need?.CurLevelPercentage.ToStringPercent() + ", memories " + string.Join(", ", memories?.Select(m => m.def.defName) ?? Enumerable.Empty<string>()));
+
+            ThingDef cage = RimshiDefOf.Rimshi_RibCage;
+            ResearchProjectDef mechtech = DefDatabase<ResearchProjectDef>.GetNamedSilentFail("BasicMechtech");
+            Check("rib cage", cage.IsBed && !cage.rotatable && cage.size == new IntVec2(1, 2) && cage.building.bed_defaultMedical && cage.minifiedDef == null
+                && cage.researchPrerequisites != null && cage.researchPrerequisites.Contains(mechtech)
+                && cage.CostList.Any(c => c.thingDef == ThingDefOf.Steel && c.count == 80) && cage.CostList.Any(c => c.thingDef == ThingDefOf.ComponentIndustrial && c.count == 3)
+                && RestUtility.CanUseBedEver(s, cage) && !RestUtility.CanUseBedEver(human, cage),
+                "1x2 unrotatable medical bed, 80 steel + 3 components, basic mechtech; skeleton can use " + RestUtility.CanUseBedEver(s, cage) + ", human " + RestUtility.CanUseBedEver(human, cage));
+            CompProperties_Rimshi_RibCage cageProps = cage.GetCompProperties<CompProperties_Rimshi_RibCage>();
+            Check("rib cage art", ContentFinder<Texture2D>.Get(cage.graphicData.texPath, false) != null && cageProps != null && ContentFinder<Texture2D>.Get(cageProps.frontTexPath, false) != null,
+                cage.graphicData.texPath + " and " + cageProps?.frontTexPath);
+            MethodBase frozen = AccessTools.PropertyGetter(typeof(Need), "IsFrozen");
+            var medical = (List<ThingDef>)AccessTools.Field(typeof(RestUtility), "bedDefsBestToWorst_Medical")?.GetValue(null) ?? new List<ThingDef>();
+            int bedRank = medical.IndexOf(bed);
+            int cageRank = medical.IndexOf(cage);
+            int hospitalRank = medical.IndexOf(DefDatabase<ThingDef>.GetNamed("HospitalBed"));
+            Check("rib cage stasis", frozen != null && (Harmony.GetPatchInfo(frozen)?.Owners.Contains(RimshiMod.HarmonyId) ?? false) && bedRank >= 0 && cageRank > bedRank && cageRank < hospitalRank,
+                "need freeze patched, rescue order repair bed " + bedRank + ", rib cage " + cageRank + ", hospital bed " + hospitalRank);
+        }
+
+        /// <summary>The capacity post factor an overload stage gives.</summary>
+        private static float OverloadFactor(Hediff overload, PawnCapacityDef capacity)
+        {
+            PawnCapacityModifier mod = overload.CurStage?.capMods?.FirstOrDefault(c => c.capacity == capacity);
+            return mod?.postFactor ?? 1f;
         }
 
         /// <summary>Dubs Bad Hygiene (optional): skeletons lose thirst and bladder, and hygiene is self-cleaning at half rate.</summary>
@@ -810,7 +895,7 @@ namespace RimshiSkeletons
                 // Pawns leave and re-enter the map while their race changes, which needs the main thread.
                 LongEventHandler.ExecuteWhenFinished(OldSkeletonConversion.ConvertAll);
             }
-            LongEventHandler.ExecuteWhenFinished(SkeletonDeathrest.AddMissingGenes);
+            LongEventHandler.ExecuteWhenFinished(SoftCycle.MigrateSave);
             LongEventHandler.ExecuteWhenFinished(SetFoodPoliciesOnce);
             LongEventHandler.ExecuteWhenFinished(SelfTests.RunIfDevMode);
         }

@@ -15,4 +15,21 @@
     <casualInterruptible>false</casualInterruptible>
   </JobDef>
 
+  <!-- CPU soft cycle without a repair bed (StandingReset.cs): stand on a cell, or hang in a rib cage, for 5 days. -->
+  <JobDef>
+    <defName>Rimshi_SoftReset</defName>
+    <driverClass>RimshiSkeletons.JobDriver_Rimshi_SoftReset</driverClass>
+    <reportString>soft resetting CPU.</reportString>
+    <casualInterruptible>false</casualInterruptible>
+    <suspendable>false</suspendable>
+  </JobDef>
+
+  <!-- Hang in a rib cage until ordered out (RibCage.cs). -->
+  <JobDef>
+    <defName>Rimshi_HangInRibCage</defName>
+    <driverClass>RimshiSkeletons.JobDriver_Rimshi_HangInRibCage</driverClass>
+    <reportString>suspended in TargetA.</reportString>
+    <casualInterruptible>false</casualInterruptible>
+  </JobDef>
+
 </Defs>
