@@ -136,20 +136,15 @@ namespace RimshiSkeletons
             Check("maintenance thought", maintenance != null && ThoughtUtility.CanGetThought(s, maintenance), "Rimshi_MaintenanceNeed can apply");
             DubsNeedChecks(s, human);
             DeathrestChecks(s, human);
-            var foodPatches = new List<string>();
-            foreach (MethodBase method in new MethodBase[]
-            {
-                AccessTools.Method(typeof(Pawn_FoodRestrictionTracker), nameof(Pawn_FoodRestrictionTracker.GetCurrentRespectedRestriction)),
-                AccessTools.Method(typeof(JobGiver_PackFood), "TryGiveJob"),
-            })
-            {
-                Patches info = method == null ? null : Harmony.GetPatchInfo(method);
-                if (info == null || !info.Owners.Contains(RimshiMod.HarmonyId))
-                {
-                    foodPatches.Add(method == null ? "missing method" : method.DeclaringType.Name + "." + method.Name);
-                }
-            }
-            Check("component patches", foodPatches.Count == 0, foodPatches.Count == 0 ? "food policy and packing patches applied" : "not patched: " + string.Join(", ", foodPatches));
+            MethodBase packFood = AccessTools.Method(typeof(JobGiver_PackFood), "TryGiveJob");
+            Patches packInfo = packFood == null ? null : Harmony.GetPatchInfo(packFood);
+            Check("component patches", packInfo != null && packInfo.Owners.Contains(RimshiMod.HarmonyId), packFood == null ? "JobGiver_PackFood.TryGiveJob missing" : "packing patch applied " + (packInfo != null && packInfo.Owners.Contains(RimshiMod.HarmonyId)));
+            // Apply runs before the self-tests, so a missing policy means the player deleted it.
+            FoodPolicy skeletonPolicy = SkeletonFoodPolicies.SkeletonPolicy;
+            bool deleted = skeletonPolicy == null && (RimshiGameComponent.Instance?.FoodPoliciesSet ?? false);
+            Check("skeleton food policy", deleted || (skeletonPolicy != null && skeletonPolicy.filter.Allows(component) && skeletonPolicy.filter.AllowedDefCount == 1),
+                skeletonPolicy == null ? (deleted ? "deleted by the player" : "no " + SkeletonFoodPolicies.PolicyLabel + " policy")
+                    : SkeletonFoodPolicies.PolicyLabel + " policy allows " + string.Join(", ", skeletonPolicy.filter.AllowedThingDefs.Select(d => d.defName)));
             Check("blocked thought", ThoughtUtility.ThoughtNullified(s, ThoughtDefOf.Naked), "Naked nullified");
 
             Check("backstory", s.story.Adulthood != null && s.story.Adulthood.spawnCategories.Contains(SkeletonUtility.BackstoryCategory),
@@ -751,6 +746,7 @@ namespace RimshiSkeletons
 
         private List<PendingHorde> pendingHordes = new List<PendingHorde>();
         private int summons;
+        private bool foodPoliciesSet;
 
         public RimshiGameComponent(Game game)
         {
@@ -758,6 +754,8 @@ namespace RimshiSkeletons
         }
 
         public int Summons => summons;
+
+        public bool FoodPoliciesSet => foodPoliciesSet;
 
         public bool HordePending => pendingHordes.Count > 0;
 
@@ -795,6 +793,7 @@ namespace RimshiSkeletons
         {
             Scribe_Collections.Look(ref pendingHordes, "pendingHordes", LookMode.Deep);
             Scribe_Values.Look(ref summons, "hordeSummons");
+            Scribe_Values.Look(ref foodPoliciesSet, "foodPoliciesSet");
             if (Scribe.mode == LoadSaveMode.PostLoadInit && pendingHordes == null)
             {
                 pendingHordes = new List<PendingHorde>();
@@ -812,12 +811,25 @@ namespace RimshiSkeletons
                 LongEventHandler.ExecuteWhenFinished(OldSkeletonConversion.ConvertAll);
             }
             LongEventHandler.ExecuteWhenFinished(SkeletonDeathrest.AddMissingGenes);
+            LongEventHandler.ExecuteWhenFinished(SetFoodPoliciesOnce);
             LongEventHandler.ExecuteWhenFinished(SelfTests.RunIfDevMode);
         }
 
         public override void StartedNewGame()
         {
+            LongEventHandler.ExecuteWhenFinished(SetFoodPoliciesOnce);
             LongEventHandler.ExecuteWhenFinished(SelfTests.RunIfDevMode);
+        }
+
+        /// <summary>Components go into the save's food policies the first time the mod sees it; after that they are the player's.</summary>
+        private void SetFoodPoliciesOnce()
+        {
+            if (foodPoliciesSet)
+            {
+                return;
+            }
+            SkeletonFoodPolicies.Apply();
+            foodPoliciesSet = true;
         }
     }
 }

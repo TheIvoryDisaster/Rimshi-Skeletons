@@ -291,28 +291,46 @@ namespace RimshiSkeletons
     }
 
     /// <summary>
-    /// Food policies do not apply to maintenance pawns. They consume only maintenance items anyway, and a policy saved
-    /// before components were edible does not allow them (a saved filter never picks up new foods), which left skeletons
-    /// in older saves ignoring components when hungry.
+    /// Food policies saved before components were edible never allow them (a saved filter does not pick up new foods),
+    /// which left skeletons in older saves ignoring components when hungry. Once per save, when the mod first sees it
+    /// (new or loaded), every policy that allows any food also allows the maintenance item, and a "Skeletons" policy
+    /// allowing only the maintenance item is added, so players browsing policies see what skeletons eat. After that the
+    /// policies are the player's: a disallowed component or a deleted Skeletons policy stays that way.
     /// </summary>
-    [HarmonyPatch(typeof(Pawn_FoodRestrictionTracker), nameof(Pawn_FoodRestrictionTracker.GetCurrentRespectedRestriction))]
-    public static class Patch_NoFoodPolicy
+    public static class SkeletonFoodPolicies
     {
-        private static readonly HashSet<int> logged = new HashSet<int>();
+        public const string PolicyLabel = "Skeletons";
 
-        public static void Postfix(Pawn ___pawn, ref FoodPolicy __result)
+        public static FoodPolicy SkeletonPolicy => Current.Game?.foodRestrictionDatabase?.AllFoodRestrictions.FirstOrDefault(p => p.label == PolicyLabel);
+
+        public static void Apply()
         {
-            if (__result == null || !SkeletonUtility.HasFuelReactor(___pawn))
+            FoodRestrictionDatabase database = Current.Game?.foodRestrictionDatabase;
+            ThingDef item = SkeletonNeeds.MaintenanceItem;
+            if (database == null || item == null)
             {
                 return;
             }
-            if (logged.Add(___pawn.thingIDNumber))
+            var allowed = new List<string>();
+            foreach (FoodPolicy policy in database.AllFoodRestrictions)
             {
-                ThingDef item = SkeletonNeeds.MaintenanceItem;
-                RimshiLog.Test("maintenance", "policy ignored", ___pawn.LabelShort + ": food policy " + __result.label + " ignored"
-                    + (item != null && !__result.Allows(item) ? " (it does not allow " + item.label + ")" : ""));
+                if (policy.filter.AllowedDefCount > 0 && !policy.filter.Allows(item))
+                {
+                    policy.filter.SetAllow(item, allow: true);
+                    allowed.Add(policy.label);
+                }
             }
-            __result = null;
+            bool added = false;
+            if (SkeletonPolicy == null)
+            {
+                FoodPolicy policy = database.MakeNewFoodRestriction();
+                policy.label = PolicyLabel;
+                policy.filter.SetDisallowAll();
+                policy.filter.SetAllow(item, allow: true);
+                added = true;
+            }
+            RimshiLog.Test("maintenance", "food policies", item.label + " allowed in " + (allowed.Count == 0 ? "no policies (already allowed)" : string.Join(", ", allowed))
+                + (added ? "; added the " + PolicyLabel + " policy" : "; " + PolicyLabel + " policy already there"));
         }
     }
 
