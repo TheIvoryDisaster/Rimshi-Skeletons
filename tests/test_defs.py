@@ -171,6 +171,16 @@ class DefTests(unittest.TestCase):
         things = {el.findtext("defName"): el for _, el in concrete("ThingDef")}
         self.assertIn("Rimshi_SkeletonRepairKits", [li.text for li in things["Rimshi_RepairKit"].find("recipeMaker/researchPrerequisites")])
 
+    def test_facility_placeworker_has_facility_comp(self):
+        """PlaceWorker_ShowFacilitiesConnections (given to every bed by vanilla BedBase) throws in the build menu on a def
+        with neither CompProperties_AffectedByFacilities nor CompProperties_Facility."""
+        for _, el in concrete("ThingDef"):
+            workers = [li.text for li in (el.find("placeWorkers") if el.find("placeWorkers") is not None else [])]
+            if el.get("ParentName") in ("BedWithQualityBase", "BedBase") or "PlaceWorker_ShowFacilitiesConnections" in workers:
+                comps = [li.get("Class") for li in (el.find("comps") if el.find("comps") is not None else [])]
+                with self.subTest(thing=el.findtext("defName")):
+                    self.assertTrue({"CompProperties_AffectedByFacilities", "CompProperties_Facility"} & set(comps))
+
     def test_skeleton_parts(self):
         """Every skeleton part has a hediff of the same name, an install recipe, a workbench recipe and Crafting 11."""
         things = {el.findtext("defName"): el for _, el in concrete("ThingDef")}
