@@ -7,8 +7,8 @@ using Verse.AI;
 namespace RimshiSkeletons
 {
     /// <summary>
-    /// The soft reset without a repair bed (docs/design/cpu-soft-cycle.md): ordered from the skeleton's "Begin soft reset"
-    /// button onto a cell, where it stands still for 5 days, or onto a free rib cage, where it hangs. Integrity comes
+    /// The soft reset without a repair bed (docs/design/cpu-soft-cycle.md): ordered from the skeleton's "Soft cycle"
+    /// button (SoftCycle.CycleGizmo) onto a cell, where it stands still for 5 days, or onto a free rib cage, where it hangs. Integrity comes
     /// back slowly for three days and quickly on the last (SoftCycle.StandingCurve). The job ending early for any reason
     /// (stopped, drafted, downed, a mental break) cancels it with 0% integrity and an overload.
     /// </summary>
@@ -50,31 +50,6 @@ namespace RimshiSkeletons
                 return false;
             }
             return true;
-        }
-
-        public static Command BeginGizmo(Pawn pawn, Texture2D icon)
-        {
-            var command = new Command_Target
-            {
-                defaultLabel = "Begin soft reset",
-                defaultDesc = "Without a repair bed: pick a spot for " + pawn.LabelShort + " to stand still on (or a free rib cage to hang in) for 5 days while the CPU resets. "
-                    + "Integrity comes back slowly for three days and quickly on the last. Finishing restores CPU integrity to 100% and clears any overload, but flushes short-term "
-                    + "memories, wears away a little of two skills and leaves the skeleton feeling its memories are not its own. Interrupting it in any way cancels it with 0% integrity and an overload.",
-                icon = icon,
-                targetingParams = new TargetingParameters
-                {
-                    canTargetLocations = true,
-                    canTargetBuildings = true,
-                    canTargetPawns = false,
-                    validator = t => ValidTarget(pawn, t.Cell, out _)
-                },
-                action = target => Order(pawn, target)
-            };
-            if (pawn.Downed || pawn.InMentalState)
-            {
-                command.Disable(pawn.LabelShort + " cannot start a soft reset now.");
-            }
-            return command;
         }
 
         public static void Order(Pawn pawn, LocalTargetInfo target)
@@ -143,8 +118,6 @@ namespace RimshiSkeletons
         public float Fraction => SoftCycle.StandingCurve.Evaluate((float)resetTicks / GenDate.TicksPerDay);
 
         public override string LabelInBrackets => Fraction.ToStringPercent("F0");
-
-        public override string TipStringExtra => base.TipStringExtra + "\n" + resetTicks.ToStringTicksToPeriod() + " of " + SoftCycle.StandingResetTicks.ToStringTicksToPeriod() + " done.";
 
         public override bool ShouldRemove => done || base.ShouldRemove;
 

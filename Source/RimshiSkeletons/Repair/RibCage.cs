@@ -197,7 +197,7 @@ namespace RimshiSkeletons
             }
             if (SoftCycle.IsSkeletonCycler(myPawn) && !SoftCycle.Cycling(myPawn))
             {
-                yield return FloatMenuUtility.DecoratePrioritizedTask(new FloatMenuOption("Begin soft reset in rib cage", delegate
+                yield return FloatMenuUtility.DecoratePrioritizedTask(new FloatMenuOption("Soft cycle in rib cage", delegate
                 {
                     StandingReset.Order(myPawn, __instance);
                 }), myPawn, __instance);
