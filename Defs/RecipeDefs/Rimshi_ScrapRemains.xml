@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <!-- Skeleton corpses are Corpse_Human like any other human, so the filter offers every humanlike corpse and
+       Skeleton/SkeletonRemains.cs lets this recipe take only skeletons. The Butchery special product hands the corpse to
+       Corpse.ButcherProducts, which yields scrap for a skeleton (see docs/design/skeleton-remains.md). -->
+  <RecipeDef>
+    <defName>Rimshi_ScrapSkeletonRemains</defName>
+    <label>scrap skeleton remains</label>
+    <description>Take apart the frame of a fallen skeleton and salvage whatever metal and parts still hold together.</description>
+    <jobString>Scrapping skeleton remains.</jobString>
+    <workAmount>450</workAmount>
+    <workSpeedStat>GeneralLaborSpeed</workSpeedStat>
+    <workSkill>Crafting</workSkill>
+    <workSkillLearnFactor>0.25</workSkillLearnFactor>
+    <effectWorking>Smith</effectWorking>
+    <soundWorking>Recipe_Machining</soundWorking>
+    <specialProducts>
+      <li>Butchery</li>
+    </specialProducts>
+    <ingredients>
+      <li>
+        <filter>
+          <categories>
+            <li>CorpsesHumanlike</li>
+          </categories>
+        </filter>
+        <count>1</count>
+      </li>
+    </ingredients>
+    <fixedIngredientFilter>
+      <categories>
+        <li>CorpsesHumanlike</li>
+      </categories>
+      <specialFiltersToAllow>
+        <li>AllowCorpsesColonist</li>
+        <li>AllowCorpsesStranger</li>
+        <li>AllowRotten</li>
+      </specialFiltersToAllow>
+    </fixedIngredientFilter>
+    <defaultIngredientFilter>
+      <categories>
+        <li>CorpsesHumanlike</li>
+      </categories>
+      <specialFiltersToAllow>
+        <li>AllowCorpsesStranger</li>
+        <li>AllowRotten</li>
+      </specialFiltersToAllow>
+      <specialFiltersToDisallow>
+        <li>AllowCorpsesColonist</li>
+      </specialFiltersToDisallow>
+    </defaultIngredientFilter>
+    <recipeUsers>
+      <li>CraftingSpot</li>
+      <li>TableMachining</li>
+    </recipeUsers>
+  </RecipeDef>
+
+</Defs>

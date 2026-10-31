@@ -67,6 +67,7 @@ namespace RimshiSkeletons
                 HordeChecks(pawns, human);
                 ConversionChecks(pawns);
                 SoftCycleChecks(skeleton, human);
+                RemainsChecks(skeleton, human);
                 // Last: it takes the null chromosome off the skeleton, and every check above needs it.
                 GeneRemovalCheck(skeleton);
             }
@@ -197,9 +198,30 @@ namespace RimshiSkeletons
                 Check("integrity raise", Mathf.Abs(half - 0.75f) < 0.01f && need.CurLevel >= 0.999f, "50% integrity, half a cycle " + half.ToStringPercent() + ", whole cycle " + need.CurLevel.ToStringPercent());
             }
 
+            if (need != null)
+            {
+                need.CurLevel = 0.4f;
+            }
             SoftCycle.Cancel(s, SoftCycleKind.RepairBed, "self-test");
+            float keptLevel = need?.CurLevel ?? -1f;
+            bool bedOverload = CpuOverload.Of(s) != null;
+            Check("bed wake keeps", Mathf.Approximately(keptLevel, 0.4f) && !bedOverload, "bed cycle cut short: integrity " + keptLevel.ToStringPercent() + ", overload " + bedOverload);
+            SoftCycle.Cancel(s, SoftCycleKind.Standing, "self-test");
             Hediff overload = CpuOverload.Of(s);
-            Check("cancel overloads", overload != null && need != null && need.CurLevel <= 0f, "integrity " + need?.CurLevelPercentage.ToStringPercent() + ", overload " + (overload != null));
+            Check("cancel overloads", overload != null && need != null && need.CurLevel <= 0f, "standing cycle cut short: integrity " + need?.CurLevelPercentage.ToStringPercent() + ", overload " + (overload != null));
+            Hediff resetting = s.health.AddHediff(RimshiDefOf.Rimshi_SoftResetting);
+            bool foodHeld = false, integrityHeld = true;
+            if (s.needs?.food != null)
+            {
+                Patch_RibCageStasis.Postfix(s.needs.food, s, ref foodHeld);
+            }
+            if (need != null)
+            {
+                integrityHeld = false;
+                Patch_RibCageStasis.Postfix(need, s, ref integrityHeld);
+            }
+            s.health.RemoveHediff(resetting);
+            Check("cycle needs held", foodHeld && !integrityHeld, "while soft cycling: maintenance frozen " + foodHeld + ", CPU integrity frozen " + integrityHeld);
             ThoughtDef exhaustion = DefDatabase<ThoughtDef>.AllDefsListForReading.FirstOrDefault(t => t.workerClass == typeof(ThoughtWorker_DeathrestExhaustion));
             Check("no exhaustion thought", exhaustion != null && need != null && need.CurLevel <= 0f && !exhaustion.Worker.CurrentState(s).Active,
                 "vanilla thought " + (exhaustion?.defName ?? "missing") + " active " + exhaustion?.Worker.CurrentState(s).Active + " at integrity " + need?.CurLevelPercentage.ToStringPercent());
@@ -452,6 +474,12 @@ namespace RimshiSkeletons
                 "cut skeleton needs repair " + SkeletonRepair.NeedsRepair(s) + " (" + SkeletonRepair.KitsFor(s) + " kit), cut human " + SkeletonRepair.NeedsRepair(h));
             Check("no tending", !cut.TendableNow() && !s.health.HasHediffsNeedingTend() && humanCut.TendableNow(),
                 "skeleton cut tendable " + cut.TendableNow() + ", skeleton needs tending " + s.health.HasHediffsNeedingTend() + ", human cut tendable " + humanCut.TendableNow());
+            FleshTypeDef.ResolvedWound skeletonWound = s.RaceProps.FleshType.ChooseWoundOverlay(cut);
+            FleshTypeDef.ResolvedWound humanWound = h.RaceProps.FleshType.ChooseWoundOverlay(humanCut);
+            bool mechTextures = SkeletonWounds.MechWoundTextures.All(t => ContentFinder<Texture2D>.Get(t, false) != null);
+            Check("grey wounds", mechTextures && skeletonWound != null && SkeletonWounds.MechWoundTextures.Contains(skeletonWound.wound.texture)
+                && humanWound != null && !SkeletonWounds.MechWoundTextures.Contains(humanWound.wound.texture),
+                "cut overlay: skeleton " + skeletonWound?.wound?.texture + ", baseliner " + humanWound?.wound?.texture + "; mech wound textures found " + mechTextures);
             s.health.RemoveHediff(cut);
             h.health.RemoveHediff(humanCut);
             Check("bed users", RestUtility.CanUseBedEver(s, bed) && !RestUtility.CanUseBedEver(h, bed) && RestUtility.CanUseBedEver(s, hospitalBed),
@@ -625,6 +653,78 @@ namespace RimshiSkeletons
             Check("blood patched", unpatched.Count == 0, unpatched.Count == 0 ? BloodTargets.Length + " blood patches applied" : "not patched: " + string.Join(", ", unpatched));
         }
 
+        /// <summary>
+        /// Skeleton remains (Skeleton/SkeletonRemains.cs): an unspawned corpse is built around each test pawn and emptied
+        /// again before the pawns are discarded.
+        /// </summary>
+        private static void RemainsChecks(Pawn s, Pawn h)
+        {
+            Corpse skeletonCorpse = MakeTestCorpse(s);
+            Corpse humanCorpse = MakeTestCorpse(h);
+            try
+            {
+                Check("corpse inedible", !skeletonCorpse.IngestibleNow && humanCorpse.IngestibleNow,
+                    "ingestible: skeleton corpse " + skeletonCorpse.IngestibleNow + ", baseliner corpse " + humanCorpse.IngestibleNow);
+
+                RecipeDef butcher = DefDatabase<RecipeDef>.GetNamedSilentFail("ButcherCorpseFlesh");
+                Bill butcherBill = butcher?.MakeNewBill();
+                butcherBill?.ingredientFilter.SetAllowAll(butcher.fixedIngredientFilter);
+                bool butcherSkeleton = butcherBill != null && butcherBill.IsFixedOrAllowedIngredient(skeletonCorpse);
+                bool butcherHuman = butcherBill != null && butcherBill.IsFixedOrAllowedIngredient(humanCorpse);
+                Check("no butchering", butcherBill != null && !butcherSkeleton && butcherHuman,
+                    "butcher bill takes: skeleton corpse " + butcherSkeleton + ", baseliner corpse " + butcherHuman);
+
+                RecipeDef scrap = RimshiDefOf.Rimshi_ScrapSkeletonRemains;
+                Bill scrapBill = scrap.MakeNewBill();
+                bool scrapSkeleton = scrapBill.IsFixedOrAllowedIngredient(skeletonCorpse);
+                bool scrapHuman = scrapBill.IsFixedOrAllowedIngredient(humanCorpse);
+                List<string> users = scrap.AllRecipeUsers.Select(u => u.defName).ToList();
+                Check("scrap recipe", scrapSkeleton && !scrapHuman && users.Contains("CraftingSpot") && users.Contains("TableMachining"),
+                    "scrap bill takes: skeleton corpse " + scrapSkeleton + ", baseliner corpse " + scrapHuman + "; benches " + string.Join(", ", users));
+
+                List<Thing> products = skeletonCorpse.ButcherProducts(null, 1f).ToList();
+                var wanted = new[] { ThingDefOf.Steel, ThingDefOf.Plasteel, ThingDefOf.Uranium };
+                bool metals = wanted.All(d => products.Count(p => p.def == d) == 1
+                    && products.First(p => p.def == d).stackCount >= SkeletonRemains.MinScrap && products.First(p => p.def == d).stackCount <= SkeletonRemains.MaxScrap);
+                int components = products.Where(p => p.def == ThingDefOf.ComponentIndustrial).Sum(p => p.stackCount);
+                bool nothingElse = products.All(p => wanted.Contains(p.def) || p.def == ThingDefOf.ComponentIndustrial);
+                Check("scrap yield", metals && components <= 1 && nothingElse,
+                    "skeleton corpse yields " + string.Join(", ", products.Select(p => p.stackCount + " " + p.def.defName)));
+            }
+            finally
+            {
+                skeletonCorpse.GetDirectlyHeldThings().Remove(s);
+                humanCorpse.GetDirectlyHeldThings().Remove(h);
+            }
+
+            var unpatched = new List<string>();
+            foreach (MethodBase method in RemainsTargets)
+            {
+                Patches info = method == null ? null : Harmony.GetPatchInfo(method);
+                if (info == null || !info.Owners.Contains(RimshiMod.HarmonyId))
+                {
+                    unpatched.Add(method == null ? "missing method" : method.DeclaringType.Name + "." + method.Name);
+                }
+            }
+            Check("remains patched", unpatched.Count == 0, unpatched.Count == 0 ? RemainsTargets.Length + " remains patches applied" : "not patched: " + string.Join(", ", unpatched));
+        }
+
+        private static Corpse MakeTestCorpse(Pawn pawn)
+        {
+            var corpse = (Corpse)ThingMaker.MakeThing(pawn.RaceProps.corpseDef);
+            corpse.GetDirectlyHeldThings().TryAdd(pawn);
+            return corpse;
+        }
+
+        private static readonly MethodBase[] RemainsTargets =
+        {
+            AccessTools.Method(typeof(Bill), nameof(Bill.IsFixedOrAllowedIngredient), new[] { typeof(Thing) }),
+            AccessTools.Method(typeof(Corpse), nameof(Corpse.ButcherProducts)),
+            AccessTools.PropertyGetter(typeof(Corpse), nameof(Corpse.IngestibleNow)),
+            AccessTools.Method(typeof(Toils_Ingest), nameof(Toils_Ingest.ChewIngestible), new[] { typeof(Pawn), typeof(float), typeof(TargetIndex), typeof(TargetIndex) }),
+            AccessTools.Method(typeof(Thing), nameof(Thing.Ingested)),
+        };
+
         private static void DrugChecks(Pawn s, Pawn h)
         {
             ThingDef beer = ThingDefOf.Beer;
@@ -695,6 +795,7 @@ namespace RimshiSkeletons
             AccessTools.Method(typeof(Effecter), nameof(Effecter.Trigger)),
             AccessTools.Method(typeof(JobGiver_GetHemogen), nameof(JobGiver_GetHemogen.CanFeedOnPrisoner)),
             AccessTools.Method(typeof(SanguophageUtility), nameof(SanguophageUtility.DoBite)),
+            AccessTools.Method(typeof(FleshTypeDef), nameof(FleshTypeDef.ChooseWoundOverlay), new[] { typeof(Hediff) }),
         };
 
         private static int AddedParts(Pawn pawn) =>

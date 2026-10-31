@@ -235,21 +235,25 @@ namespace RimshiSkeletons
             }
         }
 
-        /// <summary>A cycle cut short: integrity drops to 0% and the CPU overloads.</summary>
+        /// <summary>
+        /// A cycle cut short. In a repair bed (woken or power lost) the skeleton keeps the integrity the cycle has raised so
+        /// far but gets none of a finished cycle's effects (Matthew, 2026-10-27). Without a bed, integrity drops to 0% and the
+        /// CPU overloads.
+        /// </summary>
         public static void Cancel(Pawn pawn, SoftCycleKind kind, string reason)
         {
             Need_Deathrest need = Integrity(pawn);
-            if (need != null)
-            {
-                need.CurLevel = 0f;
-            }
-            CpuOverload.Begin(pawn, "soft " + (kind == SoftCycleKind.RepairBed ? "cycle" : "reset") + " cancelled: " + reason);
             if (kind == SoftCycleKind.RepairBed)
             {
-                RimshiLog.Test("softcycle", "cancelled bed", pawn.LabelShort + ": " + reason + ", integrity 0%");
+                RimshiLog.Test("softcycle", "cancelled bed", pawn.LabelShort + ": " + reason + ", integrity kept at " + need?.CurLevelPercentage.ToStringPercent());
             }
             else
             {
+                if (need != null)
+                {
+                    need.CurLevel = 0f;
+                }
+                CpuOverload.Begin(pawn, "soft reset cancelled: " + reason);
                 RimshiLog.Test("softcycle", "cancelled standing", pawn.LabelShort + ": " + reason + ", integrity 0%");
             }
             if (PawnUtility.ShouldSendNotificationAbout(pawn))
@@ -343,8 +347,11 @@ namespace RimshiSkeletons
         private static readonly CachedTexture StopTex = new CachedTexture("UI/Gizmos/Wake");
         private static readonly CachedTexture CycleTex = new CachedTexture("UI/Icons/Genes/Gene_Deathrest");
 
-        /// <summary>The wake buttons' warning: there is a price, without saying what it is.</summary>
+        /// <summary>The standing wake button's warning: there is a price, without saying what it is.</summary>
         public const string WakeWarning = "Waking a skeleton before its soft cycle is finished tears the CPU out of it half done, and it will pay for that.";
+
+        /// <summary>The bed wake button's note: a bed cycle cut short costs nothing but the rest of the cycle.</summary>
+        public const string BedWakeWarning = "Waking it now leaves the soft cycle unfinished.";
 
         /// <summary>The skeleton's soft cycle buttons, in place of vanilla's wake and auto-wake.</summary>
         public static IEnumerable<Gizmo> Gizmos(Pawn pawn, Gene_Deathrest gene)
@@ -357,7 +364,7 @@ namespace RimshiSkeletons
                     var stop = new Command_Action
                     {
                         defaultLabel = "Wake up",
-                        defaultDesc = pawn.LabelShort + " has been soft cycling for " + BedTicksDone(gene).ToStringTicksToPeriod() + ". " + WakeWarning,
+                        defaultDesc = pawn.LabelShort + " has been soft cycling for " + BedTicksDone(gene).ToStringTicksToPeriod() + ". " + BedWakeWarning,
                         icon = StopTex.Texture,
                         action = delegate
                         {

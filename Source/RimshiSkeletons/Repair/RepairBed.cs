@@ -9,7 +9,7 @@ namespace RimshiSkeletons
     public class CompProperties_Rimshi_RepairBed : CompProperties
     {
         /// <summary>Injury severity repaired per day, scaled by the pawn's health scale like vanilla healing.</summary>
-        public float repairPerDay = 40f;
+        public float repairPerDay = 80f;
 
         /// <summary>Once fresh injuries are gone, permanent ones (scars, old wounds) are repaired too.</summary>
         public bool repairsScars = true;
