@@ -41,6 +41,7 @@ namespace RimshiSkeletons
         public static ThingDef Rimshi_RibCage;
         public static ThoughtDef Rimshi_SoftCycleHoned;
         public static ThoughtDef Rimshi_SoftResetForeign;
+        public static RecipeDef Rimshi_ScrapSkeletonRemains;
 
         static RimshiDefOf()
         {

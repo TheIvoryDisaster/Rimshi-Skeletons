@@ -8,7 +8,7 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 
 **How to use it:** play with Development mode on, then tell Claude to check the logs. Claude pulls Player.log and Player-prev.log from `C:\Users\Matthew\AppData\LocalLow\Ludeon Studios\RimWorld by Ludeon Studios`, runs `tools/rimshi_testlog.py` over them and updates this table. Results add up across sessions; any exception that mentions the mod is reported too. A PR that only updates this file is merged by Claude without asking, and its description lists every test that ran and its outcome.
 
-**Self-tests:** with Development mode on, loading or starting a game runs the in-game self-tests once per session (also on demand: Debug actions > Rimshi Skeletons > Run self-tests). They generate a skeleton, a baseliner and a skeletal imperium town guard off the map, check genes, looks, diet, thoughts, immunity, the gene lock, the prosthetics lock, skeleton parts (install bills, KLR arm armour, AI core repair), blood and ancient oil, grey wound overlays, the drug lock, backstory, faction, reproduction, the recall array and horde skeletons (gear, protocol, failsafe core, one reprogramming session), discard the pawns, and log one `selftest` line per check plus a summary.
+**Self-tests:** with Development mode on, loading or starting a game runs the in-game self-tests once per session (also on demand: Debug actions > Rimshi Skeletons > Run self-tests). They generate a skeleton, a baseliner and a skeletal imperium town guard off the map, check genes, looks, diet, thoughts, immunity, the gene lock, the prosthetics lock, skeleton parts (install bills, KLR arm armour, AI core repair), blood and ancient oil, grey wound overlays, the drug lock, skeleton remains (inedible, no butchering, the scrap recipe and its yield), backstory, faction, reproduction, the recall array and horde skeletons (gear, protocol, failsafe core, one reprogramming session), discard the pawns, and log one `selftest` line per check plus a summary.
 
 **Unit tests:** `python3 -m unittest discover -s tests` runs the offline tests (def cross-references, textures, checklist coverage, the log reader, house style). CI runs them on every push.
 
@@ -106,6 +106,10 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | wounds | A wounded skeleton on the map showed grey and black wound marks instead of red ones | not seen |  |  |
 | drugs | A skeleton was refused a drug (ingest menu, drug policy, recreation, AI job, binge or generation; one line per route) | not seen |  |  |
 | drugs | No drug reached a skeleton past the checks (this line only appears when one did; the drug did nothing) | not seen |  |  |
+| remains | A skeleton corpse was scrapped for steel, plasteel, uranium and at most one component (names the yield) | not seen |  |  |
+| remains | A butchery bill skipped a skeleton corpse (butcher spot, butcher table or another mod's) | not seen |  |  |
+| remains | A pawn or animal that went to eat a skeleton corpse (a predator after a hunt) stopped instead | not seen |  |  |
+| remains | No skeleton corpse was eaten past the checks (this line only appears when one got that far; nothing was eaten) | not seen |  |  |
 | selftest | Self-tests: all passed (summary line) | failed | 7 | FAILED: 21 passed, 4 failed |
 | selftest | Self-test: skeleton and baseliner generate | passed | 7 | skeleton Acid, baseliner Norman |
 | selftest | Self-test: no exceptions while testing | not seen |  |  |
@@ -216,6 +220,11 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | selftest | Self-test: converted old skeleton has our pawn kind | not seen |  |  |
 | selftest | Self-test: converted old skeleton has no old hediff and only human body parts | not seen |  |  |
 | selftest | Self-test: a converted skeleton is not converted again | not seen |  |  |
+| selftest | Self-test: a skeleton corpse cannot be eaten, a baseliner corpse can | not seen |  |  |
+| selftest | Self-test: a butchery bill refuses a skeleton corpse and takes a baseliner corpse | not seen |  |  |
+| selftest | Self-test: the scrap skeleton remains bill takes only skeleton corpses, at the crafting spot and machining bench | not seen |  |  |
+| selftest | Self-test: a skeleton corpse yields 1-5 each of steel, plasteel and uranium and at most one component | not seen |  |  |
+| selftest | Self-test: the remains patches are applied | not seen |  |  |
 
 ## Manual checks
 
@@ -236,6 +245,8 @@ Things the log cannot show; tick them off by hand after looking in game.
 - [ ] Rib cage: 1x2, cannot be rotated, 80 steel and 3 components after basic mechtech; no medical toggle or owner assignment; only skeletons can use it. Right-click with a skeleton: "Hang in rib cage" (it stays there, needs frozen, integrity and overload hold) and "Soft cycle in rib cage". A downed skeleton is rescued to a repair bed first, then a rib cage. The skeleton draws upright behind the front ribs. The cage's head is at the top (north) and it shows its painted brown and grey, not tinted blue.
 - [ ] With Dubs Bad Hygiene: a skeleton has no thirst or bladder bar, its hygiene bar reads "Self-cleaning" with the motor debris tooltip, and it drops about half as fast as a human's. The mechanical nature gene lists the changes and "hygiene rate factor x50%".
 - [ ] Naked, dark, wet and pain thoughts show as nullified by mechanical nature.
+- [ ] Skeleton remains: a butcher spot or butcher table bill (allowing human corpses) never takes a skeleton corpse, but still takes a human one. The crafting spot and machining table have "scrap skeleton remains"; a colonist hauls a skeleton corpse there and it yields 1-5 each of steel, plasteel and uranium and sometimes one component, with no meat, leather, blood or "butchered humanlike" mood. The corpse's apparel and weapon drop on the floor. A human corpse is never taken by the scrap bill. The bill text says nothing about the yield.
+- [ ] Nothing eats a skeleton corpse: a cannibal or starving colonist has no eat option on it, and animals (tame or wild) ignore it as food. A predator may still hunt a skeleton, but walks away from the body once it is down, with no error in the log.
 - [ ] A skeleton never needs sleep (no rest bar).
 - [ ] A new world lists the skeletal imperium in the faction setup (one by default) and it appears on the world map.
 - [ ] Skeletal imperium visitors, traders and raids are mostly skeletons (with some human villagers and guards), with skeleton names and backstories.
