@@ -70,6 +70,7 @@ namespace RimshiSkeletons
                 ConversionChecks(pawns);
                 SoftCycleChecks(skeleton, human);
                 SpireStormChecks(skeleton);
+                OverclockChecks(skeleton);
                 RemainsChecks(skeleton, human);
                 // Last: it takes the null chromosome off the skeleton, and every check above needs it.
                 GeneRemovalCheck(skeleton);
@@ -216,6 +217,33 @@ namespace RimshiSkeletons
                 && spireLinks && spireArt && spire.size == new IntVec2(3, 3) && !spire.rotatable,
                 "max per bed " + spireLink?.maxSimultaneous + ", repair bed links it " + spireLinks + ", art and icon " + spireArt + ", chemfuel " + spireFuel?.fuelCapacity
                 + ", charge " + spireCharge?.chargeWatts + " W for " + spireCharge?.chargeTicks.ToStringTicksToPeriod() + ", 3x3 unrotatable " + (spire.size == new IntVec2(3, 3) && !spire.rotatable));
+
+            ThingDef fissure = RimshiDefOf.Rimshi_CableFissure;
+            RecipeDef tune = RimshiDefOf.Rimshi_TuneCableFissure;
+            CompProperties_Facility fissureLink = fissure.GetCompProperties<CompProperties_Facility>();
+            CompProperties_Rimshi_FissureTuning fissureTuning = fissure.GetCompProperties<CompProperties_Rimshi_FissureTuning>();
+            CompProperties_Rimshi_SoftCycleFacility fissureProps = fissure.GetCompProperties<CompProperties_Rimshi_SoftCycleFacility>();
+            bool fissureLinks = bed.GetCompProperties<CompProperties_AffectedByFacilities>()?.linkableFacilities?.Contains(fissure) ?? false;
+            AbilityDef heave = DefDatabase<AbilityDef>.GetNamedSilentFail("Rimshi_Heave");
+            bool fissureArt = new[] { "south", "east", "north", "west" }.All(r => ContentFinder<Texture2D>.Get(fissure.graphicData.texPath + "_" + r, false) != null
+                && ContentFinder<Texture2D>.Get(fissure.graphicData.texPath + "_" + r + "m", false) != null)
+                && heave != null && ContentFinder<Texture2D>.Get(heave.iconPath, false) != null;
+            float ingredient(ThingDef def) => tune?.ingredients?.Where(i => i.filter.Allows(def)).Sum(i => i.GetBaseCount()) ?? 0f;
+            ThingDef blocks = DefDatabase<ThingDef>.GetNamedSilentFail("BlocksGranite");
+            bool stoneCost = fissure.MadeFromStuff && fissure.costStuffCount == 60 && fissure.CostList.Any(c => c.thingDef == ThingDefOf.Plasteel && c.count == 100)
+                && fissure.CostList.Any(c => c.thingDef == ThingDefOf.ComponentSpacer && c.count == 2) && blocks != null && fissure.stuffCategories.Any(c => blocks.stuffProps?.categories?.Contains(c) ?? false);
+            Thing uft = tune?.unfinishedThingDef == null ? null : ThingMaker.MakeThing(tune.unfinishedThingDef);
+            string uftLabel = uft?.LabelNoCount;
+            bool tuneOk = tune != null && ingredient(ThingDefOf.ComponentIndustrial) == 4f && ingredient(ThingDefOf.Steel) == 100f && blocks != null && ingredient(blocks) == 40f
+                && tune.workSpeedStat == StatDefOf.ResearchSpeed && Mathf.Abs(tune.workAmount * 0.00825f - 250f) < 1f && tune.recipeUsers.Contains(fissure)
+                && tune.unfinishedThingDef?.graphicData?.texPath == DefDatabase<ThingDef>.GetNamedSilentFail("UnfinishedComponent")?.graphicData?.texPath && !uftLabel.NullOrEmpty();
+            Check("cable fissure", fissureLink != null && fissureLink.maxSimultaneous == 1 && fissureLink.requiresLOS && fissureTuning != null && fissureTuning.untunedWatts == 250f
+                && fissureTuning.recipe == tune && fissureProps != null && !fissureProps.requiresPower && fissureProps.fuelPerCycle == 0f && fissureLinks && fissureArt
+                && stoneCost && tuneOk && fissure.size == new IntVec2(2, 3) && fissure.rotatable && fissure.hasInteractionCell,
+                "max per bed " + fissureLink?.maxSimultaneous + ", repair bed links it " + fissureLinks + ", art, masks and icon " + fissureArt + ", cost (100 plasteel, 2 advanced components, 60 stone) "
+                + stoneCost + ", untuned draw " + fissureTuning?.untunedWatts + " W, tuning: " + ingredient(ThingDefOf.ComponentIndustrial) + " components, " + ingredient(ThingDefOf.Steel) + " steel, "
+                + (blocks == null ? "?" : ingredient(blocks).ToString()) + " blocks, " + (tune == null ? 0f : tune.workAmount * 0.00825f).ToString("0") + " research points at " + tune?.workSpeedStat?.defName
+                + ", unfinished '" + uftLabel + "'");
 
             SimpleCurve curve = SoftCycle.StandingCurve;
             bool rising = true;
@@ -977,6 +1005,26 @@ namespace RimshiSkeletons
                 && damage >= SpireStorm.MinDamage && damage <= SpireStorm.MaxDamage && Mathf.Approximately(120 * SpireStorm.DamagePerSkillLevel, 30f),
                 "EMP-proof while held " + heldProof + " and in its wake " + wakeProof + ", burst ability " + hasAbility + " (gone after " + abilityGone + "), move speed x" + speed
                 + ", stunnable again after the next cycle " + after + ", burst damage " + damage.ToString("0.0") + " for " + SoftCycle.SkillLevels(s) + " skill levels");
+        }
+
+        private static void OverclockChecks(Pawn s)
+        {
+            HediffDef overclocked = Overclock.Overclocked;
+            AbilityDef heave = DefDatabase<AbilityDef>.GetNamedSilentFail("Rimshi_Heave");
+            if (overclocked == null || heave == null || s.abilities == null)
+            {
+                Check("overclock", false, "missing: hediff " + (overclocked != null) + ", ability " + (heave != null) + ", ability tracker " + (s.abilities != null));
+                return;
+            }
+            float before = s.GetStatValue(StatDefOf.CarryingCapacity, cacheStaleAfterTicks: 0);
+            s.health.AddHediff(overclocked);
+            float during = s.GetStatValue(StatDefOf.CarryingCapacity, cacheStaleAfterTicks: 0);
+            bool hasAbility = s.abilities.GetAbility(heave) != null;
+            int distance = Overclock.Distance(s);
+            s.health.RemoveHediff(s.health.hediffSet.GetFirstHediffOfDef(overclocked));
+            bool abilityGone = s.abilities.GetAbility(heave) == null;
+            Check("overclock", Mathf.Approximately(during - before, 20f) && hasAbility && abilityGone && distance == Mathf.FloorToInt(during / 10f),
+                "carrying capacity " + before.ToString("0.#") + " -> " + during.ToString("0.#") + ", heave ability " + hasAbility + " (gone after " + abilityGone + "), heave distance " + distance + " cells");
         }
 
         private static void GeneRemovalCheck(Pawn s)

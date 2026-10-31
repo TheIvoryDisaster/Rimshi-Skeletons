@@ -73,6 +73,9 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | spire | A chemical spire lost power while charging and its charge started over (chemfuel kept) | not seen |  |  |
 | spire | A soft cycle a charged spire joined finished: the skeleton took the held tempest (EMP-proof, x1.1 speed, burst) | not seen |  |  |
 | spire | A skeleton loosed the tempest: radius 10, hostile mechs and skeletons hit, damage from summed skill levels, stunned count | not seen |  |  |
+| fissure | A cable fissure's tuning bill finished (or the dev gizmo tuned it); it now draws 0 W and can join a soft cycle | not seen |  |  |
+| fissure | A soft cycle a tuned cable fissure joined finished: the skeleton is overclocked (+20 carrying capacity, heave) | not seen |  |  |
+| fissure | A skeleton heaved an adjacent enemy: disarmed, thrown carrying capacity / 10 cells, a hit per cell on different parts, double per cell blocked by a wall | not seen |  |  |
 | spire | A held tempest or its wake ended at the next finished soft cycle | not seen |  |  |
 | deathrest | Skeletons from an older save got the deathrest gene | not seen |  |  |
 | overload | CPU overload started (integrity ran out or a cycle was cancelled) | not seen |  |  |
@@ -171,6 +174,8 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | selftest | Self-test: rib cage back and front textures load | not seen |  |  |
 | selftest | Self-test: tuning fork links to the repair bed (2 max, same room), takes advanced components, 50 W idle and 1000 W ringing, art loads | not seen |  |  |
 | selftest | Self-test: chemical spire is 3x3 unrotatable, links to the repair bed (1 max, same room), 100 chemfuel, 100 W for 36 h, joins unpowered, art and icon load | not seen |  |  |
+| selftest | Self-test: cable fissure is 2x3 rotatable, links to the repair bed (1 max), costs 100 plasteel + 2 advanced components + 60 stone, 250 W untuned, tuning bill 4 components/100 steel/40 blocks/250 research points, art, masks and icon load | not seen |  |  |
+| selftest | Self-test: overclocked musculature gives +20 carrying capacity and the heave ability, heave distance is carrying capacity / 10, ability goes with the hediff | not seen |  |  |
 | selftest | Self-test: held tempest makes a skeleton EMP-proof with x1.1 speed and the burst ability; its wake stays EMP-proof; both end, burst damage 5 to 40 | not seen |  |  |
 | selftest | Self-test: rib cage freezes needs and ranks between the repair bed and hospital bed for rescue | not seen |  |  |
 | selftest | Self-test: component packing patch applied | not seen |  |  |

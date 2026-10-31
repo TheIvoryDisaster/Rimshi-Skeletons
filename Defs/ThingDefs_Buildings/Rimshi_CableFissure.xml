@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!-- The cable fissure, the third soft cycle facility (docs/design/soft-cycle-facilities.md, CableFissure.cs).
+       Matthew's spec, 2026-10-31: 2x3, black bricks of varying heights with a channel of bundled cables running between
+       them from one large brick to another. Costs 100 plasteel, 2 advanced components and 60 stone blocks of any kind
+       (the stuff, which tints the bricks through the mask; the cables keep their colour). Before each use it is tuned
+       with a bill (Rimshi_TuneCableFissure: 4 components, 100 steel, 40 stone blocks, 250 research points of work) and
+       draws 250 W until the tuning is done, nothing once tuned. Tuned, it joins a soft cycle in a linked repair bed like
+       the chemical spire; when that cycle finishes the skeleton is overclocked (Rimshi_Overclocked: +20 carrying
+       capacity, one heave) and the fissure needs tuning again. One per bed (Claude's call, a single ability like the
+       spire's). Art: a 3D model from RimWorld's fixed camera for all four rotations (tools/art/fissure/), 480x480 at
+       drawSize (4,4), drawn 0.5 cells north of centre; masks _<rot>m mark the bricks for the stone tint. -->
+  <ThingDef ParentName="BuildingBase">
+    <defName>Rimshi_CableFissure</defName>
+    <label>cable fissure</label>
+    <description>A row of black bricks of uneven height, split down the middle by a channel where bundled cables run from one great block to the other. Before every use someone has to sit with it for a long while, feeding it parts, steel and stone and tuning it by hand to the muscle and movement of a skeleton; it draws on the power grid until the tuning is done. Whatever it does, it does to a skeleton that finishes a soft cycle in a repair bed in the same room, and it leaves the old fibres wound tighter than they were ever meant to be. A repair bed can only bear one of them.</description>
+    <thingClass>Building_WorkTable</thingClass>
+    <graphicData>
+      <texPath>Rimshi/Buildings/CableFissure</texPath>
+      <graphicClass>Graphic_Multi</graphicClass>
+      <shaderType>CutoutComplex</shaderType>
+      <drawSize>(4,4)</drawSize>
+      <drawOffset>(0,0,0.5)</drawOffset>
+      <shadowData>
+        <volume>(1.8, 0.5, 2.8)</volume>
+      </shadowData>
+      <damageData>
+        <rect>(0.1,0.1,1.8,2.8)</rect>
+      </damageData>
+    </graphicData>
+    <castEdgeShadows>true</castEdgeShadows>
+    <staticSunShadowHeight>0.5</staticSunShadowHeight>
+    <altitudeLayer>Building</altitudeLayer>
+    <tickerType>Rare</tickerType>
+    <size>(2,3)</size>
+    <defaultPlacingRot>South</defaultPlacingRot>
+    <passability>Impassable</passability>
+    <fillPercent>0.6</fillPercent>
+    <canOverlapZones>false</canOverlapZones>
+    <drawerType>MapMeshAndRealTime</drawerType>
+    <hasInteractionCell>true</hasInteractionCell>
+    <interactionCellOffset>(0,0,-2)</interactionCellOffset>
+    <designationCategory>Furniture</designationCategory>
+    <uiOrder>2027</uiOrder>
+    <stuffCategories>
+      <li>Stony</li>
+    </stuffCategories>
+    <costStuffCount>60</costStuffCount>
+    <costList>
+      <Plasteel>100</Plasteel>
+      <ComponentSpacer>2</ComponentSpacer>
+    </costList>
+    <statBases>
+      <MaxHitPoints>300</MaxHitPoints>
+      <WorkToBuild>9000</WorkToBuild>
+      <Flammability>0</Flammability>
+      <Beauty>2</Beauty>
+    </statBases>
+    <constructionSkillPrerequisite>8</constructionSkillPrerequisite>
+    <researchPrerequisites>
+      <li>Rimshi_SkeletonRepairBeds</li>
+    </researchPrerequisites>
+    <techLevel>Industrial</techLevel>
+    <inspectorTabs>
+      <li>ITab_Bills</li>
+    </inspectorTabs>
+    <descriptionHyperlinks>
+      <ThingDef>Rimshi_SkeletonRepairBed</ThingDef>
+    </descriptionHyperlinks>
+    <building>
+      <relatedBuildCommands>
+        <li>Rimshi_SkeletonRepairBed</li>
+      </relatedBuildCommands>
+      <buildingSizeCategory>Medium</buildingSizeCategory>
+    </building>
+    <placeWorkers>
+      <li>PlaceWorker_ShowFacilitiesConnections</li>
+      <li>PlaceWorker_PreventInteractionSpotOverlap</li>
+    </placeWorkers>
+    <comps>
+      <li Class="CompProperties_Power">
+        <compClass>CompPowerTrader</compClass>
+        <!-- 250 W until tuned, nothing once tuned (CompRimshi_FissureTuning sets the draw). -->
+        <basePowerConsumption>250</basePowerConsumption>
+      </li>
+      <li Class="CompProperties_Flickable"/>
+      <li Class="CompProperties_Facility">
+        <maxSimultaneous>1</maxSimultaneous>
+        <!-- Vanilla deathrest buildings have no distance limit, only the room and line of sight. -->
+        <maxDistance>999</maxDistance>
+        <requiresLOS>true</requiresLOS>
+      </li>
+      <li Class="RimshiSkeletons.CompProperties_Rimshi_FissureTuning">
+        <untunedWatts>250</untunedWatts>
+        <recipe>Rimshi_TuneCableFissure</recipe>
+      </li>
+      <li Class="RimshiSkeletons.CompProperties_Rimshi_SoftCycleFacility">
+        <!-- Burns nothing on joining and needs no power once tuned: the tuning goes when the cycle finishes. -->
+        <requiresPower>false</requiresPower>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <!-- The tuning half done: the ingredients go into it when the work starts. Looks like vanilla's unfinished component. -->
+  <ThingDef ParentName="UnfinishedBase">
+    <defName>Rimshi_UnfinishedFissureTuning</defName>
+    <label>unfinished fissure tuning</label>
+    <description>Parts, steel and stone laid out for a cable fissure, half fitted to the muscle and movement of a skeleton that has not yet lain down beside it, with spare fibre set aside for whatever the fissure breaks.</description>
+    <thingClass>RimshiSkeletons.UnfinishedThing_Rimshi_Tuning</thingClass>
+    <graphicData>
+      <texPath>Things/Item/Unfinished/UnfinishedComponent</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+    </graphicData>
+  </ThingDef>
+
+  <!-- 250 research points of work at research speed: vanilla research adds ResearchSpeed x 0.00825 points a tick, so
+       250 points is 30303 ticks at speed 1 (about 8.4 hours), the same as researching a 250 point project. -->
+  <RecipeDef>
+    <defName>Rimshi_TuneCableFissure</defName>
+    <label>tune the cable fissure</label>
+    <description>Feed the cable fissure parts, steel and stone, and tune it by hand to the muscle and movement of a skeleton.</description>
+    <jobString>Tuning the cable fissure.</jobString>
+    <workerClass>RimshiSkeletons.RecipeWorker_Rimshi_TuneFissure</workerClass>
+    <workAmount>30303</workAmount>
+    <workSpeedStat>ResearchSpeed</workSpeedStat>
+    <workSkill>Intellectual</workSkill>
+    <workSkillLearnFactor>0.5</workSkillLearnFactor>
+    <effectWorking>Research</effectWorking>
+    <unfinishedThingDef>Rimshi_UnfinishedFissureTuning</unfinishedThingDef>
+    <recipeUsers>
+      <li>Rimshi_CableFissure</li>
+    </recipeUsers>
+    <ingredients>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>ComponentIndustrial</li>
+          </thingDefs>
+        </filter>
+        <count>4</count>
+      </li>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>Steel</li>
+          </thingDefs>
+        </filter>
+        <count>100</count>
+      </li>
+      <li>
+        <filter>
+          <categories>
+            <li>StoneBlocks</li>
+          </categories>
+        </filter>
+        <count>40</count>
+      </li>
+    </ingredients>
+    <fixedIngredientFilter>
+      <thingDefs>
+        <li>ComponentIndustrial</li>
+        <li>Steel</li>
+      </thingDefs>
+      <categories>
+        <li>StoneBlocks</li>
+      </categories>
+    </fixedIngredientFilter>
+  </RecipeDef>
+
+  <!-- What the fissure leaves in a skeleton (Overclock): +20 carrying capacity and the heave, both gone once heaved. -->
+  <HediffDef>
+    <defName>Rimshi_Overclocked</defName>
+    <label>overclocked musculature</label>
+    <description>This skeleton's fibres run hotter and tighter than they were ever meant to. It carries more than it should, and something in its arms is wound up, waiting for a reason to let go.</description>
+    <hediffClass>RimshiSkeletons.Hediff_Rimshi_Overclocked</hediffClass>
+    <defaultLabelColor>(230, 150, 90)</defaultLabelColor>
+    <isBad>false</isBad>
+    <everCurableByItem>false</everCurableByItem>
+    <stages>
+      <li>
+        <statOffsets>
+          <CarryingCapacity>20</CarryingCapacity>
+        </statOffsets>
+      </li>
+    </stages>
+    <comps>
+      <li Class="HediffCompProperties_GiveAbility">
+        <abilityDef>Rimshi_Heave</abilityDef>
+      </li>
+    </comps>
+  </HediffDef>
+
+  <!-- The one-use heave: an adjacent hostile pawn is disarmed and thrown straight away from the skeleton,
+       carrying capacity / 10 cells, through other pawns, 2 to 5 blunt damage to a different part per cell and double for
+       each cell a wall stops it short of (Overclock.Heave). -->
+  <AbilityDef>
+    <defName>Rimshi_Heave</defName>
+    <label>heave</label>
+    <description>Let everything the cable fissure wound into this skeleton's muscles go at once, into one enemy within arm's reach.</description>
+    <iconPath>Rimshi/UI/Heave</iconPath>
+    <hostile>true</hostile>
+    <displayGizmoWhileUndrafted>true</displayGizmoWhileUndrafted>
+    <disableGizmoWhileUndrafted>false</disableGizmoWhileUndrafted>
+    <verbProperties>
+      <verbClass>Verb_CastAbility</verbClass>
+      <warmupTime>0.5</warmupTime>
+      <range>1.42</range>
+      <drawAimPie>false</drawAimPie>
+      <targetParams>
+        <canTargetPawns>true</canTargetPawns>
+        <canTargetBuildings>false</canTargetBuildings>
+        <canTargetLocations>false</canTargetLocations>
+        <canTargetSelf>false</canTargetSelf>
+      </targetParams>
+    </verbProperties>
+    <comps>
+      <li Class="RimshiSkeletons.CompProperties_Rimshi_Heave"/>
+    </comps>
+  </AbilityDef>
+
+</Defs>

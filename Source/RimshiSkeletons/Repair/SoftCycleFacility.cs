@@ -61,8 +61,24 @@ namespace RimshiSkeletons
 
         public bool Fuelled => Props.fuelPerCycle <= 0f || (Refuelable?.Fuel ?? 0f) >= Props.fuelPerCycle - 0.001f;
 
-        /// <summary>The chemical spire's charge, if this facility has one: it gives its effect when a cycle it joined finishes.</summary>
-        public CompRimshi_SpireCharge Charge => parent.GetComp<CompRimshi_SpireCharge>();
+        /// <summary>
+        /// What the facility holds for a skeleton, if anything (the chemical spire's charge, the cable fissure's tuning): it
+        /// joins a cycle only while charged and gives its effect when that cycle finishes.
+        /// </summary>
+        public ISoftCycleCharge Charge
+        {
+            get
+            {
+                foreach (ThingComp comp in parent.AllComps)
+                {
+                    if (comp is ISoftCycleCharge charge)
+                    {
+                        return charge;
+                    }
+                }
+                return null;
+            }
+        }
 
         /// <summary>Fuelled, and charged if it has to be: it would join a cycle starting now.</summary>
         public bool Ready => Fuelled && (Charge?.Charged ?? true);
@@ -148,8 +164,20 @@ namespace RimshiSkeletons
 
         public override string CompInspectStringExtra()
         {
-            return engaged != null ? "Ringing with " + engaged.LabelShort + "'s soft cycle." : null;
+            if (engaged == null)
+            {
+                return null;
+            }
+            return Charge != null ? "Bound to " + engaged.LabelShort + "'s soft cycle." : "Ringing with " + engaged.LabelShort + "'s soft cycle.";
         }
+    }
+
+    /// <summary>A comp holding something a soft cycle facility gives a skeleton when a cycle it joined finishes.</summary>
+    public interface ISoftCycleCharge
+    {
+        bool Charged { get; }
+
+        void Discharge(Pawn pawn);
     }
 
     public static class SoftCycleFacilities

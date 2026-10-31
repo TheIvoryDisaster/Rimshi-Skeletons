@@ -235,3 +235,12 @@ the project's shared folder `art-proposals/ribcage/comfy/` and in `<save data fo
 
   Negative: `person, skeleton, human, body, face, text, watermark, scene, floor, photo, realistic, blurry, noise, extra objects`
 - **wf_td_40 / 55** (top-down img2img; 55 shipped): `waiIllustriousSDXL_v150`, input `ribcage_td_input.png`, seed 6606, cfg 6.0, denoise 0.4 / 0.55, batch 2. Prompt and negative as in the catalog (Recipe B).
+
+## Recipe C: cable fissure (no prompts)
+
+Built from Matthew's brief (2026-10-31): "a 2x3 building that looks like a series of black bricks of varying heights
+with a channel of bundled cables passing between them going from one large brick to another". No ComfyUI and no
+prompt: the whole design lives in `tools/art/fissure/scene.js` (deterministic, no seed). Iterations in the thread:
+1. Bricks painted near black (0x34343a): tops and fronts merged into one flat black, and the stone tint would only darken them further.
+2. Bricks 0x8c8c94: read as grey stone under marble and limestone, not black.
+3. Shipped: bricks 0x5c5c64, tops 0x8e8e98, plinth 0x4a4a50, light moved to (-0.4, 1.0, 0.3); bands shrunk to radius 0.1.

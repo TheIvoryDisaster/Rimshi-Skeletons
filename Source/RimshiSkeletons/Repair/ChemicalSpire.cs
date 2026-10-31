@@ -25,7 +25,7 @@ namespace RimshiSkeletons
         }
     }
 
-    public class CompRimshi_SpireCharge : ThingComp
+    public class CompRimshi_SpireCharge : ThingComp, ISoftCycleCharge
     {
         private bool charged;
         private int chargedTicks;

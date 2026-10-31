@@ -29,4 +29,22 @@
     </requiredCapacities>
   </WorkGiverDef>
 
+  <!-- Tuning a cable fissure is research work (Matthew: "250 research work"), done as a bill at the fissure. -->
+  <WorkGiverDef>
+    <defName>Rimshi_TuneCableFissure</defName>
+    <label>tune cable fissures</label>
+    <giverClass>RimshiSkeletons.WorkGiver_Rimshi_TuneFissure</giverClass>
+    <workType>Research</workType>
+    <verb>tune</verb>
+    <gerund>tuning</gerund>
+    <priorityInType>110</priorityInType>
+    <fixedBillGiverDefs>
+      <li>Rimshi_CableFissure</li>
+    </fixedBillGiverDefs>
+    <requiredCapacities>
+      <li>Manipulation</li>
+    </requiredCapacities>
+    <prioritizeSustains>true</prioritizeSustains>
+  </WorkGiverDef>
+
 </Defs>
