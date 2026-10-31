@@ -2,9 +2,9 @@
 // camera for each rotation, so the four textures always agree. Run with tools/art/tuningfork/render.js.
 //
 // World units are cells: x east, y up, z south. The building is 1x2; facing south its long side runs north-south.
-// A stack of old stereo equipment (speaker cones, VU meters, equaliser sliders, a deck) fills the footprint; the fork
-// stands upright on it in a speaker-cone socket, turned 30 degrees, with ring gears threaded onto both tines that mesh
-// with each other between them.
+// A stack of old stereo equipment (speaker cones, VU meters, equaliser sliders, a tape deck at each end joined by a
+// band of tape) fills the footprint; the fork stands upright on it in a speaker-cone socket in the middle,
+// turned 30 degrees, with ring gears threaded onto both tines that mesh with each other between them.
 import * as THREE from 'three';
 
 const K = 0.8;        // oblique: a unit of height shows as K units up the screen (upright things read front-on)
@@ -27,6 +27,8 @@ const pal = {
   led: 0x70e070,
   ledRed: 0xe05040,
   slider: 0xd8d0c0,
+  tape: 0x4a2e1c,
+  tapeBand: 0x8a5a30,
 };
 
 function toonGradient() {
@@ -151,7 +153,7 @@ export function buildModel() {
   const m = {
     brass: mat(pal.brass), gear: mat(pal.gear), hub: mat(pal.hub), case: mat(pal.case), caseTop: mat(pal.caseTop),
     panel: mat(pal.panel), cone: mat(pal.cone), coneRim: mat(pal.coneRim), knob: mat(pal.knob),
-    meter: mat(pal.meter, true), led: mat(pal.led, true), ledRed: mat(pal.ledRed, true), slider: mat(pal.slider),
+    meter: mat(pal.meter, true), led: mat(pal.led, true), ledRed: mat(pal.ledRed, true), slider: mat(pal.slider), tape: mat(pal.tape), tapeBand: mat(pal.tapeBand),
   };
 
   // The stereo stack: a lower amplifier the full footprint and a slimmer deck on top of its north half.
@@ -172,23 +174,34 @@ export function buildModel() {
   back.position.set(0, H / 2, -L / 2 - 0.002);
   root.add(back);
 
-  // Deck on the north half: a tape deck with two reels and a row of buttons.
-  const DH = 0.16, DZ = -0.5, DL = 0.78;
-  root.add(box(W - 0.12, DH, DL, m.case, 0, H + DH / 2, DZ));
-  root.add(box(W - 0.18, 0.015, DL - 0.06, m.panel, 0, H + DH + 0.008, DZ));
-  for (const z of [DZ - 0.17, DZ + 0.13]) {
-    const reel = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, 0.02, 24), m.coneRim);
-    reel.position.set(-0.08, H + DH + 0.02, z);
-    root.add(reel);
-    const spindle = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.04, 12), m.knob);
-    spindle.position.set(-0.08, H + DH + 0.03, z);
-    root.add(spindle);
+  // Two tape decks, one each end of the stack, joined by a band of audio tape that runs between their inner reels,
+  // past the fork's socket in the middle.
+  const DH = 0.16, DL = 0.6, REEL_X = -0.24, REEL_R = 0.1;
+  for (const DZ of [-0.6, 0.6]) {
+    root.add(box(W - 0.12, DH, DL, m.case, 0, H + DH / 2, DZ));
+    root.add(box(W - 0.18, 0.015, DL - 0.06, m.panel, 0, H + DH + 0.008, DZ));
+    for (const z of [DZ - 0.13, DZ + 0.13]) {
+      const reel = new THREE.Mesh(new THREE.CylinderGeometry(REEL_R, REEL_R, 0.02, 24), m.coneRim);
+      reel.position.set(REEL_X, H + DH + 0.02, z);
+      root.add(reel);
+      const pack = new THREE.Mesh(new THREE.CylinderGeometry(REEL_R * 0.8, REEL_R * 0.8, 0.04, 24), m.tape);
+      pack.position.set(REEL_X, H + DH + 0.035, z);
+      root.add(pack);
+      const spindle = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.07, 12), m.knob);
+      spindle.position.set(REEL_X, H + DH + 0.04, z);
+      root.add(spindle);
+    }
+    for (let i = 0; i < 4; i++) root.add(box(0.05, 0.03, 0.08, m.slider, 0.24, H + DH + 0.02, DZ - 0.18 + i * 0.12));
   }
-  for (let i = 0; i < 5; i++) root.add(box(0.05, 0.03, 0.08, m.slider, 0.22, H + DH + 0.02, DZ - 0.24 + i * 0.12));
+  const tapeFrom = -0.6 + 0.13, tapeTo = 0.6 - 0.13;
+  for (const x of [REEL_X + REEL_R * 0.8, REEL_X - REEL_R * 0.8]) {
+    // laid flat rather than on edge, so the band reads from above
+    root.add(box(0.05, 0.008, tapeTo - tapeFrom, m.tapeBand, x, H + DH + 0.06, 0));
+  }
 
-  // The fork's socket on the south half: an upturned speaker cone in a brass collar.
-  const SZ = 0.1;
-  const up = speaker(0.3, m);
+  // The fork's socket in the middle: an upturned speaker cone in a brass collar.
+  const SZ = 0;
+  const up = speaker(0.26, m);
   up.rotation.x = -Math.PI / 2;
   up.position.set(0, H + 0.02, SZ);
   root.add(up);
