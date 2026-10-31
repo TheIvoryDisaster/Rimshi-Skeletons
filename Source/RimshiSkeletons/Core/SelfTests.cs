@@ -451,6 +451,12 @@ namespace RimshiSkeletons
                 "cut skeleton needs repair " + SkeletonRepair.NeedsRepair(s) + " (" + SkeletonRepair.KitsFor(s) + " kit), cut human " + SkeletonRepair.NeedsRepair(h));
             Check("no tending", !cut.TendableNow() && !s.health.HasHediffsNeedingTend() && humanCut.TendableNow(),
                 "skeleton cut tendable " + cut.TendableNow() + ", skeleton needs tending " + s.health.HasHediffsNeedingTend() + ", human cut tendable " + humanCut.TendableNow());
+            FleshTypeDef.ResolvedWound skeletonWound = s.RaceProps.FleshType.ChooseWoundOverlay(cut);
+            FleshTypeDef.ResolvedWound humanWound = h.RaceProps.FleshType.ChooseWoundOverlay(humanCut);
+            bool mechTextures = SkeletonWounds.MechWoundTextures.All(t => ContentFinder<Texture2D>.Get(t, false) != null);
+            Check("grey wounds", mechTextures && skeletonWound != null && SkeletonWounds.MechWoundTextures.Contains(skeletonWound.wound.texture)
+                && humanWound != null && !SkeletonWounds.MechWoundTextures.Contains(humanWound.wound.texture),
+                "cut overlay: skeleton " + skeletonWound?.wound?.texture + ", baseliner " + humanWound?.wound?.texture + "; mech wound textures found " + mechTextures);
             s.health.RemoveHediff(cut);
             h.health.RemoveHediff(humanCut);
             Check("bed users", RestUtility.CanUseBedEver(s, bed) && !RestUtility.CanUseBedEver(h, bed) && RestUtility.CanUseBedEver(s, hospitalBed),
@@ -694,6 +700,7 @@ namespace RimshiSkeletons
             AccessTools.Method(typeof(Effecter), nameof(Effecter.Trigger)),
             AccessTools.Method(typeof(JobGiver_GetHemogen), nameof(JobGiver_GetHemogen.CanFeedOnPrisoner)),
             AccessTools.Method(typeof(SanguophageUtility), nameof(SanguophageUtility.DoBite)),
+            AccessTools.Method(typeof(FleshTypeDef), nameof(FleshTypeDef.ChooseWoundOverlay), new[] { typeof(Hediff) }),
         };
 
         private static int AddedParts(Pawn pawn) =>
