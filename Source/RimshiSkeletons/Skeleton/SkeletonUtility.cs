@@ -41,6 +41,8 @@ namespace RimshiSkeletons
         public static ThingDef Rimshi_RibCage;
         public static ThingDef Rimshi_TuningFork;
         public static ThingDef Rimshi_ChemicalSpire;
+        public static ThingDef Rimshi_CableFissure;
+        public static RecipeDef Rimshi_TuneCableFissure;
         public static ThoughtDef Rimshi_SoftCycleHoned;
         public static ThoughtDef Rimshi_SoftResetForeign;
         public static RecipeDef Rimshi_ScrapSkeletonRemains;

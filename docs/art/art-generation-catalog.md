@@ -40,6 +40,7 @@ generated, picked or not, is in [prompt-log.md](prompt-log.md).
 | RibCage, RibCage_front | 256x512 each (front ribs drawn over the pawn) | (1.25,2.5) | Single |
 | TuningFork_south/east/north/west | 384x384 | (3.2,3.2), drawOffset 0.55 north | Multi |
 | ChemicalSpire | 408x672 | (3.4,5.6), drawOffset 1.25 north | Single |
+| CableFissure_south/east/north/west (+ `_<rot>m` masks) | 480x480 | (4,4), drawOffset 0.5 north | Multi, CutoutComplex |
 
 ## The machine
 
@@ -201,6 +202,16 @@ Used for: the brass tuning fork (all four rotations) and the chemical spire (tem
   outlines (colour `(34,25,18)`) where the silhouette, part id or normal (dot < 0.25) changes, thickens them to about
   1.4 px at final size and downsizes with Lanczos. The spire uses `tools/art/spire/finish.py` the same way and also
   writes the burst ability icon `UI/LooseTheTempest.png`.
+- Stuff tint (cable fissure): a building made from stuff is tinted by multiplying its texture by the stuff colour. To
+  tint only part of it, use `shaderType CutoutComplex` and ship a mask per rotation (`<tex>_<rot>m.png`, red = tinted,
+  black = untouched). `tools/art/fissure/page.html` adds a `mask` pass (white on materials with `userData.brick`),
+  and `finish.py` writes it at the same size. Paint tinted parts LIGHT (the fissure's bricks are 0x5c5c64 with
+  0x8e8e98 tops): stone colours are 0.27 (slate) to 0.6 (limestone), so the multiply takes them to near black.
+  `finish.py` darkens the icon's bricks by a granite tint, since icons are never stuff-tinted.
+- Fissure render: `npm install three` into `/tmp/fissureart`, then `node tools/art/fissure/render.js /tmp/fissureart/out`
+  (1920 px) and `python3 tools/art/fissure/finish.py /tmp/fissureart/out Textures/Rimshi 480` (writes the four
+  views, four masks and `UI/Heave.png`). Its render.js serves every `three.*` file from `THREE_DIR`: three r170+
+  splits the module into `three.module.js` and `three.core.js`, and serving only the first hangs the page.
 
 Good for machines with many parts and exact rotations. It looks cleaner and more "toy-like" than the painted assets;
 a Recipe B img2img pass over the colour render (denoise about 0.4) is the untested next step if it needs to look more
@@ -228,6 +239,7 @@ hand painted.
 | Rib cage | `Buildings/RibCage.png`, `RibCage_front.png` | B | Proposal A (the cross), redrawn top-down | `ribcage_img2img.json` | Two layers so the ribs draw over the suspended skeleton. Oblique version rejected as too front-on. |
 | Brass tuning fork | `Buildings/TuningFork_*.png` (4) | C | Upright fork in a speaker cone on a stereo stack with a tape deck at each end and a tape band, ring gears on both tines | `tools/art/tuningfork/` | First version lay on its side; Matthew wanted it upright. |
 | Chemical spire | `Buildings/ChemicalSpire.png`, `UI/LooseTheTempest.png` | C | Single design | `tools/art/spire/` | Not rotatable, one view. |
+| Cable fissure | `Buildings/CableFissure_*.png` (4 views + 4 masks), `UI/Heave.png` | C | Single design (first version, not yet reviewed by Matthew) | `tools/art/fissure/` | Black bricks of uneven height, tall block north, low block south (worker side), a bundle of seven coloured cables bound with bronze bands runs along a sunk channel between collars with glowing seams; hot seams cracked across the tops. Bricks take the stone's tint through the mask, cables keep their colours. Light from (-0.4, 1.0, 0.3), ambient 0.6, so tops read lighter than fronts. |
 | Placeholders | `Items/Placeholder_Intermediate.png`, `Placeholder_Part.png` | D | | | Limbs, sensors and the AI core still use the part placeholder. |
 
 Proposal images for every round are in `docs/art/proposals/` (round 1 at the top level, `round2/`, `workbench/`,
