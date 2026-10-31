@@ -46,12 +46,14 @@
         <cycleWattsPerSkillLevel>15</cycleWattsPerSkillLevel>
       </li>
       <!-- Vanilla BedBase gives every bed PlaceWorker_ShowFacilitiesConnections, which throws in the build menu unless the
-           bed links to facilities. The hospital bed's list: a vitals monitor works with this bed too. -->
+           bed links to facilities. The hospital bed's list (a vitals monitor works with this bed too), plus the soft cycle
+           facilities (Rimshi_TuningFork, SoftCycleFacility.cs). -->
       <li Class="CompProperties_AffectedByFacilities">
         <linkableFacilities>
           <li>VitalsMonitor</li>
           <li>EndTable</li>
           <li>Dresser</li>
+          <li>Rimshi_TuningFork</li>
         </linkableFacilities>
       </li>
     </comps>
@@ -69,6 +71,9 @@
       <bed_healPerDay>0</bed_healPerDay>
       <bed_defaultMedical>true</bed_defaultMedical>
       <buildingSizeCategory>Small</buildingSizeCategory>
+      <relatedBuildCommands>
+        <li>Rimshi_TuningFork</li>
+      </relatedBuildCommands>
     </building>
     <fillPercent>0.4</fillPercent>
     <pathCost>42</pathCost>

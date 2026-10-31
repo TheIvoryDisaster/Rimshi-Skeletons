@@ -22,7 +22,7 @@ Still Biotech's deathrest underneath: the `Rimshi_Deathrest` gene (defName kept 
 | 48 hours in a powered repair bed | Vanilla deathrest is 4 days; `Patch_SoftCycleTick` adds an extra tick per tick (`BedCycleSpeed` 2) instead of patching the tiny `MinDeathrestTicks` getter, which the JIT may inline. Deathrest speed buildings would still count. |
 | Integrity rises with progress | Linear from wherever it started to 100% at the end (`SoftCycle.Raise`). |
 | No chemfuel | The bed's chemfuel tank and `CompRimshi_DeathrestFuel` are gone. Fuel left in a tank in an older save is lost. |
-| Power draw | `CompRimshi_RepairBed` sets the bed's draw every rare tick: 50 W standby, +400 W while repairing someone, +15 W per skill level (all skills added up) for each skeleton cycling in it. `CompProperties_Rimshi_SoftCycleFacility.cyclePowerFactor` on a linked facility multiplies the cycle draw: the hook for the connected buildings to come (none use it yet). |
+| Power draw | `CompRimshi_RepairBed` sets the bed's draw every rare tick: 50 W standby, +400 W while repairing someone, +15 W per skill level (all skills added up) for each skeleton cycling in it. `CompProperties_Rimshi_SoftCycleFacility.cyclePowerFactor` on a linked facility multiplies the cycle draw (none use it yet; see soft-cycle-facilities.md). |
 | Won't start without the power | The AI and the Soft cycle button only use a bed whose grid has spare generation for the cycle draw, or batteries holding enough to cover the shortfall for 48 hours. The bed must still be roofed (vanilla wakes deathresters in sunlight). |
 | Power lost or woken: cut short | Any tick in an unpowered repair bed (power cut, flicked off, solar flare, breakdown, EMP) or Wake up before it finishes: `Patch_SoftCycleWake` turns vanilla's interrupted deathrest into a cut-short cycle. Matthew, 2026-10-27: integrity stays wherever the cycle had raised it, with no overload, but nothing a finished cycle gives (memory flush, skill loss, thought, and any later facility bonuses) applies. The 0% reset and overload are kept for bedless cycles only. |
 | Needs held | Matthew, 2026-10-28: while a skeleton soft cycles (bed or standing), every need but CPU integrity is frozen (`Patch_RibCageStasis` on `Need.IsFrozen`), so maintenance, hygiene, recreation and mood do not drop. |
@@ -106,7 +106,7 @@ Log lines `softcycle | start, cycling, held, no bed, complete bed, cancelled bed
 ## Not done
 
 * Vanilla's low deathrest alert still says "needs deathrest" (and doesn't know about resets or rib cages).
-* The connected soft cycle buildings and capacity content (future milestone).
+* More soft cycle buildings and capacity content (future milestone). The first, the brass tuning fork, is in soft-cycle-facilities.md.
 * A skeleton standing in a soft reset can't be carried into a rib cage mid-reset; carrying it ends the reset.
 
 ## Wake only
