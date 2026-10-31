@@ -38,7 +38,8 @@
       </li>
       <li Class="CompProperties_Flickable"/>
       <li Class="RimshiSkeletons.CompProperties_Rimshi_RepairBed">
-        <repairPerDay>40</repairPerDay>
+        <!-- Doubled from 40 (Matthew, 2026-10-28). -->
+        <repairPerDay>80</repairPerDay>
         <repairsScars>true</repairsScars>
         <standbyWatts>50</standbyWatts>
         <repairWatts>400</repairWatts>

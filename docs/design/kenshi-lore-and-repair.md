@@ -135,7 +135,7 @@ Only skeletons. `RestUtility.CanUseBedEver(Pawn p, ThingDef bedDef)` is where va
 3. `restoresMissingParts`: off by default. In Kenshi a lost limb needs a robotic limb, so the bed does not regrow parts. Prosthetics are locked on skeletons for now (Skeleton/ProstheticsLock.cs) until skeleton parts of our own exist. Can be a mod setting.
 4. When nothing is left, a "fully repaired" message (vanilla `MessageFullyHealed` style) and the skeleton gets up.
 
-Suggested numbers: `repairPerDay` 40 (a skeleton with a 15-point gunshot and a few cuts is fixed in one night; a near-death skeleton in two or three). Tuned in testing.
+Suggested numbers: `repairPerDay` 40 at first (a skeleton with a 15-point gunshot and a few cuts is fixed in one night; a near-death skeleton in two or three). Doubled to 80 on 2026-10-28 at Matthew's ask.
 
 The bed also gets an inspect line: "Repairing: [pawn], about N hours left" and "Unpowered" when off.
 

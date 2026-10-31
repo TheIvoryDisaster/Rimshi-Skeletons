@@ -196,9 +196,30 @@ namespace RimshiSkeletons
                 Check("integrity raise", Mathf.Abs(half - 0.75f) < 0.01f && need.CurLevel >= 0.999f, "50% integrity, half a cycle " + half.ToStringPercent() + ", whole cycle " + need.CurLevel.ToStringPercent());
             }
 
+            if (need != null)
+            {
+                need.CurLevel = 0.4f;
+            }
             SoftCycle.Cancel(s, SoftCycleKind.RepairBed, "self-test");
+            float keptLevel = need?.CurLevel ?? -1f;
+            bool bedOverload = CpuOverload.Of(s) != null;
+            Check("bed wake keeps", Mathf.Approximately(keptLevel, 0.4f) && !bedOverload, "bed cycle cut short: integrity " + keptLevel.ToStringPercent() + ", overload " + bedOverload);
+            SoftCycle.Cancel(s, SoftCycleKind.Standing, "self-test");
             Hediff overload = CpuOverload.Of(s);
-            Check("cancel overloads", overload != null && need != null && need.CurLevel <= 0f, "integrity " + need?.CurLevelPercentage.ToStringPercent() + ", overload " + (overload != null));
+            Check("cancel overloads", overload != null && need != null && need.CurLevel <= 0f, "standing cycle cut short: integrity " + need?.CurLevelPercentage.ToStringPercent() + ", overload " + (overload != null));
+            Hediff resetting = s.health.AddHediff(RimshiDefOf.Rimshi_SoftResetting);
+            bool foodHeld = false, integrityHeld = true;
+            if (s.needs?.food != null)
+            {
+                Patch_RibCageStasis.Postfix(s.needs.food, s, ref foodHeld);
+            }
+            if (need != null)
+            {
+                integrityHeld = false;
+                Patch_RibCageStasis.Postfix(need, s, ref integrityHeld);
+            }
+            s.health.RemoveHediff(resetting);
+            Check("cycle needs held", foodHeld && !integrityHeld, "while soft cycling: maintenance frozen " + foodHeld + ", CPU integrity frozen " + integrityHeld);
             ThoughtDef exhaustion = DefDatabase<ThoughtDef>.AllDefsListForReading.FirstOrDefault(t => t.workerClass == typeof(ThoughtWorker_DeathrestExhaustion));
             Check("no exhaustion thought", exhaustion != null && need != null && need.CurLevel <= 0f && !exhaustion.Worker.CurrentState(s).Active,
                 "vanilla thought " + (exhaustion?.defName ?? "missing") + " active " + exhaustion?.Worker.CurrentState(s).Active + " at integrity " + need?.CurLevelPercentage.ToStringPercent());

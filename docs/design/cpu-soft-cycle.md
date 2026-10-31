@@ -24,7 +24,8 @@ Still Biotech's deathrest underneath: the `Rimshi_Deathrest` gene (defName kept 
 | No chemfuel | The bed's chemfuel tank and `CompRimshi_DeathrestFuel` are gone. Fuel left in a tank in an older save is lost. |
 | Power draw | `CompRimshi_RepairBed` sets the bed's draw every rare tick: 50 W standby, +400 W while repairing someone, +15 W per skill level (all skills added up) for each skeleton cycling in it. `CompProperties_Rimshi_SoftCycleFacility.cyclePowerFactor` on a linked facility multiplies the cycle draw: the hook for the connected buildings to come (none use it yet). |
 | Won't start without the power | The AI and the Soft cycle button only use a bed whose grid has spare generation for the cycle draw, or batteries holding enough to cover the shortfall for 48 hours. The bed must still be roofed (vanilla wakes deathresters in sunlight). |
-| Power lost or stopped: cancelled | Any tick in an unpowered repair bed (power cut, flicked off, solar flare, breakdown, EMP) or Stop soft cycle before it finishes: `Patch_SoftCycleWake` turns vanilla's interrupted deathrest into a cancel: integrity 0% and a CPU overload. |
+| Power lost or woken: cut short | Any tick in an unpowered repair bed (power cut, flicked off, solar flare, breakdown, EMP) or Wake up before it finishes: `Patch_SoftCycleWake` turns vanilla's interrupted deathrest into a cut-short cycle. Matthew, 2026-10-27: integrity stays wherever the cycle had raised it, with no overload, but nothing a finished cycle gives (memory flush, skill loss, thought, and any later facility bonuses) applies. The 0% reset and overload are kept for bedless cycles only. |
+| Needs held | Matthew, 2026-10-28: while a skeleton soft cycles (bed or standing), every need but CPU integrity is frozen (`Patch_RibCageStasis` on `Need.IsFrozen`), so maintenance, hygiene, recreation and mood do not drop. |
 | Held, not cancelled, outside the bed | A cycling skeleton that is carried, rescued into a rib cage, or lying in an older save's deathrest on the floor neither progresses nor cancels. Put back in a powered repair bed, it carries on. |
 | Finish | Always ends by itself (auto-wake forced on). See "Finishing a cycle". |
 
@@ -38,7 +39,7 @@ For colonies without the repair bed and its AI persona core. **Soft cycle** on a
 | --- | --- | --- | --- | --- | --- |
 | Done | 4% | 9% | 16% | 40% | 100% |
 
-The job (`Rimshi_SoftReset`) is player-ordered, so damage doesn't interrupt it, but anything that ends it early (Stop soft reset, drafting, being downed, a mental break) cancels the reset like a bed cycle: 0% and an overload.
+The job (`Rimshi_SoftReset`) is player-ordered, so damage doesn't interrupt it, but anything that ends it early (Stop soft reset, drafting, being downed, a mental break) cancels the reset: 0% and an overload (a bed cycle cut short no longer does).
 
 ## Finishing a cycle
 
@@ -52,7 +53,7 @@ The memory flush and skill loss are Claude's reading of "short term memories and
 
 ## CPU overload
 
-`Rimshi_CpuOverload`, from integrity reaching 0% or a cancelled cycle. Severity counts days overloaded and stops while cycling or suspended in a rib cage. Only a finished cycle removes it; a new cancel during an overload keeps its clock.
+`Rimshi_CpuOverload`, from integrity reaching 0% or a cancelled standing cycle. Severity counts days overloaded and stops while cycling or suspended in a rib cage. Only a finished cycle removes it; a new cancel during an overload keeps its clock.
 
 | Days | Stage | Effects |
 | --- | --- | --- |
@@ -92,7 +93,7 @@ Art: `Textures/Rimshi/Buildings/RibCage` (frame) and `RibCage_front` (ribs over 
 ## Calls Claude made (for Matthew to confirm)
 
 * Power units: 15 W per skill level on top of the bed's 50 W standby and 400 W repair draw. A skeleton with 80 skill levels draws 1,200 W while cycling.
-* Overload clock starts when integrity hits 0% (or at a cancel), not at the last cycle.
+* Overload clock starts when integrity hits 0% (or at a cancelled standing cycle), not at the last cycle.
 * The standing reset is cancelled by any interruption, like the bed cycle.
 * Overload: the -1 a day caps at -30; "trade prices +10%" is a x1.1 factor on trade price improvement.
 * Needs freeze entirely in a rib cage (maintenance included), not just integrity.
