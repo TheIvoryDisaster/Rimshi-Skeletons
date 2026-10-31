@@ -1,0 +1,123 @@
+{
+ "1": {
+  "class_type": "CheckpointLoaderSimple",
+  "inputs": {
+   "ckpt_name": "waiIllustriousSDXL_v150.safetensors"
+  }
+ },
+ "2": {
+  "class_type": "LoraLoader",
+  "inputs": {
+   "model": [
+    "1",
+    0
+   ],
+   "clip": [
+    "1",
+    1
+   ],
+   "lora_name": "rimworld_items_20261013_0803.safetensors",
+   "strength_model": 0.8,
+   "strength_clip": 0.8
+  }
+ },
+ "3": {
+  "class_type": "CLIPTextEncode",
+  "inputs": {
+   "clip": [
+    "2",
+    1
+   ],
+   "text": "rimworld item, game sprite, oblique top-down view, an upright metal rib cage torture frame, curved iron ribs as hoops around a rusty spine post, crossbar at the top like a cross, heavy riveted steel base plate, weathered rusty brown and dull grey scrap metal, Kenshi, hand painted, flat colors, soft shading, thick dark outline, clean, plain light background"
+  }
+ },
+ "4": {
+  "class_type": "CLIPTextEncode",
+  "inputs": {
+   "clip": [
+    "2",
+    1
+   ],
+   "text": "person, skeleton, human, body, face, text, watermark, scene, floor, photo, realistic, blurry, noise, extra objects"
+  }
+ },
+ "9": {
+  "class_type": "LoadImage",
+  "inputs": {
+   "image": "ribcage_i2i_input.png"
+  }
+ },
+ "10": {
+  "class_type": "VAEEncode",
+  "inputs": {
+   "pixels": [
+    "9",
+    0
+   ],
+   "vae": [
+    "1",
+    2
+   ]
+  }
+ },
+ "11": {
+  "class_type": "RepeatLatentBatch",
+  "inputs": {
+   "samples": [
+    "10",
+    0
+   ],
+   "amount": 2
+  }
+ },
+ "6": {
+  "class_type": "KSampler",
+  "inputs": {
+   "model": [
+    "2",
+    0
+   ],
+   "positive": [
+    "3",
+    0
+   ],
+   "negative": [
+    "4",
+    0
+   ],
+   "latent_image": [
+    "11",
+    0
+   ],
+   "seed": 5505,
+   "steps": 30,
+   "cfg": 6.0,
+   "sampler_name": "dpmpp_2m",
+   "scheduler": "karras",
+   "denoise": 0.5
+  }
+ },
+ "7": {
+  "class_type": "VAEDecode",
+  "inputs": {
+   "samples": [
+    "6",
+    0
+   ],
+   "vae": [
+    "1",
+    2
+   ]
+  }
+ },
+ "8": {
+  "class_type": "SaveImage",
+  "inputs": {
+   "images": [
+    "7",
+    0
+   ],
+   "filename_prefix": "rimshi_ribcage_i2i_50"
+  }
+ }
+}

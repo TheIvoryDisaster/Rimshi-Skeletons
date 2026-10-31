@@ -1,0 +1,102 @@
+{
+ "1": {
+  "class_type": "CheckpointLoaderSimple",
+  "inputs": {
+   "ckpt_name": "waiIllustriousSDXL_v150.safetensors"
+  }
+ },
+ "2": {
+  "class_type": "LoraLoader",
+  "inputs": {
+   "model": [
+    "1",
+    0
+   ],
+   "clip": [
+    "1",
+    1
+   ],
+   "lora_name": "rimworld_items_20261013_0803.safetensors",
+   "strength_model": 0.8,
+   "strength_clip": 0.8
+  }
+ },
+ "3": {
+  "class_type": "CLIPTextEncode",
+  "inputs": {
+   "clip": [
+    "2",
+    1
+   ],
+   "text": "rimworld item, game sprite, isometric three-quarter view from above, a tall standing iron (ribcage:1.4) frame, a thick vertical spine pillar with many (curved metal ribs:1.3) arching out to both sides and forward like a giant skeleton chest, a short crossbar at the top like a cross, a hook and chain at the top like a gibbet, mounted on a heavy square riveted steel base plate seen from above, empty, hollow inside, rusty brown and grey weathered metal, Kenshi post-apocalyptic, flat colors, thick dark outline, plain light background, full object visible"
+  }
+ },
+ "4": {
+  "class_type": "CLIPTextEncode",
+  "inputs": {
+   "clip": [
+    "2",
+    1
+   ],
+   "text": "person, skeleton bones, human, body, character, face, text, watermark, scene, floor, room, photo, realistic, blurry, multiple objects, cropped, front view, flat orthographic"
+  }
+ },
+ "5": {
+  "class_type": "EmptyLatentImage",
+  "inputs": {
+   "width": 704,
+   "height": 1408,
+   "batch_size": 4
+  }
+ },
+ "6": {
+  "class_type": "KSampler",
+  "inputs": {
+   "model": [
+    "2",
+    0
+   ],
+   "positive": [
+    "3",
+    0
+   ],
+   "negative": [
+    "4",
+    0
+   ],
+   "latent_image": [
+    "5",
+    0
+   ],
+   "seed": 3303,
+   "steps": 30,
+   "cfg": 6.5,
+   "sampler_name": "dpmpp_2m",
+   "scheduler": "karras",
+   "denoise": 1.0
+  }
+ },
+ "7": {
+  "class_type": "VAEDecode",
+  "inputs": {
+   "samples": [
+    "6",
+    0
+   ],
+   "vae": [
+    "1",
+    2
+   ]
+  }
+ },
+ "8": {
+  "class_type": "SaveImage",
+  "inputs": {
+   "images": [
+    "7",
+    0
+   ],
+   "filename_prefix": "rimshi_ribcage2"
+  }
+ }
+}
