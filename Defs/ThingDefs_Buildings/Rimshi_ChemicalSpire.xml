@@ -146,7 +146,7 @@
     <everCurableByItem>false</everCurableByItem>
   </HediffDef>
 
-  <!-- The one-use electrostatic burst: radius 10, mechanoids and skeletons in sight, friend or foe; damage from the
+  <!-- The one-use electrostatic burst: radius 10, hostile mechanoids and skeletons in sight; damage from the
        caster's summed skill levels (SpireStorm.Damage: 0.25 a level, 5 to 40). -->
   <AbilityDef>
     <defName>Rimshi_LooseTheTempest</defName>

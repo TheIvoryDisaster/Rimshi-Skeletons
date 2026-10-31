@@ -236,18 +236,18 @@ namespace RimshiSkeletons
             }
         }
 
-        /// <summary>Mechanoids and skeletons within the radius, in line of sight of the caster.</summary>
+        /// <summary>Hostile mechanoids and skeletons within the radius, in line of sight of the caster (Matthew: hostiles only).</summary>
         public static List<Pawn> BurstTargets(Pawn caster, float radius)
         {
             Map map = caster.Map;
             return map.mapPawns.AllPawnsSpawned
-                .Where(p => p != caster && !p.Dead && (p.RaceProps.IsMechanoid || SkeletonUtility.HasFrame(p))
+                .Where(p => p != caster && !p.Dead && p.HostileTo(caster) && (p.RaceProps.IsMechanoid || SkeletonUtility.HasFrame(p))
                     && p.Position.InHorDistOf(caster.Position, radius) && GenSight.LineOfSight(caster.Position, p.Position, map))
                 .ToList();
         }
 
         /// <summary>
-        /// Looses the burst: every mechanoid and skeleton in range (friend or foe) takes an EMP hit of the damage (a stun,
+        /// Looses the burst: every hostile mechanoid and skeleton in range takes an EMP hit of the damage (a stun,
         /// unless it is shielded or adapted) and that much burn damage in hits of up to 10. Then the held tempest settles
         /// into its wake, which keeps the EMP shield.
         /// </summary>

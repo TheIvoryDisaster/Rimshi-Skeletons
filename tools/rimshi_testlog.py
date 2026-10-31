@@ -73,7 +73,7 @@ CHECKLIST = [
     ("spire", "charged", "A chemical spire finished charging (or was charged by the dev gizmo); it now holds the charge"),
     ("spire", "charge lost", "A chemical spire lost power while charging and its charge started over (chemfuel kept)"),
     ("spire", "storm granted", "A soft cycle a charged spire joined finished: the skeleton took the held tempest (EMP-proof, x1.1 speed, burst)"),
-    ("spire", "burst", "A skeleton loosed the tempest: radius 10, mechs and skeletons hit, damage from summed skill levels, stunned count"),
+    ("spire", "burst", "A skeleton loosed the tempest: radius 10, hostile mechs and skeletons hit, damage from summed skill levels, stunned count"),
     ("spire", "storm ended", "A held tempest or its wake ended at the next finished soft cycle"),
     ("deathrest", "gene added", "Skeletons from an older save got the deathrest gene"),
     ("overload", "begin", "CPU overload started (integrity ran out or a cycle was cancelled)"),
