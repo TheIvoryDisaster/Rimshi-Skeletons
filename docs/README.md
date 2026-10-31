@@ -19,6 +19,14 @@ The design and project documents. These files are the source of truth; edit them
 | test-checklist.md | What has been seen working in game, from the `[Rimshi][T]` log lines. Updated with tools/rimshi_testlog.py. |
 | changelog.md | Dated changes, newest first. Rows arrive as fragment files in changelog/ and CI folds them in on main. |
 
+## Art (docs/art)
+
+| File | What it holds |
+| --- | --- |
+| art-generation-catalog.md | How every piece of our art was made (ComfyUI setup, models, workflows, prompt templates, post-processing, what worked), so a style can be reused. Every new art job adds to it. |
+| prompt-log.md | The full prompt, inputs, seed and denoise of every ComfyUI variant generated so far. |
+| proposals/ | The proposal images Matthew picked from. |
+
 ## Conventions
 
 - Every change gets a dated changelog row, as its own fragment file in `project/changelog/` (see the README there). Never edit the changelog table on a branch.

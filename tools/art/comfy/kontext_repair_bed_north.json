@@ -1,0 +1,195 @@
+{
+ "37": {
+  "class_type": "UNETLoader",
+  "inputs": {
+   "unet_name": "flux1-dev-kontext_fp8_scaled.safetensors",
+   "weight_dtype": "default"
+  }
+ },
+ "38": {
+  "class_type": "DualCLIPLoader",
+  "inputs": {
+   "clip_name1": "clip_l.safetensors",
+   "clip_name2": "t5xxl_fp8_e4m3fn_scaled.safetensors",
+   "type": "flux",
+   "device": "default"
+  }
+ },
+ "39": {
+  "class_type": "VAELoader",
+  "inputs": {
+   "vae_name": "ae.safetensors"
+  }
+ },
+ "6": {
+  "class_type": "CLIPTextEncode",
+  "inputs": {
+   "clip": [
+    "38",
+    0
+   ],
+   "text": "Turn the first image, a flat blockout, into a finished RimWorld furniture texture drawn in the exact art style and colours of the second image (the same robot repair bed): thick smooth black outline, flat muted colours, soft simple shading, clean vector-like painted look. Seen from above and slightly from the head end: the roller deck is at the top, the machine with three gauges is at the bottom, and its vented back panel faces the viewer at the bottom. Keep the exact layout, shapes, proportions, colours, camera angle and composition of the first image; do not change the viewpoint; only add soft shading, small highlights, bolts and panel lines. No legs, no feet, no mattress, no blanket, no pillow, no person. One object only, plain flat light grey background, no text."
+  }
+ },
+ "135": {
+  "class_type": "ConditioningZeroOut",
+  "inputs": {
+   "conditioning": [
+    "6",
+    0
+   ]
+  }
+ },
+ "100": {
+  "class_type": "LoadImage",
+  "inputs": {
+   "image": "rw2_bed_b_north.png"
+  }
+ },
+ "200": {
+  "class_type": "FluxKontextImageScale",
+  "inputs": {
+   "image": [
+    "100",
+    0
+   ]
+  }
+ },
+ "300": {
+  "class_type": "VAEEncode",
+  "inputs": {
+   "pixels": [
+    "200",
+    0
+   ],
+   "vae": [
+    "39",
+    0
+   ]
+  }
+ },
+ "400": {
+  "class_type": "ReferenceLatent",
+  "inputs": {
+   "conditioning": [
+    "6",
+    0
+   ],
+   "latent": [
+    "300",
+    0
+   ]
+  }
+ },
+ "101": {
+  "class_type": "LoadImage",
+  "inputs": {
+   "image": "rw2ref_bed2.png"
+  }
+ },
+ "201": {
+  "class_type": "FluxKontextImageScale",
+  "inputs": {
+   "image": [
+    "101",
+    0
+   ]
+  }
+ },
+ "301": {
+  "class_type": "VAEEncode",
+  "inputs": {
+   "pixels": [
+    "201",
+    0
+   ],
+   "vae": [
+    "39",
+    0
+   ]
+  }
+ },
+ "401": {
+  "class_type": "ReferenceLatent",
+  "inputs": {
+   "conditioning": [
+    "400",
+    0
+   ],
+   "latent": [
+    "301",
+    0
+   ]
+  }
+ },
+ "35": {
+  "class_type": "FluxGuidance",
+  "inputs": {
+   "conditioning": [
+    "401",
+    0
+   ],
+   "guidance": 2.5
+  }
+ },
+ "50": {
+  "class_type": "RepeatLatentBatch",
+  "inputs": {
+   "samples": [
+    "300",
+    0
+   ],
+   "amount": 2
+  }
+ },
+ "31": {
+  "class_type": "KSampler",
+  "inputs": {
+   "model": [
+    "37",
+    0
+   ],
+   "positive": [
+    "35",
+    0
+   ],
+   "negative": [
+    "135",
+    0
+   ],
+   "latent_image": [
+    "50",
+    0
+   ],
+   "seed": 9149,
+   "steps": 20,
+   "cfg": 1.0,
+   "sampler_name": "euler",
+   "scheduler": "simple",
+   "denoise": 1.0
+  }
+ },
+ "8": {
+  "class_type": "VAEDecode",
+  "inputs": {
+   "samples": [
+    "31",
+    0
+   ],
+   "vae": [
+    "39",
+    0
+   ]
+  }
+ },
+ "136": {
+  "class_type": "SaveImage",
+  "inputs": {
+   "images": [
+    "8",
+    0
+   ],
+   "filename_prefix": "rimworld/rw2_bed_b_north"
+  }
+ }
+}

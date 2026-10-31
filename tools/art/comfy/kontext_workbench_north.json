@@ -1,0 +1,195 @@
+{
+ "37": {
+  "class_type": "UNETLoader",
+  "inputs": {
+   "unet_name": "flux1-dev-kontext_fp8_scaled.safetensors",
+   "weight_dtype": "default"
+  }
+ },
+ "38": {
+  "class_type": "DualCLIPLoader",
+  "inputs": {
+   "clip_name1": "clip_l.safetensors",
+   "clip_name2": "t5xxl_fp8_e4m3fn_scaled.safetensors",
+   "type": "flux",
+   "device": "default"
+  }
+ },
+ "39": {
+  "class_type": "VAELoader",
+  "inputs": {
+   "vae_name": "ae.safetensors"
+  }
+ },
+ "6": {
+  "class_type": "CLIPTextEncode",
+  "inputs": {
+   "clip": [
+    "38",
+    0
+   ],
+   "text": "Redraw the first image, a flat blockout of a robot workbench with a brown painted frame, a grey steel worktop with a dark rubber work mat, yellow corner trim, and a hazard-striped rail along the back edge carrying two boxy grey gantry arms: each is a square column with a yellow head block, a horizontal boom, and a telescoping rod ending in a two-finger claw with yellow fingertips. A steel wrench and a round pressure gauge lie on the worktop, as a finished RimWorld building texture in the art style of the second image (a vanilla RimWorld electric smithy seen from the same side): thick smooth black outline, flat muted colours, soft simple shading with light from the top left, clean vector-like painted look. Seen from the front: the worker side is at the bottom with a thin strip of the front face, the arms are mounted along the back edge at the top and rise up out of the top of the bench. Keep exactly the blockout's layout, proportions, colours and viewpoint: same top-down three-quarter camera, every part in the same place and size, nothing moved, removed or added, keep both claws, the wrench and the gauge. Add only soft shading, small highlights, bolts, wood grain and panel lines. One object only, plain flat light grey background, no shadow on the ground, no text, no people."
+  }
+ },
+ "135": {
+  "class_type": "ConditioningZeroOut",
+  "inputs": {
+   "conditioning": [
+    "6",
+    0
+   ]
+  }
+ },
+ "100": {
+  "class_type": "LoadImage",
+  "inputs": {
+   "image": "wb1_c_north.png"
+  }
+ },
+ "200": {
+  "class_type": "FluxKontextImageScale",
+  "inputs": {
+   "image": [
+    "100",
+    0
+   ]
+  }
+ },
+ "300": {
+  "class_type": "VAEEncode",
+  "inputs": {
+   "pixels": [
+    "200",
+    0
+   ],
+   "vae": [
+    "39",
+    0
+   ]
+  }
+ },
+ "400": {
+  "class_type": "ReferenceLatent",
+  "inputs": {
+   "conditioning": [
+    "6",
+    0
+   ],
+   "latent": [
+    "300",
+    0
+   ]
+  }
+ },
+ "101": {
+  "class_type": "LoadImage",
+  "inputs": {
+   "image": "wbref_smithy_north.png"
+  }
+ },
+ "201": {
+  "class_type": "FluxKontextImageScale",
+  "inputs": {
+   "image": [
+    "101",
+    0
+   ]
+  }
+ },
+ "301": {
+  "class_type": "VAEEncode",
+  "inputs": {
+   "pixels": [
+    "201",
+    0
+   ],
+   "vae": [
+    "39",
+    0
+   ]
+  }
+ },
+ "401": {
+  "class_type": "ReferenceLatent",
+  "inputs": {
+   "conditioning": [
+    "400",
+    0
+   ],
+   "latent": [
+    "301",
+    0
+   ]
+  }
+ },
+ "35": {
+  "class_type": "FluxGuidance",
+  "inputs": {
+   "conditioning": [
+    "401",
+    0
+   ],
+   "guidance": 2.5
+  }
+ },
+ "50": {
+  "class_type": "RepeatLatentBatch",
+  "inputs": {
+   "samples": [
+    "300",
+    0
+   ],
+   "amount": 2
+  }
+ },
+ "31": {
+  "class_type": "KSampler",
+  "inputs": {
+   "model": [
+    "37",
+    0
+   ],
+   "positive": [
+    "35",
+    0
+   ],
+   "negative": [
+    "135",
+    0
+   ],
+   "latent_image": [
+    "50",
+    0
+   ],
+   "seed": 4199,
+   "steps": 20,
+   "cfg": 1.0,
+   "sampler_name": "euler",
+   "scheduler": "simple",
+   "denoise": 0.9
+  }
+ },
+ "8": {
+  "class_type": "VAEDecode",
+  "inputs": {
+   "samples": [
+    "31",
+    0
+   ],
+   "vae": [
+    "39",
+    0
+   ]
+  }
+ },
+ "136": {
+  "class_type": "SaveImage",
+  "inputs": {
+   "images": [
+    "8",
+    0
+   ],
+   "filename_prefix": "rimworld/wb1_c_north"
+  }
+ }
+}
