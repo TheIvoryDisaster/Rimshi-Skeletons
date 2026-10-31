@@ -28,7 +28,7 @@
     <defName>Rimshi_SkeletonFrame</defName>
     <label>skeleton frame</label>
     <labelShortAdj>skeletal</labelShortAdj>
-    <description>Carriers of this gene are housed in an ancient proto-mechanical frame instead of a body of flesh. Their plated torso and limbs take a male, thin or hulking build, and their heads are one of a handful of old manufacturing patterns.</description>
+    <description>Carriers of this core are housed in an ancient proto-mechanical frame instead of a body of flesh. Their plated torso and limbs take a male, thin or hulking build, and their heads are one of a handful of old manufacturing patterns.</description>
     <geneClass>RimshiSkeletons.Gene_SkeletonFrame</geneClass>
     <iconPath>Rimshi/Head/Mki_south</iconPath>
     <displayOrderInCategory>0</displayOrderInCategory>
@@ -60,7 +60,7 @@
     <defName>Rimshi_MetalChassis</defName>
     <label>metal chassis</label>
     <labelShortAdj>plated</labelShortAdj>
-    <description>Carriers of this gene have a plated metal chassis. It shrugs off blades and heat, never burns, works in any temperature and carries more than a human, but it is a little slower and a hard enough knock shuts it down sooner.</description>
+    <description>Carriers of this core have a plated metal chassis. It shrugs off blades and heat, never burns, works in any temperature and carries more than a human, but it is a little slower and a hard enough knock shuts it down sooner.</description>
     <iconPath>UI/Icons/Genes/Gene_Tough</iconPath>
     <displayOrderInCategory>10</displayOrderInCategory>
     <statOffsets>
@@ -89,7 +89,7 @@
     <defName>Rimshi_MechanicalNature</defName>
     <label>mechanical nature</label>
     <labelShortAdj>mechanical</labelShortAdj>
-    <description>Carriers of this gene are machines. They never fall ill, cannot be poisoned, do not mind the dark, the wet or going without clothes, have no blood to lose, cannot take drugs, and are psychically deaf: psychic drones, soothes, psycasts and other psychic effects do not touch them.</description>
+    <description>Carriers of this core are machines. They never fall ill, cannot be poisoned, do not mind the dark, the wet or going without clothes, have no blood to lose, cannot take drugs, and are psychically deaf: psychic drones, soothes, psycasts and other psychic effects do not touch them.</description>
     <iconPath>UI/Icons/Genes/Gene_TotalToxicityResistance</iconPath>
     <displayOrderInCategory>20</displayOrderInCategory>
     <immuneToToxGasExposure>true</immuneToToxGasExposure>
@@ -142,7 +142,7 @@
     <defName>Rimshi_ArchaicMind</defName>
     <label>archaic persona</label>
     <labelShortAdj>archaic</labelShortAdj>
-    <description>Carriers of this gene run an ancient persona. It rarely breaks under stress and learns quickly, but it is awkward with people and clumsy with living things like plants.</description>
+    <description>Carriers of this core run an ancient persona. It rarely breaks under stress and learns quickly, but it is awkward with people and clumsy with living things like plants.</description>
     <iconPath>UI/Icons/Genes/Gene_DeadCalm</iconPath>
     <displayOrderInCategory>30</displayOrderInCategory>
     <statOffsets>
@@ -166,7 +166,7 @@
     <defName>Rimshi_FuelReactor</defName>
     <label>component maintenance</label>
     <labelShortAdj>maintained</labelShortAdj>
-    <description>Carriers of this gene have no stomach. Instead they strip industrial components for parts to patch their worn joints, seals and circuits, about one component every two days. They consume nothing else, and nobody else can make use of components this way. Going without hurts their mood but never starves them.</description>
+    <description>Carriers of this core have no stomach. Instead they strip industrial components for parts to patch their worn joints, seals and circuits, about one component every two days. They consume nothing else, and nobody else can make use of components this way. Going without hurts their mood but never starves them.</description>
     <geneClass>RimshiSkeletons.Gene_FuelReactor</geneClass>
     <iconPath>UI/Icons/Genes/Gene_RobustDigestion</iconPath>
     <displayOrderInCategory>40</displayOrderInCategory>
@@ -199,7 +199,7 @@
     <defName>Rimshi_Deathrest</defName>
     <label>CPU soft cycle</label>
     <labelShortAdj>soft-cycling</labelShortAdj>
-    <description>Carriers of this gene carry centuries of memory and feeling with no way to express them. Unless they periodically flush their short-term memory buffer with a CPU soft cycle, the weight of their experiences overloads the CPU.</description>
+    <description>Carriers of this core carry centuries of memory and feeling with no way to express them. Unless they periodically flush their short-term memory buffer with a CPU soft cycle, the weight of their experiences overloads the CPU.</description>
     <geneClass>Gene_Deathrest</geneClass>
     <iconPath>UI/Icons/Genes/Gene_Deathrest</iconPath>
     <displayOrderInCategory>45</displayOrderInCategory>
@@ -231,7 +231,7 @@
     <defName>Rimshi_NullChromosome</defName>
     <label>ancient</label>
     <labelShortAdj>ancient</labelShortAdj>
-    <description>Carriers of this gene are so old that they predate the very constructs of gender. They have no sex at all, feel no attraction, cannot have children, and have no family left.</description>
+    <description>Carriers of this core are so old that they predate the very constructs of gender. They have no sex at all, feel no attraction, cannot have children, and have no family left.</description>
     <geneClass>RimshiSkeletons.Gene_NullChromosome</geneClass>
     <iconPath>UI/Icons/Genes/Gene_Sterile</iconPath>
     <displayOrderInCategory>50</displayOrderInCategory>
@@ -267,7 +267,7 @@
     <defName>Rimshi_Plating_Steel</defName>
     <label>steel plating</label>
     <labelShortAdj>steel</labelShortAdj>
-    <description>Carriers of this gene have bare steel plating, from fresh white steel to a dull grey.</description>
+    <description>Carriers of this core have bare steel plating, from fresh white steel to a dull grey.</description>
     <skinColorOverride>(110, 110, 110)</skinColorOverride>
     <randomBrightnessFactor>0.12</randomBrightnessFactor>
     <displayOrderInCategory>60</displayOrderInCategory>
@@ -277,7 +277,7 @@
     <defName>Rimshi_Plating_AgedSteel</defName>
     <label>aged steel plating</label>
     <labelShortAdj>aged</labelShortAdj>
-    <description>Carriers of this gene have old, darkened steel plating.</description>
+    <description>Carriers of this core have old, darkened steel plating.</description>
     <skinColorOverride>(75, 75, 75)</skinColorOverride>
     <randomBrightnessFactor>0.12</randomBrightnessFactor>
     <displayOrderInCategory>61</displayOrderInCategory>
@@ -287,7 +287,7 @@
     <defName>Rimshi_Plating_Rust</defName>
     <label>rusted plating</label>
     <labelShortAdj>rusted</labelShortAdj>
-    <description>Carriers of this gene have plating that has rusted over the centuries.</description>
+    <description>Carriers of this core have plating that has rusted over the centuries.</description>
     <skinColorOverride>(105, 87, 84)</skinColorOverride>
     <randomBrightnessFactor>0.18</randomBrightnessFactor>
     <displayOrderInCategory>62</displayOrderInCategory>
@@ -297,7 +297,7 @@
     <defName>Rimshi_Plating_Plasteel</defName>
     <label>plasteel plating</label>
     <labelShortAdj>plasteel</labelShortAdj>
-    <description>Carriers of this gene have rare, pale blue plasteel plating.</description>
+    <description>Carriers of this core have rare, pale blue plasteel plating.</description>
     <skinColorOverride>(160, 178, 181)</skinColorOverride>
     <randomBrightnessFactor>0</randomBrightnessFactor>
     <displayOrderInCategory>63</displayOrderInCategory>
@@ -307,7 +307,7 @@
     <defName>Rimshi_Plating_MechBlack</defName>
     <label>mech black plating</label>
     <labelShortAdj>black</labelShortAdj>
-    <description>Carriers of this gene have the near-black plating of a mechanoid.</description>
+    <description>Carriers of this core have the near-black plating of a mechanoid.</description>
     <skinColorOverride>(54, 56, 51)</skinColorOverride>
     <randomBrightnessFactor>0</randomBrightnessFactor>
     <displayOrderInCategory>64</displayOrderInCategory>

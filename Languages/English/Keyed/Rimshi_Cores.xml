@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A skeleton's genetics screen calls its genes cores: subsets of the AI core that runs it (Kenshi lore). CoreTerms.cs
+     swaps the vanilla keys for these only while that screen draws for a skeleton. -->
+<LanguageData>
+  <Rimshi_Cores>cores</Rimshi_Cores>
+  <Rimshi_CoresDesc>Cores are subsets of the ancient AI core that runs this skeleton, burned into its frame when it was built thousands of years ago. Together they make it what it is.</Rimshi_CoresDesc>
+  <Rimshi_Chips>chips</Rimshi_Chips>
+  <Rimshi_ChipsDesc>Chips are small programs slotted in beside a skeleton's cores. Whatever once made them was mostly lost with the Second Empire.</Rimshi_ChipsDesc>
+  <Rimshi_NoChips>no chips installed</Rimshi_NoChips>
+  <Rimshi_OverriddenByCore>Overridden by</Rimshi_OverriddenByCore>
+  <Rimshi_OverriddenByIdenticalCore>Overridden by an identical copy</Rimshi_OverriddenByIdenticalCore>
+  <Rimshi_ViewCores>View cores</Rimshi_ViewCores>
+  <Rimshi_ViewCoresDesc>Click to view {PAWN_nameDef}'s cores.</Rimshi_ViewCoresDesc>
+</LanguageData>

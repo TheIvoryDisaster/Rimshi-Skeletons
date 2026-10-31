@@ -54,6 +54,7 @@ Separation rules, all keyed on `SkeletonChips.IsChip` / `SkeletonUtility.IsSkele
 - `Rimshi_SkeletonGeneBase` and `Rimshi_PlatingBase` now mark their genes Core.
 - `SkeletonUtility.IsSkeletonGene` matches by the extension (category kept as a fallback), so the gene lock covers chips too.
 - Self-test `gene kinds`: every skeleton gene is marked core or chip and the chip category is loaded.
+- Wording (Matthew, 2026-10-27): a skeleton's genetics screen calls its genes cores, subsets of the Kenshi AI core. `Skeleton/CoreTerms.cs` swaps the vanilla keys (germline genes, xenogenes, no xenogerm implanted, overridden by gene, View genes) for `Rimshi_` keys in `Languages/English/Keyed/Rimshi_Cores.xml` while that screen draws for a skeleton, so endogenes read "cores" and the xenogene section already reads "chips" ("no chips installed"). Other pawns and languages without our keys keep vanilla text.
 
 ## Build order
 
