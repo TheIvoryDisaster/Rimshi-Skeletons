@@ -106,6 +106,8 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | anatomy | A skeleton got its machine organs (generation, gene added or older save; names the organs) | not seen |  |  |
 | anatomy | Skeletons in an older save were given machine organs on load | not seen |  |  |
 | blood | A hit skeleton leaked ancient oil (black filth) instead of blood | not seen |  |  |
+| module | An EMP hit stunned a skeleton the way it stuns a mechanoid (unshielded circuits) | not seen |  |  |
+| module | Skeletons from an older save got the module genes their xenotype now lists | not seen |  |  |
 | blood | A hit skeleton showed the black oil spray instead of the red blood spray | not seen |  |  |
 | blood | A sanguophage bit a skeleton and got no hemogen (bloodfeed ability or another mod) | not seen |  |  |
 | wounds | A wounded skeleton on the map showed grey and black wound marks instead of red ones | not seen |  |  |
@@ -182,6 +184,9 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | selftest | Self-test: removing the null chromosome restores a gender | passed | 7 | gender after removing null chromosome Male |
 | selftest | Self-test: no skeleton gene can roll in gene sets | not seen |  |  |
 | selftest | Self-test: every skeleton gene is marked core or chip, chip category loaded | not seen |  |  |
+| selftest | Self-test: skeleton xenotype carries the unshielded circuits and archaic speech modules, marked core and modifiable | not seen |  |  |
+| selftest | Self-test: EMP stuns a skeleton (and it adapts like a mech), not a baseliner | not seen |  |  |
+| selftest | Self-test: archaic speech lowers trade price, negotiation and social impact; archaic persona no longer does | not seen |  |  |
 | selftest | Self-test: a skeleton's genetics screen says cores and chips, a baseliner's still says genes | not seen |  |  |
 | selftest | Self-test: character card tooltip says view cores for a skeleton only, patches applied | not seen |  |  |
 | selftest | Self-test: 200 random gene sets hold no skeleton gene | not seen |  |  |

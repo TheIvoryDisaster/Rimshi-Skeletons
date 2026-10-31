@@ -181,7 +181,7 @@
     <defName>Rimshi_ArchaicMind</defName>
     <label>archaic persona</label>
     <labelShortAdj>archaic</labelShortAdj>
-    <description>Carriers of this core run an ancient persona. It rarely breaks under stress and learns quickly, but it is awkward with people and clumsy with living things like plants.</description>
+    <description>Carriers of this core run an ancient persona. It rarely breaks under stress and learns quickly, but it is clumsy with living things like plants.</description>
     <iconPath>UI/Icons/Genes/Gene_DeadCalm</iconPath>
     <displayOrderInCategory>30</displayOrderInCategory>
     <statOffsets>
@@ -189,12 +189,57 @@
     </statOffsets>
     <statFactors>
       <ResearchSpeed>1.3</ResearchSpeed>
-      <SocialImpact>0.5</SocialImpact>
       <PlantWorkSpeed>0.5</PlantWorkSpeed>
       <PlantHarvestYield>0.7</PlantHarvestYield>
       <MiningSpeed>0.9</MiningSpeed>
     </statFactors>
     <biostatCpx>2</biostatCpx>
+  </GeneDef>
+
+  <!-- Modules: core genes every skeleton carries that later systems are meant to change. The chip system
+       (docs/design/skeleton-chips.md) and soft cycle facilities (docs/design/soft-cycle-facilities.md) will suppress,
+       swap or soften them; until then they behave like any other core. Marked modifiable on SkeletonGeneExtension.
+       Inherit="False" so the parent's plain core extension is replaced, not doubled. See docs/design/skeleton-modules.md. -->
+  <GeneDef Name="Rimshi_SkeletonModuleBase" ParentName="Rimshi_SkeletonGeneBase" Abstract="True">
+    <modExtensions Inherit="False">
+      <li Class="RimshiSkeletons.SkeletonGeneExtension">
+        <kind>Core</kind>
+        <modifiable>true</modifiable>
+      </li>
+    </modExtensions>
+  </GeneDef>
+
+  <!-- EMP stuns and adapts the way it does mechanoids (SkeletonModules.cs). No metabolism cost, so the xenotype's
+       metabolism, and with it the maintenance rate, stays where it was. -->
+  <GeneDef ParentName="Rimshi_SkeletonModuleBase">
+    <defName>Rimshi_UnshieldedCircuits</defName>
+    <label>unshielded circuits</label>
+    <labelShortAdj>unshielded</labelShortAdj>
+    <description>Carriers of this core run on circuitry built long before anyone thought to shield it. An electromagnetic pulse overwhelms it the way it overwhelms a mechanoid, and the frame locks up until the charge bleeds away.</description>
+    <iconPath>UI/Icons/Genes/Gene_Delicate</iconPath>
+    <displayOrderInCategory>32</displayOrderInCategory>
+    <customEffectDescriptions>
+      <li>Stunned by EMP, like a mechanoid</li>
+    </customEffectDescriptions>
+    <biostatCpx>1</biostatCpx>
+  </GeneDef>
+
+  <!-- Social penalty: trading, negotiation (recruiting, gifts, peace talks), social impact (moved here from the archaic
+       persona so it can be changed on its own) and, with Ideology, conversion. Factors, so they scale the Social skill. -->
+  <GeneDef ParentName="Rimshi_SkeletonModuleBase">
+    <defName>Rimshi_ArchaicSpeech</defName>
+    <label>archaic speech</label>
+    <labelShortAdj>stilted</labelShortAdj>
+    <description>Carriers of this core speak through an old voice synthesizer, with the manners of an empire nobody remembers. People find them stiff and hard to read: they drive a poor bargain, struggle to win anyone over and leave little impression in conversation.</description>
+    <iconPath>UI/Icons/Genes/Gene_Ugly</iconPath>
+    <displayOrderInCategory>34</displayOrderInCategory>
+    <statFactors>
+      <TradePriceImprovement>0.5</TradePriceImprovement>
+      <NegotiationAbility>0.8</NegotiationAbility>
+      <SocialImpact>0.5</SocialImpact>
+      <ConversionPower MayRequire="Ludeon.RimWorld.Ideology">0.8</ConversionPower>
+    </statFactors>
+    <biostatCpx>1</biostatCpx>
   </GeneDef>
 
   <!-- Diet: the food need becomes "maintenance", met by consuming one component about every two days (things with
