@@ -66,6 +66,7 @@ namespace RimshiSkeletons
                 HordeChecks(pawns, human);
                 ConversionChecks(pawns);
                 SoftCycleChecks(skeleton, human);
+                RemainsChecks(skeleton, human);
                 // Last: it takes the null chromosome off the skeleton, and every check above needs it.
                 GeneRemovalCheck(skeleton);
             }
@@ -623,6 +624,78 @@ namespace RimshiSkeletons
             }
             Check("blood patched", unpatched.Count == 0, unpatched.Count == 0 ? BloodTargets.Length + " blood patches applied" : "not patched: " + string.Join(", ", unpatched));
         }
+
+        /// <summary>
+        /// Skeleton remains (Skeleton/SkeletonRemains.cs): an unspawned corpse is built around each test pawn and emptied
+        /// again before the pawns are discarded.
+        /// </summary>
+        private static void RemainsChecks(Pawn s, Pawn h)
+        {
+            Corpse skeletonCorpse = MakeTestCorpse(s);
+            Corpse humanCorpse = MakeTestCorpse(h);
+            try
+            {
+                Check("corpse inedible", !skeletonCorpse.IngestibleNow && humanCorpse.IngestibleNow,
+                    "ingestible: skeleton corpse " + skeletonCorpse.IngestibleNow + ", baseliner corpse " + humanCorpse.IngestibleNow);
+
+                RecipeDef butcher = DefDatabase<RecipeDef>.GetNamedSilentFail("ButcherCorpseFlesh");
+                Bill butcherBill = butcher?.MakeNewBill();
+                butcherBill?.ingredientFilter.SetAllowAll(butcher.fixedIngredientFilter);
+                bool butcherSkeleton = butcherBill != null && butcherBill.IsFixedOrAllowedIngredient(skeletonCorpse);
+                bool butcherHuman = butcherBill != null && butcherBill.IsFixedOrAllowedIngredient(humanCorpse);
+                Check("no butchering", butcherBill != null && !butcherSkeleton && butcherHuman,
+                    "butcher bill takes: skeleton corpse " + butcherSkeleton + ", baseliner corpse " + butcherHuman);
+
+                RecipeDef scrap = RimshiDefOf.Rimshi_ScrapSkeletonRemains;
+                Bill scrapBill = scrap.MakeNewBill();
+                bool scrapSkeleton = scrapBill.IsFixedOrAllowedIngredient(skeletonCorpse);
+                bool scrapHuman = scrapBill.IsFixedOrAllowedIngredient(humanCorpse);
+                List<string> users = scrap.AllRecipeUsers.Select(u => u.defName).ToList();
+                Check("scrap recipe", scrapSkeleton && !scrapHuman && users.Contains("CraftingSpot") && users.Contains("TableMachining"),
+                    "scrap bill takes: skeleton corpse " + scrapSkeleton + ", baseliner corpse " + scrapHuman + "; benches " + string.Join(", ", users));
+
+                List<Thing> products = skeletonCorpse.ButcherProducts(null, 1f).ToList();
+                var wanted = new[] { ThingDefOf.Steel, ThingDefOf.Plasteel, ThingDefOf.Uranium };
+                bool metals = wanted.All(d => products.Count(p => p.def == d) == 1
+                    && products.First(p => p.def == d).stackCount >= SkeletonRemains.MinScrap && products.First(p => p.def == d).stackCount <= SkeletonRemains.MaxScrap);
+                int components = products.Where(p => p.def == ThingDefOf.ComponentIndustrial).Sum(p => p.stackCount);
+                bool nothingElse = products.All(p => wanted.Contains(p.def) || p.def == ThingDefOf.ComponentIndustrial);
+                Check("scrap yield", metals && components <= 1 && nothingElse,
+                    "skeleton corpse yields " + string.Join(", ", products.Select(p => p.stackCount + " " + p.def.defName)));
+            }
+            finally
+            {
+                skeletonCorpse.GetDirectlyHeldThings().Remove(s);
+                humanCorpse.GetDirectlyHeldThings().Remove(h);
+            }
+
+            var unpatched = new List<string>();
+            foreach (MethodBase method in RemainsTargets)
+            {
+                Patches info = method == null ? null : Harmony.GetPatchInfo(method);
+                if (info == null || !info.Owners.Contains(RimshiMod.HarmonyId))
+                {
+                    unpatched.Add(method == null ? "missing method" : method.DeclaringType.Name + "." + method.Name);
+                }
+            }
+            Check("remains patched", unpatched.Count == 0, unpatched.Count == 0 ? RemainsTargets.Length + " remains patches applied" : "not patched: " + string.Join(", ", unpatched));
+        }
+
+        private static Corpse MakeTestCorpse(Pawn pawn)
+        {
+            var corpse = (Corpse)ThingMaker.MakeThing(pawn.RaceProps.corpseDef);
+            corpse.GetDirectlyHeldThings().TryAdd(pawn);
+            return corpse;
+        }
+
+        private static readonly MethodBase[] RemainsTargets =
+        {
+            AccessTools.Method(typeof(Bill), nameof(Bill.IsFixedOrAllowedIngredient), new[] { typeof(Thing) }),
+            AccessTools.Method(typeof(Corpse), nameof(Corpse.ButcherProducts)),
+            AccessTools.PropertyGetter(typeof(Corpse), nameof(Corpse.IngestibleNow)),
+            AccessTools.Method(typeof(Toils_Ingest), nameof(Toils_Ingest.ChewIngestible), new[] { typeof(Pawn), typeof(float), typeof(TargetIndex), typeof(TargetIndex) }),
+            AccessTools.Method(typeof(Thing), nameof(Thing.Ingested)),
+        };
 
         private static void DrugChecks(Pawn s, Pawn h)
         {

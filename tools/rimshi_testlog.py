@@ -106,6 +106,10 @@ CHECKLIST = [
     ("blood", "bite refused", "A sanguophage bit a skeleton and got no hemogen (bloodfeed ability or another mod)"),
     ("drugs", "refused", "A skeleton was refused a drug (ingest menu, drug policy, recreation, AI job, binge or generation; one line per route)"),
     ("drugs", "ingest blocked", "No drug reached a skeleton past the checks (this line only appears when one did; the drug did nothing)"),
+    ("remains", "scrapped", "A skeleton corpse was scrapped for steel, plasteel, uranium and at most one component (names the yield)"),
+    ("remains", "butchery refused", "A butchery bill skipped a skeleton corpse (butcher spot, butcher table or another mod's)"),
+    ("remains", "eating refused", "A pawn or animal that went to eat a skeleton corpse (a predator after a hunt) stopped instead"),
+    ("remains", "ingest blocked", "No skeleton corpse was eaten past the checks (this line only appears when one got that far; nothing was eaten)"),
     ("selftest", "summary", "Self-tests: all passed (summary line)"),
     ("selftest", "generate", "Self-test: skeleton and baseliner generate"),
     ("selftest", "no exceptions", "Self-test: no exceptions while testing"),
@@ -213,6 +217,11 @@ CHECKLIST = [
     ("selftest", "convert kind", "Self-test: converted old skeleton has our pawn kind"),
     ("selftest", "convert health", "Self-test: converted old skeleton has no old hediff and only human body parts"),
     ("selftest", "convert again", "Self-test: a converted skeleton is not converted again"),
+    ("selftest", "corpse inedible", "Self-test: a skeleton corpse cannot be eaten, a baseliner corpse can"),
+    ("selftest", "no butchering", "Self-test: a butchery bill refuses a skeleton corpse and takes a baseliner corpse"),
+    ("selftest", "scrap recipe", "Self-test: the scrap skeleton remains bill takes only skeleton corpses, at the crafting spot and machining bench"),
+    ("selftest", "scrap yield", "Self-test: a skeleton corpse yields 1-5 each of steel, plasteel and uranium and at most one component"),
+    ("selftest", "remains patched", "Self-test: the remains patches are applied"),
 ]
 
 
