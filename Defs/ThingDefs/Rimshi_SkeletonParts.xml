@@ -246,46 +246,6 @@
     </recipeMaker>
   </ThingDef>
   <ThingDef ParentName="Rimshi_SkeletonPartBase">
-    <defName>Rimshi_OpticalSensor</defName>
-    <label>optical sensor</label>
-    <description>A skeleton's eye: a lens array and image processor that sees as well as the original. Only fits a skeleton.</description>
-    <descriptionHyperlinks>
-      <HediffDef>Rimshi_OpticalSensor</HediffDef>
-    </descriptionHyperlinks>
-    <costList>
-      <Rimshi_RoboticComponent>2</Rimshi_RoboticComponent>
-      <ComponentIndustrial>2</ComponentIndustrial>
-      <ComponentSpacer>1</ComponentSpacer>
-    </costList>
-    <statBases>
-      <WorkToMake>4800</WorkToMake>
-      <Mass>0.3</Mass>
-    </statBases>
-    <recipeMaker>
-      <researchPrerequisite>Rimshi_SkeletonFabrication</researchPrerequisite>
-    </recipeMaker>
-  </ThingDef>
-  <ThingDef ParentName="Rimshi_SkeletonPartBase">
-    <defName>Rimshi_AudioReceiver</defName>
-    <label>audio receiver</label>
-    <description>A skeleton's ear: a membrane pickup and signal filter that hears as well as the original. Only fits a skeleton.</description>
-    <descriptionHyperlinks>
-      <HediffDef>Rimshi_AudioReceiver</HediffDef>
-    </descriptionHyperlinks>
-    <costList>
-      <Rimshi_RoboticComponent>2</Rimshi_RoboticComponent>
-      <ComponentIndustrial>2</ComponentIndustrial>
-      <ComponentSpacer>1</ComponentSpacer>
-    </costList>
-    <statBases>
-      <WorkToMake>4800</WorkToMake>
-      <Mass>0.3</Mass>
-    </statBases>
-    <recipeMaker>
-      <researchPrerequisite>Rimshi_SkeletonFabrication</researchPrerequisite>
-    </recipeMaker>
-  </ThingDef>
-  <ThingDef ParentName="Rimshi_SkeletonPartBase">
     <defName>Rimshi_AICore</defName>
     <label>AI core</label>
     <description>A skeleton's mind: an AI persona core wired into the old empire's control lattice. Installed in place of a skeleton's brain, it does the same job. Installed again over a damaged AI core, it repairs all the damage. Destroying it still kills the skeleton. Only fits a skeleton.</description>
@@ -303,6 +263,177 @@
     </statBases>
     <recipeMaker>
       <researchPrerequisite>Rimshi_AdvancedSkeletonParts</researchPrerequisite>
+    </recipeMaker>
+  </ThingDef>
+
+  <!-- Skeleton organs (docs/design/skeleton-organs.md): replacements for the machine parts every skeleton has in place of
+       its organs. Same cost and work as the standard skeleton limbs. -->
+  <ThingDef ParentName="Rimshi_SkeletonPartBase">
+    <defName>Rimshi_CoolingFan</defName>
+    <label>cooling fan</label>
+    <description>A skeleton's cooling fan: a shrouded impeller that draws air across its circuits to keep them from cooking. Only fits a skeleton.</description>
+    <descriptionHyperlinks>
+      <HediffDef>Rimshi_CoolingFan</HediffDef>
+    </descriptionHyperlinks>
+    <costList>
+      <Rimshi_Motor>2</Rimshi_Motor>
+      <Rimshi_RoboticComponent>1</Rimshi_RoboticComponent>
+      <Rimshi_SkeletonMuscle>1</Rimshi_SkeletonMuscle>
+      <Steel>40</Steel>
+    </costList>
+    <statBases>
+      <WorkToMake>3900</WorkToMake>
+      <Mass>1</Mass>
+    </statBases>
+    <recipeMaker>
+      <researchPrerequisite>Rimshi_SkeletonFabrication</researchPrerequisite>
+    </recipeMaker>
+  </ThingDef>
+  <ThingDef ParentName="Rimshi_SkeletonPartBase">
+    <defName>Rimshi_FluidReprocessor</defName>
+    <label>fluid reprocessor</label>
+    <description>A skeleton's fluid reprocessor: a sealed unit that strips the spent coolant circulating through the frame and sends it round again. Only fits a skeleton.</description>
+    <descriptionHyperlinks>
+      <HediffDef>Rimshi_FluidReprocessor</HediffDef>
+    </descriptionHyperlinks>
+    <costList>
+      <Rimshi_Motor>2</Rimshi_Motor>
+      <Rimshi_RoboticComponent>1</Rimshi_RoboticComponent>
+      <Rimshi_SkeletonMuscle>1</Rimshi_SkeletonMuscle>
+      <Steel>40</Steel>
+    </costList>
+    <statBases>
+      <WorkToMake>3900</WorkToMake>
+      <Mass>0.5</Mass>
+    </statBases>
+    <recipeMaker>
+      <researchPrerequisite>Rimshi_SkeletonFabrication</researchPrerequisite>
+    </recipeMaker>
+  </ThingDef>
+  <ThingDef ParentName="Rimshi_SkeletonPartBase">
+    <defName>Rimshi_Capacitor</defName>
+    <label>capacitor</label>
+    <description>A skeleton's capacitor: a heavy cell that holds the charge stripped from salvaged parts and feeds it to the frame. Only fits a skeleton.</description>
+    <descriptionHyperlinks>
+      <HediffDef>Rimshi_Capacitor</HediffDef>
+    </descriptionHyperlinks>
+    <costList>
+      <Rimshi_Motor>2</Rimshi_Motor>
+      <Rimshi_RoboticComponent>1</Rimshi_RoboticComponent>
+      <Rimshi_SkeletonMuscle>1</Rimshi_SkeletonMuscle>
+      <Steel>40</Steel>
+    </costList>
+    <statBases>
+      <WorkToMake>3900</WorkToMake>
+      <Mass>1</Mass>
+    </statBases>
+    <recipeMaker>
+      <researchPrerequisite>Rimshi_SkeletonFabrication</researchPrerequisite>
+    </recipeMaker>
+  </ThingDef>
+  <ThingDef ParentName="Rimshi_SkeletonPartBase">
+    <defName>Rimshi_OilFilter</defName>
+    <label>oil filter</label>
+    <description>A skeleton's oil filter: a pleated cartridge that catches grit and metal shavings before the ancient oil reaches the joints. Only fits a skeleton.</description>
+    <descriptionHyperlinks>
+      <HediffDef>Rimshi_OilFilter</HediffDef>
+    </descriptionHyperlinks>
+    <costList>
+      <Rimshi_Motor>2</Rimshi_Motor>
+      <Rimshi_RoboticComponent>1</Rimshi_RoboticComponent>
+      <Rimshi_SkeletonMuscle>1</Rimshi_SkeletonMuscle>
+      <Steel>40</Steel>
+    </costList>
+    <statBases>
+      <WorkToMake>3900</WorkToMake>
+      <Mass>1</Mass>
+    </statBases>
+    <recipeMaker>
+      <researchPrerequisite>Rimshi_SkeletonFabrication</researchPrerequisite>
+    </recipeMaker>
+  </ThingDef>
+  <ThingDef ParentName="Rimshi_SkeletonPartBase">
+    <defName>Rimshi_FluidPump</defName>
+    <label>fluid pump</label>
+    <description>A skeleton's fluid pump: the steady piston that drives ancient oil through every line of the frame. Only fits a skeleton.</description>
+    <descriptionHyperlinks>
+      <HediffDef>Rimshi_FluidPump</HediffDef>
+    </descriptionHyperlinks>
+    <costList>
+      <Rimshi_Motor>2</Rimshi_Motor>
+      <Rimshi_RoboticComponent>1</Rimshi_RoboticComponent>
+      <Rimshi_SkeletonMuscle>1</Rimshi_SkeletonMuscle>
+      <Steel>40</Steel>
+    </costList>
+    <statBases>
+      <WorkToMake>3900</WorkToMake>
+      <Mass>1</Mass>
+    </statBases>
+    <recipeMaker>
+      <researchPrerequisite>Rimshi_SkeletonFabrication</researchPrerequisite>
+    </recipeMaker>
+  </ThingDef>
+  <ThingDef ParentName="Rimshi_SkeletonPartBase">
+    <defName>Rimshi_OpticalSensor</defName>
+    <label>optical sensor</label>
+    <description>A skeleton's eye: a lens array and image processor that sees as well as the original. Only fits a skeleton.</description>
+    <descriptionHyperlinks>
+      <HediffDef>Rimshi_OpticalSensor</HediffDef>
+    </descriptionHyperlinks>
+    <costList>
+      <Rimshi_Motor>2</Rimshi_Motor>
+      <Rimshi_RoboticComponent>1</Rimshi_RoboticComponent>
+      <Rimshi_SkeletonMuscle>1</Rimshi_SkeletonMuscle>
+      <Steel>40</Steel>
+    </costList>
+    <statBases>
+      <WorkToMake>3900</WorkToMake>
+      <Mass>0.3</Mass>
+    </statBases>
+    <recipeMaker>
+      <researchPrerequisite>Rimshi_SkeletonFabrication</researchPrerequisite>
+    </recipeMaker>
+  </ThingDef>
+  <ThingDef ParentName="Rimshi_SkeletonPartBase">
+    <defName>Rimshi_AudioReceiver</defName>
+    <label>auditory array</label>
+    <description>A skeleton's ear: a ring of membrane pickups and signal filters that hears as well as the original. Only fits a skeleton.</description>
+    <descriptionHyperlinks>
+      <HediffDef>Rimshi_AudioReceiver</HediffDef>
+    </descriptionHyperlinks>
+    <costList>
+      <Rimshi_Motor>2</Rimshi_Motor>
+      <Rimshi_RoboticComponent>1</Rimshi_RoboticComponent>
+      <Rimshi_SkeletonMuscle>1</Rimshi_SkeletonMuscle>
+      <Steel>40</Steel>
+    </costList>
+    <statBases>
+      <WorkToMake>3900</WorkToMake>
+      <Mass>0.3</Mass>
+    </statBases>
+    <recipeMaker>
+      <researchPrerequisite>Rimshi_SkeletonFabrication</researchPrerequisite>
+    </recipeMaker>
+  </ThingDef>
+  <ThingDef ParentName="Rimshi_SkeletonPartBase">
+    <defName>Rimshi_IRCamera</defName>
+    <label>IR camera</label>
+    <description>A skeleton's IR camera: a heat-sensing lens set in the face that reads the air around it in infrared. Only fits a skeleton.</description>
+    <descriptionHyperlinks>
+      <HediffDef>Rimshi_IRCamera</HediffDef>
+    </descriptionHyperlinks>
+    <costList>
+      <Rimshi_Motor>2</Rimshi_Motor>
+      <Rimshi_RoboticComponent>1</Rimshi_RoboticComponent>
+      <Rimshi_SkeletonMuscle>1</Rimshi_SkeletonMuscle>
+      <Steel>40</Steel>
+    </costList>
+    <statBases>
+      <WorkToMake>3900</WorkToMake>
+      <Mass>0.3</Mass>
+    </statBases>
+    <recipeMaker>
+      <researchPrerequisite>Rimshi_SkeletonFabrication</researchPrerequisite>
     </recipeMaker>
   </ThingDef>
 

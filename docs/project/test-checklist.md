@@ -8,7 +8,7 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 
 **How to use it:** play with Development mode on, then tell Claude to check the logs. Claude pulls Player.log and Player-prev.log from `C:\Users\Matthew\AppData\LocalLow\Ludeon Studios\RimWorld by Ludeon Studios`, runs `tools/rimshi_testlog.py` over them and updates this table. Results add up across sessions; any exception that mentions the mod is reported too. A PR that only updates this file is merged by Claude without asking, and its description lists every test that ran and its outcome.
 
-**Self-tests:** with Development mode on, loading or starting a game runs the in-game self-tests once per session (also on demand: Debug actions > Rimshi Skeletons > Run self-tests). They generate a skeleton, a baseliner and a skeletal imperium town guard off the map, check genes, looks, diet, thoughts, immunity, the gene lock, the prosthetics lock, skeleton parts (install bills, KLR arm armour, AI core repair), blood and ancient oil, the drug lock, backstory, faction, reproduction, the recall array and horde skeletons (gear, protocol, failsafe core, one reprogramming session), discard the pawns, and log one `selftest` line per check plus a summary.
+**Self-tests:** with Development mode on, loading or starting a game runs the in-game self-tests once per session (also on demand: Debug actions > Rimshi Skeletons > Run self-tests). They generate a skeleton, a baseliner and a skeletal imperium town guard off the map, check genes, looks, diet, thoughts, immunity, the gene lock, the prosthetics lock, skeleton parts (install bills, KLR arm armour, AI core repair), machine organs (fitted, named, hidden, replaceable), blood and ancient oil, the drug lock, backstory, faction, reproduction, the recall array and horde skeletons (gear, protocol, failsafe core, one reprogramming session), discard the pawns, and log one `selftest` line per check plus a summary.
 
 **Unit tests:** `python3 -m unittest discover -s tests` runs the offline tests (def cross-references, textures, checklist coverage, the log reader, house style). CI runs them on every push.
 
@@ -100,6 +100,8 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | parts | A KLR or industrial part took reduced damage (first hit each session) | not seen |  |  |
 | parts | A steady arm knocked a weapon out of an enemy's hands in melee | not seen |  |  |
 | parts | A second AI core repaired a damaged one (names what it removed) | not seen |  |  |
+| anatomy | A skeleton got its machine organs (generation, gene added or older save; names the organs) | not seen |  |  |
+| anatomy | Skeletons in an older save were given machine organs on load | not seen |  |  |
 | blood | A hit skeleton leaked ancient oil (black filth) instead of blood | not seen |  |  |
 | blood | A hit skeleton showed the black oil spray instead of the red blood spray | not seen |  |  |
 | blood | A sanguophage bit a skeleton and got no hemogen (bloodfeed ability or another mod) | not seen |  |  |
@@ -193,6 +195,11 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | selftest | Self-test: giving a skeleton a psylink adds none and no psycast, a baseliner gets one (Royalty only) | not seen |  |  |
 | selftest | Self-test: the prosthetics lock patches are applied | not seen |  |  |
 | selftest | Self-test: every skeleton part install is offered on a skeleton and not on a baseliner | not seen |  |  |
+| selftest | Self-test: a new skeleton has a machine part on all 8 organ types | not seen |  |  |
+| selftest | Self-test: a skeleton's organs are named after their machine parts (left lung reads left cooling fan), a baseliner's are not | not seen |  |  |
+| selftest | Self-test: machine organs are hidden in the health tab like natural organs | not seen |  |  |
+| selftest | Self-test: the health tab, surgery menu, medical bills and combat log name parts through the machine names | not seen |  |  |
+| selftest | Self-test: a cooling fan install is offered only once the lung is gone, and puts the cooling fan back | not seen |  |  |
 | selftest | Self-test: a KLR arm installs on a skeleton's shoulder | not seen |  |  |
 | selftest | Self-test: a KLR arm takes 20% off the damage that reaches it | not seen |  |  |
 | selftest | Self-test: an AI core installs, and a second one repairs a damaged core | not seen |  |  |

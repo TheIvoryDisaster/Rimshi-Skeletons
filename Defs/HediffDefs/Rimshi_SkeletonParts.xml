@@ -263,34 +263,6 @@
     </stages>
   </HediffDef>
   <HediffDef ParentName="Rimshi_SkeletonPartHediffBase">
-    <defName>Rimshi_OpticalSensor</defName>
-    <label>optical sensor</label>
-    <labelNoun>an optical sensor</labelNoun>
-    <description>A skeleton's eye: a lens array and image processor that sees as well as the original. Only fits a skeleton.</description>
-    <descriptionHyperlinks>
-      <ThingDef>Rimshi_OpticalSensor</ThingDef>
-    </descriptionHyperlinks>
-    <spawnThingOnRemoved>Rimshi_OpticalSensor</spawnThingOnRemoved>
-    <addedPartProps>
-      <solid>true</solid>
-      <partEfficiency>1.0</partEfficiency>
-    </addedPartProps>
-  </HediffDef>
-  <HediffDef ParentName="Rimshi_SkeletonPartHediffBase">
-    <defName>Rimshi_AudioReceiver</defName>
-    <label>audio receiver</label>
-    <labelNoun>an audio receiver</labelNoun>
-    <description>A skeleton's ear: a membrane pickup and signal filter that hears as well as the original. Only fits a skeleton.</description>
-    <descriptionHyperlinks>
-      <ThingDef>Rimshi_AudioReceiver</ThingDef>
-    </descriptionHyperlinks>
-    <spawnThingOnRemoved>Rimshi_AudioReceiver</spawnThingOnRemoved>
-    <addedPartProps>
-      <solid>true</solid>
-      <partEfficiency>1.0</partEfficiency>
-    </addedPartProps>
-  </HediffDef>
-  <HediffDef ParentName="Rimshi_SkeletonPartHediffBase">
     <defName>Rimshi_AICore</defName>
     <label>AI core</label>
     <labelNoun>an AI core</labelNoun>

@@ -58,6 +58,7 @@ namespace RimshiSkeletons
                 RepairChecks(skeleton, human);
                 GeneProofChecks(skeleton, human);
                 ProstheticsChecks(skeleton, human);
+                OrganChecks(skeleton, human);
                 PartsChecks(skeleton, human);
                 BloodChecks(skeleton, human);
                 DrugChecks(skeleton, human);
@@ -780,11 +781,56 @@ namespace RimshiSkeletons
         /// Skeleton parts (Parts/SkeletonParts.cs): install bills only on skeletons, a KLR arm installs and takes 20% less
         /// damage, and a second AI core repairs a damaged one. Runs on the throwaway skeleton, which is discarded after.
         /// </summary>
+        private static void OrganChecks(Pawn s, Pawn human)
+        {
+            var missing = new List<string>();
+            var named = new List<string>();
+            foreach (KeyValuePair<BodyPartDef, HediffDef> organ in SkeletonAnatomy.Organs)
+            {
+                foreach (BodyPartRecord part in s.RaceProps.body.GetPartsWithDef(organ.Key))
+                {
+                    if (!s.health.hediffSet.hediffs.Any(h => h.def == organ.Value && h.Part == part))
+                    {
+                        missing.Add(part.Label);
+                    }
+                    string label = SkeletonAnatomy.LabelFor(s, part);
+                    if (!label.Contains(organ.Value.label) || SkeletonAnatomy.LabelFor(human, part) != part.Label)
+                    {
+                        named.Add(part.Label + " as " + label);
+                    }
+                }
+            }
+            Check("organs fitted", SkeletonAnatomy.Organs.Count == 8 && missing.Count == 0,
+                SkeletonAnatomy.Organs.Count + " machine organs" + (missing.Count > 0 ? "; missing on " + string.Join(", ", missing) : " on every organ"));
+            BodyPartRecord lung = s.RaceProps.body.GetPartsWithDef(BodyPartDefOf.Lung).FirstOrDefault();
+            Check("organ labels", named.Count == 0 && lung != null, lung == null ? "no lung" : lung.Label + " reads " + SkeletonAnatomy.LabelFor(s, lung)
+                + " on the skeleton, " + SkeletonAnatomy.LabelFor(human, lung) + " on the baseliner" + (named.Count > 0 ? "; wrong: " + string.Join(", ", named) : ""));
+            Hediff visible = s.health.hediffSet.hediffs.FirstOrDefault(h => h is Hediff_Rimshi_SkeletonOrgan && h.Visible);
+            Check("organs hidden", visible == null, visible == null ? "machine organs hidden in the health tab" : visible.def.defName + " is visible");
+
+            // The iterator behind RulesForBodyPartRecord is a compiler-named class, so sites match by prefix.
+            var sites = new[] { "HealthCardUtility.DrawHediffRow", "HealthCardUtility.GenerateSurgeryOption", "Bill_Medical.get_Label", "<RulesForBodyPartRecord>" };
+            List<string> empty = sites.Where(n => !Patch_OrganLabels.swaps.Any(kv => kv.Key.StartsWith(n, System.StringComparison.Ordinal) && kv.Value > 0)).ToList();
+            Check("organ label sites", empty.Count == 0, string.Join(", ", Patch_OrganLabels.swaps.Select(kv => kv.Key + " " + kv.Value)) + (empty.Count > 0 ? "; nothing swapped in " + string.Join(", ", empty) : ""));
+
+            // Replace a lung: the install is offered only once it is gone, and puts the cooling fan back.
+            RecipeDef fan = DefDatabase<RecipeDef>.GetNamed("Rimshi_Install_CoolingFan");
+            bool offeredWhole = fan.Worker.GetPartsToApplyOn(s, fan).Contains(lung);
+            s.health.AddHediff(HediffMaker.MakeHediff(HediffDefOf.MissingBodyPart, s, lung), lung);
+            bool offeredGone = fan.Worker.GetPartsToApplyOn(s, fan).Contains(lung);
+            fan.Worker.ApplyOnPawn(s, lung, null, new List<Thing>(), null);
+            bool back = s.health.hediffSet.hediffs.Any(h => h.def == fan.addsHediff && h.Part == lung) && !s.health.hediffSet.PartIsMissing(lung);
+            Check("organ replace", !offeredWhole && offeredGone && back && !s.Dead, "offered on a fitted lung " + offeredWhole + ", on a missing lung " + offeredGone
+                + ", cooling fan back " + back + ", alive " + !s.Dead);
+        }
+
         private static void PartsChecks(Pawn s, Pawn human)
         {
             List<RecipeDef> installs = DefDatabase<RecipeDef>.AllDefsListForReading.Where(r => r.Worker is Recipe_Rimshi_InstallSkeletonPart).ToList();
-            List<string> wrong = installs.Where(r => !r.Worker.AvailableOnNow(s) || r.Worker.AvailableOnNow(human) || !r.Worker.GetPartsToApplyOn(s, r).Any()).Select(r => r.defName).ToList();
-            Check("part bills", installs.Count >= 13 && wrong.Count == 0, installs.Count + " skeleton part installs, skeleton only" + (wrong.Count > 0 ? "; wrong: " + string.Join(", ", wrong) : ""));
+            // Organ installs are only offered once the organ is gone (OrganChecks); the rest have a part to go on now.
+            List<string> wrong = installs.Where(r => !r.Worker.AvailableOnNow(s) || r.Worker.AvailableOnNow(human)
+                || (!(r.addsHediff?.hediffClass == typeof(Hediff_Rimshi_SkeletonOrgan)) && !r.Worker.GetPartsToApplyOn(s, r).Any())).Select(r => r.defName).ToList();
+            Check("part bills", installs.Count >= 19 && wrong.Count == 0, installs.Count + " skeleton part installs, skeleton only" + (wrong.Count > 0 ? "; wrong: " + string.Join(", ", wrong) : ""));
 
             RecipeDef klr = DefDatabase<RecipeDef>.GetNamed("Rimshi_Install_KLRArm");
             BodyPartRecord shoulder = klr.Worker.GetPartsToApplyOn(s, klr).FirstOrDefault();
@@ -912,6 +958,7 @@ namespace RimshiSkeletons
                 LongEventHandler.ExecuteWhenFinished(OldSkeletonConversion.ConvertAll);
             }
             LongEventHandler.ExecuteWhenFinished(SoftCycle.MigrateSave);
+            LongEventHandler.ExecuteWhenFinished(SkeletonAnatomy.MigrateSave);
             LongEventHandler.ExecuteWhenFinished(SetFoodPoliciesOnce);
             LongEventHandler.ExecuteWhenFinished(SelfTests.RunIfDevMode);
         }
