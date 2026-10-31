@@ -88,7 +88,9 @@ namespace RimshiSkeletons
             {
                 return false;
             }
-            float extra = CycleWatts(pawn);
+            // The cycle's draw plus the tuning forks that would ring for it, counted against the bed's grid (a fork on
+            // another grid is counted here anyway, erring on the safe side).
+            float extra = CycleWatts(pawn) + SoftCycleFacilities.ExtraWatts(this, pawn);
             if (pawn.Deathresting && Bed != null && Bed.CurOccupants.Contains(pawn))
             {
                 extra = 0f;

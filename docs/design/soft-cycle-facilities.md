@@ -28,17 +28,17 @@ While engaged its `cycleTimeOffset` is added to the cycle's length factor (`Soft
 | Per bed | 2 |
 | Fuel | 1 advanced component each cycle it joins; holds 1, haulers refill it (auto refuel toggle) |
 | Effect | Cycle length x0.85 each: one fork 40.8 hours, two 33.6 hours (from 48) |
-| Power | None (Matthew didn't ask for any) |
+| Power | 50 W idle, 1000 W while engaged with a cycle (Matthew, 2026-10-31). Unpowered (cut, flicked off) it won't join a cycle, and an engaged fork stops shortening the cycle until power is back (it stays engaged, so no second component). The repair bed's power check for starting a cycle adds the extra 950 W of each fork that would join. |
 
-Calls Claude made: the 15% stacks additively (two forks: 30% shorter, like vanilla's deathrest efficiency offsets add up); the component is burnt when the fork joins a cycle, not when the cycle finishes, so a cycle cut short still costs it; capacity 1, so it needs a refill after every cycle; no power draw.
+Calls Claude made: the 15% stacks additively (two forks: 30% shorter, like vanilla's deathrest efficiency offsets add up); the component is burnt when the fork joins a cycle, not when the cycle finishes, so a cycle cut short still costs it; capacity 1, so it needs a refill after every cycle.
 
 The description says only that the skeleton "comes back to itself sooner" and that each cycle burns a component (no-spoiler text rule).
 
 ### Art
 
-`Textures/Rimshi/Buildings/TuningFork_south/east/north/west`, 320x320 at drawSize (2.5,2.5) (128 px a cell, the footprint centred, room above for the raised fork). Matthew's brief: a large brass tuning fork whose prongs are joined by gear segments, turned 30 degrees to the side, in RimWorld's oblique view, with rotations that fit the front view.
+`Textures/Rimshi/Buildings/TuningFork_south/east/north/west`, 384x384 at drawSize (3.2,3.2) with drawOffset 0.55 cells north (120 px a cell; the footprint sits at the bottom of the texture and the fork rises into the space above). Matthew's brief: a large brass tuning fork with gears, turned 30 degrees to the side, in RimWorld's oblique view, with rotations that fit the front view; then (2026-10-31) standing upright on techno stereo equipment, the gears wrapped around the tines.
 
-Drawn as a 3D model so the four views always agree: `tools/art/tuningfork/scene.js` (three.js) builds the fork lying on a resonator box, stem south and prongs north, rolled 30 degrees about its long axis so both its face and its edge show, three gears meshing with each other and with rack teeth on the prongs' inner edges. One fixed camera draws every rotation: an oblique projection where a unit of height rises half a unit up the screen (the thin front strip of RimWorld furniture), toon shading. `render.js` renders colour, part id and normal passes in headless Chromium; `finish.py` draws the outlines from part boundaries, silhouettes and sharp creases and downsizes. To redraw: `npm install three` somewhere, then `THREE_DIR=<that>/node_modules/three/build node tools/art/tuningfork/render.js /tmp/fork` and `python3 tools/art/tuningfork/finish.py /tmp/fork Textures/Rimshi/Buildings`.
+Drawn as a 3D model so the four views always agree: `tools/art/tuningfork/scene.js` (three.js) builds a stereo stack filling the footprint (amplifier with VU meter, knobs and LEDs on the ends, speakers and equaliser sliders down the long sides, a tape deck on the north half) and the fork standing upright in an upturned speaker cone on the south half, turned 30 degrees, with two levels of ring gears threaded on the tines, each pair meshing between them. One fixed camera draws every rotation: an oblique projection where a unit of height rises 0.8 of a unit up the screen (tall things read front-on, tops stay full size), toon shading. The first version (the fork lying on a resonator box) was replaced at Matthew's ask. `render.js` renders colour, part id and normal passes in headless Chromium; `finish.py` draws the outlines from part boundaries, silhouettes and sharp creases and downsizes. To redraw: `npm install three` somewhere, then `THREE_DIR=<that>/node_modules/three/build node tools/art/tuningfork/render.js /tmp/fork` and `python3 tools/art/tuningfork/finish.py /tmp/fork Textures/Rimshi/Buildings 384`.
 
 ## Tests
 

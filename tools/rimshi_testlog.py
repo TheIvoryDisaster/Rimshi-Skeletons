@@ -163,7 +163,7 @@ CHECKLIST = [
     ("selftest", "cycle complete", "Self-test: a finished cycle clears the overload, fills integrity and flushes memories"),
     ("selftest", "rib cage", "Self-test: rib cage is a 1x2 unrotatable medical bed, 80 steel + 3 components, basic mechtech, skeletons only"),
     ("selftest", "rib cage art", "Self-test: rib cage back and front textures load"),
-    ("selftest", "tuning fork", "Self-test: tuning fork links to the repair bed (2 max, same room), takes advanced components, art loads"),
+    ("selftest", "tuning fork", "Self-test: tuning fork links to the repair bed (2 max, same room), takes advanced components, 50 W idle and 1000 W ringing, art loads"),
     ("selftest", "rib cage stasis", "Self-test: rib cage freezes needs and ranks between the repair bed and hospital bed for rescue"),
     ("selftest", "component patches", "Self-test: component packing patch applied"),
     ("selftest", "skeleton food policy", "Self-test: Skeletons food policy allows only components"),
