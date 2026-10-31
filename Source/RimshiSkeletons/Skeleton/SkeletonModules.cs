@@ -23,12 +23,13 @@ namespace RimshiSkeletons
 
         /// <summary>
         /// True while the module is active, so a later chip or facility that suppresses the gene (vanilla's gene
-        /// override, or removing it) turns EMP stuns off with no change here.
+        /// override, or removing it) turns EMP stuns off with no change here. A storm held from the chemical spire
+        /// (SpireStorm) shields the circuits until the next finished soft cycle.
         /// </summary>
         public static bool EmpSusceptible(Pawn pawn)
         {
             GeneDef gene = UnshieldedCircuits;
-            return gene != null && SkeletonUtility.HasActiveGene(pawn, gene);
+            return gene != null && SkeletonUtility.HasActiveGene(pawn, gene) && !SpireStorm.EmpProof(pawn);
         }
 
         public static void LogStun(Pawn pawn)

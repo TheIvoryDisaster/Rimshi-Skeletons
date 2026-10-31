@@ -40,6 +40,30 @@ The description says only that the skeleton "comes back to itself sooner" and th
 
 Drawn as a 3D model so the four views always agree: `tools/art/tuningfork/scene.js` (three.js) builds a stereo stack filling the footprint (amplifier with VU meter, knobs and LEDs on the ends, speakers and equaliser sliders down the long sides, a tape deck at each end joined by a band of audio tape between their inner reels) and the fork standing upright in an upturned speaker cone in the middle, turned 30 degrees, with two levels of ring gears threaded on the tines, each pair meshing between them. One fixed camera draws every rotation: an oblique projection where a unit of height rises 0.8 of a unit up the screen (tall things read front-on, tops stay full size), toon shading. The first version (the fork lying on a resonator box) was replaced at Matthew's ask. `render.js` renders colour, part id and normal passes in headless Chromium; `finish.py` draws the outlines from part boundaries, silhouettes and sharp creases and downsizes. To redraw: `npm install three` somewhere, then `THREE_DIR=<that>/node_modules/three/build node tools/art/tuningfork/render.js /tmp/fork` and `python3 tools/art/tuningfork/finish.py /tmp/fork Textures/Rimshi/Buildings 384`.
 
+## Chemical spire ("tempest reliquary")
+
+`Rimshi_ChemicalSpire`, Matthew's spec, 2026-10-31. Code: `Source/RimshiSkeletons/Repair/ChemicalSpire.cs`.
+
+| | |
+| --- | --- |
+| Name | Label "tempest reliquary" (Claude's pick; alternates offered: "abeyance spire", "stormwell of the First Empire", "sepulchre of held lightning"). The defName stays descriptive so the label can change freely. |
+| Size | 3x3, not rotatable, not minifiable, impassable |
+| Cost | 250 steel, 80 plasteel, 8 components, 2 advanced components; construction 8, work 12000 (Claude's call) |
+| Research | Skeleton repair beds (Claude's call, same as the fork) |
+| Per bed | 1 (Claude's call: it gives a single burst) |
+| Battery | First filled with 100 chemfuel (haulers fill it, auto refuel toggle; it can't be ejected). Once full it charges: 100 W for 36 hours without a break. Losing power while charging (cut, flicked off, unpowered at a rare tick) starts the charge over; the chemfuel stays. A full charge never drains, powered or not, and draws nothing; empty it draws nothing either. Read "consumes 100 energy" as 100 W while charging. |
+| Joining | It joins a cycle only while charged, and needs no power to join (`requiresPower` false). Joining costs nothing: the charge and all 100 chemfuel go only when that cycle FINISHES (`CompRimshi_SoftCycleFacility.Release(finished: true)` calls `CompRimshi_SpireCharge.Discharge`). A cycle cut short leaves it charged. It does not change the cycle's length or power draw. |
+| Effect | The skeleton gets `Rimshi_HeldTempest`: EMP-proof, move speed x1.1, and the one-use ability `Rimshi_LooseTheTempest`. Loosing it turns the hediff into `Rimshi_TempestWake` (EMP-proof only). Both end when the skeleton's next soft cycle finishes (bed or standing; a cycle cut short does not end them), which is how "immune for their next cycle" reads here. |
+| EMP immunity | `SkeletonModules.EmpSusceptible` (the unshielded circuits module) returns false while either hediff is on, so EMP neither stuns nor adapts the skeleton. Nothing else about the module changes. |
+| Burst | Radius 10 around the caster, line of sight. Hits every mechanoid and skeleton in range, friend or foe (Claude's call), never the caster. Each takes an EMP hit equal to the damage (stun 30 ticks a point through vanilla's StunHandler, so EMP adaptation, EMP resistance and other held tempests apply) and that much burn damage in hits of up to 10, armour penetration 0.3. EMP blast flecks and sound. |
+| Damage | "Accumulated skill points" read as the sum of the skeleton's skill levels (`SoftCycle.SkillLevels`, the number the bed's cycle power draw already uses): 0.25 per level, at least 5, at most 40. 120 levels (10 in every skill) gives 30, Matthew's "high"; 160 or more gives the maximum 40. A typical colonist (60 to 70 levels) does about 15 to 17. Read when the burst is loosed, so skill lost to later cycles lowers it. |
+
+Player text says none of this: the building description says it drinks chemfuel, then power "for a long time without a pause", keeps what it takes and gives it to a skeleton that finishes a soft cycle beside it; the hediffs describe the state (moves lightly, circuits sealed, something waiting to be let go).
+
+### Art
+
+`Textures/Rimshi/Buildings/ChemicalSpire.png`, 408x672 at drawSize (3.4,5.6), drawOffset 1.25 cells north (120 px a cell, the 3x3 footprint at the bottom of the texture, the antenna rising above), `Graphic_Single` with `drawRotated` false. Matthew's brief: an antenna jutting out of a large cylinder with an LED panel and a glass viewport showing dark liquid. Same pipeline as the fork, so the two match: `tools/art/spire/scene.js` (stepped plinth, pale metal cylinder with bronze bands and ribs, viewport with dark liquid and a sheen, LED panel, side pipes, a cone cap, ringed antenna with a glowing tip), `render.js`, and `finish.py` (reuses the fork's outline code and also writes the ability icon `Textures/Rimshi/UI/LooseTheTempest.png`). To redraw: `npm install three` somewhere, then `THREE_DIR=<that>/node_modules/three/build node tools/art/spire/render.js /tmp/spire` and `python3 tools/art/spire/finish.py /tmp/spire Textures/Rimshi 408`.
+
 ## Tests
 
-Log lines `facility | engaged, released`. Self-test `tuning fork` (link limit, line of sight, the same-room patch, fuel, the offset, the repair bed's link list, all four textures).
+Log lines `facility | engaged, released` and `spire | charged, charge lost, storm granted, burst, storm ended`. Self-tests `tuning fork` (link limit, line of sight, the same-room patch, fuel, the offset, the repair bed's link list, all four textures), `chemical spire` (size, link limit, chemfuel, charge, joins unpowered, bed link list, art and icon) and `spire storm` (EMP-proof while held and in the wake, speed, ability given and taken, both end, damage range). The DEV gizmo "Charge fully" on the spire skips the fill and the 36 hours.

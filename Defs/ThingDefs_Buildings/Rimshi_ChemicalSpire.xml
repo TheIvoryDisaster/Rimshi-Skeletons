@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!-- The chemical spire, the second soft cycle facility (docs/design/soft-cycle-facilities.md, ChemicalSpire.cs).
+       Matthew's spec, 2026-10-31: 3x3, not rotatable, an antenna rising from a large cylinder with an LED panel and a
+       viewport onto dark liquid. A battery: fill with 100 chemfuel, then charge at 100 W for 36 hours straight (a break
+       starts the charge over); a full charge never drains. When a soft cycle it joined finishes, the skeleton takes the
+       storm (Rimshi_HeldTempest: EMP-proof, x1.1 move speed, one electrostatic burst of radius 10) and the spire is empty.
+       Links like the tuning fork (same room, line of sight); one per bed. Label "tempest reliquary" is Claude's pick, the
+       defName stays descriptive so the name can change freely.
+       Art: a 3D model from RimWorld's fixed camera (tools/art/spire/), 408x672 at drawSize (3.4,5.6), drawn 1.25 cells
+       north of centre so the antenna has room; the 3x3 footprint sits at the bottom of the texture. -->
+  <ThingDef ParentName="BuildingBase">
+    <defName>Rimshi_ChemicalSpire</defName>
+    <label>tempest reliquary</label>
+    <description>A tall antenna rising from a great sealed cylinder of First Empire make, its seams worn smooth by an age no one remembers. Behind the viewport something black and heavy turns over on itself. It drinks chemfuel until its cistern is full, and then it drinks from the power grid for a long time without a pause, and what it takes it keeps. Whatever it holds, it gives up to a skeleton that finishes its soft cycle in a repair bed in the same room. A repair bed can only bear one of them.</description>
+    <graphicData>
+      <texPath>Rimshi/Buildings/ChemicalSpire</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <drawSize>(3.4,5.6)</drawSize>
+      <drawOffset>(0,0,1.25)</drawOffset>
+      <drawRotated>false</drawRotated>
+      <shadowData>
+        <volume>(2.4, 1.2, 2.4)</volume>
+      </shadowData>
+      <damageData>
+        <rect>(0.3,0.3,2.4,2.4)</rect>
+      </damageData>
+    </graphicData>
+    <castEdgeShadows>true</castEdgeShadows>
+    <staticSunShadowHeight>0.6</staticSunShadowHeight>
+    <altitudeLayer>Building</altitudeLayer>
+    <tickerType>Rare</tickerType>
+    <size>(3,3)</size>
+    <rotatable>false</rotatable>
+    <defaultPlacingRot>South</defaultPlacingRot>
+    <passability>Impassable</passability>
+    <fillPercent>0.9</fillPercent>
+    <blockWind>true</blockWind>
+    <canOverlapZones>false</canOverlapZones>
+    <drawerType>MapMeshAndRealTime</drawerType>
+    <designationCategory>Furniture</designationCategory>
+    <uiOrder>2026</uiOrder>
+    <statBases>
+      <MaxHitPoints>400</MaxHitPoints>
+      <WorkToBuild>12000</WorkToBuild>
+      <Flammability>0</Flammability>
+      <Beauty>4</Beauty>
+    </statBases>
+    <costList>
+      <Steel>250</Steel>
+      <Plasteel>80</Plasteel>
+      <ComponentIndustrial>8</ComponentIndustrial>
+      <ComponentSpacer>2</ComponentSpacer>
+    </costList>
+    <constructionSkillPrerequisite>8</constructionSkillPrerequisite>
+    <researchPrerequisites>
+      <li>Rimshi_SkeletonRepairBeds</li>
+    </researchPrerequisites>
+    <techLevel>Industrial</techLevel>
+    <descriptionHyperlinks>
+      <ThingDef>Rimshi_SkeletonRepairBed</ThingDef>
+    </descriptionHyperlinks>
+    <building>
+      <relatedBuildCommands>
+        <li>Rimshi_SkeletonRepairBed</li>
+      </relatedBuildCommands>
+      <buildingSizeCategory>Large</buildingSizeCategory>
+    </building>
+    <placeWorkers>
+      <li>PlaceWorker_ShowFacilitiesConnections</li>
+    </placeWorkers>
+    <comps>
+      <li Class="CompProperties_Power">
+        <compClass>CompPowerTrader</compClass>
+        <!-- Drawn only while charging (CompRimshi_SpireCharge sets 0 W when empty or charged). -->
+        <basePowerConsumption>100</basePowerConsumption>
+      </li>
+      <li Class="CompProperties_Flickable"/>
+      <li Class="CompProperties_Facility">
+        <maxSimultaneous>1</maxSimultaneous>
+        <!-- Vanilla deathrest buildings have no distance limit, only the room and line of sight. -->
+        <maxDistance>999</maxDistance>
+        <requiresLOS>true</requiresLOS>
+      </li>
+      <li Class="CompProperties_Refuelable">
+        <fuelConsumptionRate>0</fuelConsumptionRate>
+        <consumeFuelOnlyWhenUsed>true</consumeFuelOnlyWhenUsed>
+        <fuelCapacity>100</fuelCapacity>
+        <initialFuelPercent>0</initialFuelPercent>
+        <autoRefuelPercent>0.99</autoRefuelPercent>
+        <fuelLabel>Chemfuel</fuelLabel>
+        <fuelGizmoLabel>Chemfuel</fuelGizmoLabel>
+        <fuelFilter>
+          <thingDefs>
+            <li>Chemfuel</li>
+          </thingDefs>
+        </fuelFilter>
+        <outOfFuelMessage>Its cistern is dry</outOfFuelMessage>
+        <showFuelGizmo>true</showFuelGizmo>
+        <showAllowAutoRefuelToggle>true</showAllowAutoRefuelToggle>
+        <canEjectFuel>false</canEjectFuel>
+      </li>
+      <li Class="RimshiSkeletons.CompProperties_Rimshi_SpireCharge">
+        <chargeWatts>100</chargeWatts>
+        <chargeTicks>90000</chargeTicks>
+      </li>
+      <li Class="RimshiSkeletons.CompProperties_Rimshi_SoftCycleFacility">
+        <!-- Burns nothing on joining: the charge and chemfuel go only when the cycle finishes (CompRimshi_SpireCharge). -->
+        <requiresPower>false</requiresPower>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <!-- What the spire leaves in a skeleton (SpireStorm). The held tempest: EMP-proof, x1.1 move speed, the burst ability.
+       After the burst it gives way to the tempest's wake, still EMP-proof. Both end when the next soft cycle finishes. -->
+  <HediffDef>
+    <defName>Rimshi_HeldTempest</defName>
+    <label>held tempest</label>
+    <description>This skeleton carries a charge its frame was never built to hold. It moves lightly, its circuits are sealed against the crackle of an EMP, and something deep in its chest hums, waiting to be let go.</description>
+    <hediffClass>RimshiSkeletons.Hediff_Rimshi_HeldTempest</hediffClass>
+    <defaultLabelColor>(120, 200, 255)</defaultLabelColor>
+    <isBad>false</isBad>
+    <everCurableByItem>false</everCurableByItem>
+    <stages>
+      <li>
+        <statFactors>
+          <MoveSpeed>1.1</MoveSpeed>
+        </statFactors>
+      </li>
+    </stages>
+    <comps>
+      <li Class="HediffCompProperties_GiveAbility">
+        <abilityDef>Rimshi_LooseTheTempest</abilityDef>
+      </li>
+    </comps>
+  </HediffDef>
+
+  <HediffDef>
+    <defName>Rimshi_TempestWake</defName>
+    <label>tempest's wake</label>
+    <description>The storm this skeleton carried is gone, but what was left of it has settled into its circuits, and for now nothing like an EMP can find purchase in them.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <defaultLabelColor>(150, 180, 210)</defaultLabelColor>
+    <isBad>false</isBad>
+    <everCurableByItem>false</everCurableByItem>
+  </HediffDef>
+
+  <!-- The one-use electrostatic burst: radius 10, mechanoids and skeletons in sight, friend or foe; damage from the
+       caster's summed skill levels (SpireStorm.Damage: 0.25 a level, 5 to 40). -->
+  <AbilityDef>
+    <defName>Rimshi_LooseTheTempest</defName>
+    <label>loose the tempest</label>
+    <description>Let go, all at once, of everything the tempest reliquary left inside this skeleton.</description>
+    <iconPath>Rimshi/UI/LooseTheTempest</iconPath>
+    <targetRequired>false</targetRequired>
+    <hostile>true</hostile>
+    <displayGizmoWhileUndrafted>true</displayGizmoWhileUndrafted>
+    <disableGizmoWhileUndrafted>false</disableGizmoWhileUndrafted>
+    <verbProperties>
+      <verbClass>Verb_CastAbility</verbClass>
+      <warmupTime>1</warmupTime>
+      <range>10</range>
+      <drawAimPie>false</drawAimPie>
+      <requireLineOfSight>false</requireLineOfSight>
+      <targetParams>
+        <canTargetSelf>true</canTargetSelf>
+      </targetParams>
+    </verbProperties>
+    <comps>
+      <li Class="RimshiSkeletons.CompProperties_Rimshi_TempestBurst">
+        <radius>10</radius>
+      </li>
+    </comps>
+  </AbilityDef>
+
+</Defs>

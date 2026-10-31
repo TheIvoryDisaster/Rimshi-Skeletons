@@ -25,6 +25,11 @@ namespace RimshiSkeletons
         /// <summary>Power drawn while engaged with a cycle; otherwise its CompPower's basePowerConsumption.</summary>
         public float activeWatts;
 
+        /// <summary>
+        /// False for a facility that holds what it gives (the chemical spire's stored charge): it joins a cycle unpowered.
+        /// </summary>
+        public bool requiresPower = true;
+
         public CompProperties_Rimshi_SoftCycleFacility()
         {
             compClass = typeof(CompRimshi_SoftCycleFacility);
@@ -47,7 +52,7 @@ namespace RimshiSkeletons
 
         public CompPowerTrader PowerTrader => parent.GetComp<CompPowerTrader>();
 
-        public bool Powered => PowerTrader?.PowerOn ?? true;
+        public bool Powered => !Props.requiresPower || (PowerTrader?.PowerOn ?? true);
 
         /// <summary>Extra watts it draws once engaged, over its idle draw.</summary>
         public float ExtraActiveWatts => PowerTrader == null ? 0f : Mathf.Max(0f, Props.activeWatts - PowerTrader.Props.PowerConsumption);
@@ -55,6 +60,12 @@ namespace RimshiSkeletons
         public Pawn Engaged => engaged;
 
         public bool Fuelled => Props.fuelPerCycle <= 0f || (Refuelable?.Fuel ?? 0f) >= Props.fuelPerCycle - 0.001f;
+
+        /// <summary>The chemical spire's charge, if this facility has one: it gives its effect when a cycle it joined finishes.</summary>
+        public CompRimshi_SpireCharge Charge => parent.GetComp<CompRimshi_SpireCharge>();
+
+        /// <summary>Fuelled, and charged if it has to be: it would join a cycle starting now.</summary>
+        public bool Ready => Fuelled && (Charge?.Charged ?? true);
 
         /// <summary>Linked to the bed and in its room with a line of sight, checked again at use because rooms change.</summary>
         public bool Serves(Building_Bed bed)
@@ -81,7 +92,7 @@ namespace RimshiSkeletons
             {
                 return false;
             }
-            if (!Serves(bed) || !Fuelled || !Powered)
+            if (!Serves(bed) || !Ready || !Powered)
             {
                 return false;
             }
@@ -96,12 +107,17 @@ namespace RimshiSkeletons
             return true;
         }
 
-        public void Release(Pawn pawn, string why)
+        /// <summary>Lets go of the skeleton; finished means its cycle completed, so a charge it was holding goes into it.</summary>
+        public void Release(Pawn pawn, string why, bool finished = false)
         {
             if (engaged != null && engaged == pawn)
             {
                 RimshiLog.Test("facility", "released", parent.LabelShort + " released " + pawn.LabelShort + ": " + why);
                 engaged = null;
+                if (finished)
+                {
+                    Charge?.Discharge(pawn);
+                }
                 UpdatePowerDraw();
             }
         }
@@ -178,7 +194,7 @@ namespace RimshiSkeletons
             Building_Bed building = bed?.parent as Building_Bed;
             foreach (CompRimshi_SoftCycleFacility facility in Linked(bed))
             {
-                bool counts = facility.Powered && (facility.Engaged == pawn || (readyOnly && facility.Engaged == null && facility.Fuelled));
+                bool counts = facility.Powered && (facility.Engaged == pawn || (readyOnly && facility.Engaged == null && facility.Ready));
                 if (counts && facility.Serves(building))
                 {
                     factor += facility.Props.cycleTimeOffset;
@@ -194,7 +210,7 @@ namespace RimshiSkeletons
             Building_Bed building = bed?.parent as Building_Bed;
             foreach (CompRimshi_SoftCycleFacility facility in Linked(bed))
             {
-                if (facility.Engaged == null && facility.Fuelled && facility.Powered && facility.Serves(building))
+                if (facility.Engaged == null && facility.Ready && facility.Powered && facility.Serves(building))
                 {
                     watts += facility.ExtraActiveWatts;
                 }
@@ -213,8 +229,8 @@ namespace RimshiSkeletons
             return TimeFactor(bed, pawn, readyOnly: false);
         }
 
-        /// <summary>The cycle ended: every facility on the map engaged with the skeleton lets go.</summary>
-        public static void ReleaseAll(Pawn pawn, string why)
+        /// <summary>The cycle ended: every facility on the map engaged with the skeleton lets go (finished: it completed).</summary>
+        public static void ReleaseAll(Pawn pawn, string why, bool finished = false)
         {
             Map map = pawn?.MapHeld;
             if (map == null)
@@ -223,7 +239,7 @@ namespace RimshiSkeletons
             }
             foreach (Building building in map.listerBuildings.allBuildingsColonist)
             {
-                building.TryGetComp<CompRimshi_SoftCycleFacility>()?.Release(pawn, why);
+                building.TryGetComp<CompRimshi_SoftCycleFacility>()?.Release(pawn, why, finished);
             }
         }
     }
