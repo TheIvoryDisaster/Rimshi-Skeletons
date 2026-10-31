@@ -187,13 +187,30 @@ class DefTests(unittest.TestCase):
         hediffs = def_names("HediffDef")
         installs = {el.findtext("addsHediff") for _, el in concrete("RecipeDef") if el.findtext("addsHediff")}
         parts = [n for n, el in things.items() if el.get("ParentName") == "Rimshi_SkeletonPartBase"]
-        self.assertEqual(len(parts), 13)
+        self.assertEqual(len(parts), 19)
         for name in parts:
             with self.subTest(part=name):
                 self.assertIn(name, hediffs)
                 self.assertIn(name, installs)
                 self.assertEqual(things[name].findtext("recipeMaker/researchPrerequisite") is not None, True)
         self.assertIn("Rimshi_SkeletonRepairBeds", [li.text for li in things["Rimshi_SkeletonRepairBed"].find("researchPrerequisites")])
+
+
+    def test_skeleton_organs(self):
+        """Each machine organ on the mechanical nature gene is a hidden organ hediff with an install recipe for that organ."""
+        genes = {el.findtext("defName"): el for _, el in concrete("GeneDef")}
+        hediffs = {el.findtext("defName"): el for _, el in concrete("HediffDef")}
+        recipes = {el.findtext("addsHediff"): el for _, el in concrete("RecipeDef") if el.findtext("addsHediff")}
+        nature = genes["Rimshi_MechanicalNature"]
+        self.assertEqual(nature.findtext("geneClass"), "RimshiSkeletons.Gene_MechanicalNature")
+        organs = nature.findall("modExtensions/li[@Class='RimshiSkeletons.SkeletonAnatomyExtension']/organs/li")
+        self.assertEqual(sorted(li.findtext("part") for li in organs), sorted(["Lung", "Kidney", "Stomach", "Liver", "Heart", "Eye", "Ear", "Nose"]))
+        for li in organs:
+            hediff = li.findtext("hediff")
+            with self.subTest(organ=hediff):
+                self.assertEqual(hediffs[hediff].get("ParentName"), "Rimshi_SkeletonOrganHediffBase")
+                self.assertEqual(hediffs[hediff].findtext("spawnThingOnRemoved"), hediff)
+                self.assertEqual([p.text for p in recipes[hediff].find("appliedOnFixedBodyParts")], [li.findtext("part")])
 
 
 if __name__ == "__main__":

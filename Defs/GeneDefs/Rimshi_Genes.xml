@@ -88,6 +88,8 @@
   <GeneDef ParentName="Rimshi_SkeletonGeneBase">
     <defName>Rimshi_MechanicalNature</defName>
     <label>mechanical nature</label>
+    <!-- Fits the machine organs below on every skeleton (SkeletonAnatomy.cs). -->
+    <geneClass>RimshiSkeletons.Gene_MechanicalNature</geneClass>
     <labelShortAdj>mechanical</labelShortAdj>
     <description>Carriers of this gene are machines. They never fall ill, cannot be poisoned, do not mind the dark, the wet or going without clothes, have no blood to lose, cannot take drugs, and are psychically deaf: psychic drones, soothes, psycasts and other psychic effects do not touch them.</description>
     <iconPath>UI/Icons/Genes/Gene_TotalToxicityResistance</iconPath>
@@ -109,10 +111,47 @@
       <li>Cannot take prosthetics, bionics, implants, organs or psylinks (skeleton parts and a mechlink still fit)</li>
       <li>Has no blood and never bleeds; leaks black ancient oil when hit</li>
       <li>Cannot take drugs of any kind, medical or recreational; drug policies do nothing</li>
+      <li>Machine parts in place of organs: cooling fans, fluid reprocessors, a capacitor, an oil filter, a fluid pump, optical sensors, auditory arrays and an IR camera</li>
     </customEffectDescriptions>
     <!-- Dubs Bad Hygiene (optional): no thirst or bladder, and hygiene becomes self-cleaning at half the fall rate. Names
          are looked up at startup (SkeletonDefs, SkeletonNeeds.cs), so nothing here errors without the mod. -->
     <modExtensions>
+      <li Class="RimshiSkeletons.SkeletonAnatomyExtension">
+        <organs>
+          <li>
+            <part>Lung</part>
+            <hediff>Rimshi_CoolingFan</hediff>
+          </li>
+          <li>
+            <part>Kidney</part>
+            <hediff>Rimshi_FluidReprocessor</hediff>
+          </li>
+          <li>
+            <part>Stomach</part>
+            <hediff>Rimshi_Capacitor</hediff>
+          </li>
+          <li>
+            <part>Liver</part>
+            <hediff>Rimshi_OilFilter</hediff>
+          </li>
+          <li>
+            <part>Heart</part>
+            <hediff>Rimshi_FluidPump</hediff>
+          </li>
+          <li>
+            <part>Eye</part>
+            <hediff>Rimshi_OpticalSensor</hediff>
+          </li>
+          <li>
+            <part>Ear</part>
+            <hediff>Rimshi_AudioReceiver</hediff>
+          </li>
+          <li>
+            <part>Nose</part>
+            <hediff>Rimshi_IRCamera</hediff>
+          </li>
+        </organs>
+      </li>
       <li Class="RimshiSkeletons.NeedRelabelExtension">
         <removedNeeds>
           <li>DBHThirst</li>

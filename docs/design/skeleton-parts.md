@@ -10,7 +10,7 @@ Matthew's spec, 2026-10-25. Skeletons replace lost or worn parts with skeleton p
 
 | Project | Needs | Unlocks |
 | --- | --- | --- |
-| Skeleton fabrication (800) | Basic mechtech | Workbench, intermediates, economy and standard limbs, optical sensor, audio receiver |
+| Skeleton fabrication (800) | Basic mechtech | Workbench, intermediates, economy and standard limbs, machine organs (design/skeleton-organs.md) |
 | Advanced skeleton parts (1600, hi-tech bench) | Skeleton fabrication | KLR, industrial and steady limbs, AI core |
 | Skeleton repair kits (600) | Basic mechtech and skeleton fabrication | Repair kits (now made at the workbench) |
 
@@ -37,7 +37,7 @@ All parts need Crafting 11 and are made at the workbench. Each install surgery u
 | KLR | 2 motors, 1 robotic component, 1 skeleton muscle, 120 steel, 30 uranium | 80 | 100%, takes 20% less damage |
 | Industrial | 4 motors, 1 robotic component, 2 skeleton muscle, 30 uranium | 90 | Leg 115%, arm 108% and +10% melee damage each; 8% less damage |
 | Steady | 3 motors, 4 robotic components, 2 skeleton muscle, 10 plasteel | 100 | Leg +8 melee dodge points; arm 115% and a 10% chance per hit to disarm |
-| Optical sensor (eye), audio receiver (ear) | 2 robotic components, 2 components, 1 advanced component | 80 | 100% |
+| Machine organs (cooling fan, fluid reprocessor, capacitor, oil filter, fluid pump, optical sensor, auditory array, IR camera) | Same as standard (2026-10-31, design/skeleton-organs.md; the sensors used to cost 2 robotic components, 2 components, 1 advanced component) | 65 | 100% |
 | AI core (brain) | 2 robotic components, 2 advanced components, 1 AI persona core | 100 | 100%; installed over a damaged core, it repairs all damage |
 
 Notes:

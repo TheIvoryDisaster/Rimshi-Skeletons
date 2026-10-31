@@ -9,7 +9,7 @@
   <ThingDef ParentName="BenchBase">
     <defName>Rimshi_SkeletonWorkbench</defName>
     <label>skeleton workbench</label>
-    <description>A powered workbench with two rail-mounted manipulator arms, built to the old empire's patterns for making skeleton parts. Crafters use it to make motors, robotic components and skeleton muscle, and to assemble those into replacement limbs, sensors, AI cores and repair kits.</description>
+    <description>A powered workbench with two rail-mounted manipulator arms, built to the old empire's patterns for making skeleton parts. Crafters use it to make motors, robotic components and skeleton muscle, and to assemble those into replacement limbs, machine organs, AI cores and repair kits.</description>
     <thingClass>Building_WorkTable</thingClass>
     <graphicData>
       <texPath>Rimshi/Buildings/SkeletonWorkbench</texPath>
