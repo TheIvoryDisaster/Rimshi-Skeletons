@@ -22,6 +22,9 @@ namespace RimshiSkeletons
         /// <summary>Fuel (from its CompRefuelable) burnt each time it joins a skeleton's cycle.</summary>
         public float fuelPerCycle;
 
+        /// <summary>Power drawn while engaged with a cycle; otherwise its CompPower's basePowerConsumption.</summary>
+        public float activeWatts;
+
         public CompProperties_Rimshi_SoftCycleFacility()
         {
             compClass = typeof(CompRimshi_SoftCycleFacility);
@@ -31,7 +34,8 @@ namespace RimshiSkeletons
     /// <summary>
     /// Joins the soft cycle of a skeleton in a linked repair bed: on the cycle's first powered tick (or as soon as it is
     /// fuelled and linked mid-cycle) it burns fuelPerCycle and stays engaged with that skeleton until the cycle ends,
-    /// finished or cut short. One skeleton at a time.
+    /// finished or cut short. One skeleton at a time. Unpowered, it won't join a cycle, and an engaged one stops
+    /// shortening the cycle until its power is back.
     /// </summary>
     public class CompRimshi_SoftCycleFacility : ThingComp
     {
@@ -40,6 +44,13 @@ namespace RimshiSkeletons
         public CompProperties_Rimshi_SoftCycleFacility Props => (CompProperties_Rimshi_SoftCycleFacility)props;
 
         public CompRefuelable Refuelable => parent.GetComp<CompRefuelable>();
+
+        public CompPowerTrader PowerTrader => parent.GetComp<CompPowerTrader>();
+
+        public bool Powered => PowerTrader?.PowerOn ?? true;
+
+        /// <summary>Extra watts it draws once engaged, over its idle draw.</summary>
+        public float ExtraActiveWatts => PowerTrader == null ? 0f : Mathf.Max(0f, Props.activeWatts - PowerTrader.Props.PowerConsumption);
 
         public Pawn Engaged => engaged;
 
@@ -70,7 +81,7 @@ namespace RimshiSkeletons
             {
                 return false;
             }
-            if (!Serves(bed) || !Fuelled)
+            if (!Serves(bed) || !Fuelled || !Powered)
             {
                 return false;
             }
@@ -79,6 +90,7 @@ namespace RimshiSkeletons
                 Refuelable.ConsumeFuel(Props.fuelPerCycle);
             }
             engaged = pawn;
+            UpdatePowerDraw();
             RimshiLog.Test("facility", "engaged", parent.LabelShort + " joined " + pawn.LabelShort + "'s soft cycle in " + bed.LabelShort + ", burnt " + Props.fuelPerCycle
                 + " fuel, cycle length x" + SoftCycleFacilities.TimeFactor(SoftCycle.RepairBedOf(bed), pawn, readyOnly: false).ToString("0.00"));
             return true;
@@ -90,6 +102,7 @@ namespace RimshiSkeletons
             {
                 RimshiLog.Test("facility", "released", parent.LabelShort + " released " + pawn.LabelShort + ": " + why);
                 engaged = null;
+                UpdatePowerDraw();
             }
         }
 
@@ -98,6 +111,17 @@ namespace RimshiSkeletons
             if (engaged != null && !StillCycling(engaged))
             {
                 Release(engaged, "no longer soft cycling in a linked bed");
+            }
+            UpdatePowerDraw();
+        }
+
+        /// <summary>Idle draw (the CompPower's base) normally, activeWatts while ringing for a cycle.</summary>
+        private void UpdatePowerDraw()
+        {
+            CompPowerTrader trader = PowerTrader;
+            if (trader != null && Props.activeWatts > 0f)
+            {
+                trader.PowerOutput = -(engaged != null ? Props.activeWatts : trader.Props.PowerConsumption);
             }
         }
 
@@ -154,13 +178,28 @@ namespace RimshiSkeletons
             Building_Bed building = bed?.parent as Building_Bed;
             foreach (CompRimshi_SoftCycleFacility facility in Linked(bed))
             {
-                bool counts = facility.Engaged == pawn || (readyOnly && facility.Engaged == null && facility.Fuelled);
+                bool counts = facility.Powered && (facility.Engaged == pawn || (readyOnly && facility.Engaged == null && facility.Fuelled));
                 if (counts && facility.Serves(building))
                 {
                     factor += facility.Props.cycleTimeOffset;
                 }
             }
             return Mathf.Max(MinTimeFactor, factor);
+        }
+
+        /// <summary>Extra watts the facilities that would join this skeleton's cycle add once engaged.</summary>
+        public static float ExtraWatts(CompRimshi_RepairBed bed, Pawn pawn)
+        {
+            float watts = 0f;
+            Building_Bed building = bed?.parent as Building_Bed;
+            foreach (CompRimshi_SoftCycleFacility facility in Linked(bed))
+            {
+                if (facility.Engaged == null && facility.Fuelled && facility.Powered && facility.Serves(building))
+                {
+                    watts += facility.ExtraActiveWatts;
+                }
+            }
+            return watts;
         }
 
         /// <summary>Engages every linked facility that can join the skeleton's cycle; returns the cycle's length factor.</summary>

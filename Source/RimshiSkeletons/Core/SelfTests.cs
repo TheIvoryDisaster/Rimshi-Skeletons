@@ -193,8 +193,10 @@ namespace RimshiSkeletons
             float oneFork = SoftCycle.BedCycleTicks * (1f + (forkProps?.cycleTimeOffset ?? 0f)) / GenDate.TicksPerHour;
             Check("tuning fork", forkLink != null && forkLink.maxSimultaneous == 2 && forkLink.requiresLOS && forkFuel != null && forkFuel.fuelCapacity == 1f
                 && forkFuel.fuelFilter.Allows(ThingDefOf.ComponentSpacer) && forkProps != null && Mathf.Approximately(forkProps.cycleTimeOffset, -0.15f) && forkProps.fuelPerCycle == 1f
-                && forkLinks && forkArt && sameRoom && fork.size == new IntVec2(1, 2),
+                && forkLinks && forkArt && sameRoom && fork.size == new IntVec2(1, 2)
+                && fork.GetCompProperties<CompProperties_Power>()?.PowerConsumption == 50f && forkProps.activeWatts == 1000f,
                 "max per bed " + forkLink?.maxSimultaneous + ", repair bed links it " + forkLinks + ", same-room patch " + sameRoom + ", art " + forkArt
+                + ", power " + fork.GetCompProperties<CompProperties_Power>()?.PowerConsumption + " W idle, " + forkProps?.activeWatts + " W ringing"
                 + ", fuel " + forkProps?.fuelPerCycle + " advanced component a cycle, cycle with one fork " + oneFork.ToString("0.0") + " h, with two "
                 + (SoftCycle.BedCycleTicks * (1f + 2f * (forkProps?.cycleTimeOffset ?? 0f)) / GenDate.TicksPerHour).ToString("0.0") + " h");
 

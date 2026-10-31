@@ -4,26 +4,29 @@
   <!-- The brass tuning fork, the first soft cycle facility (docs/design/soft-cycle-facilities.md, SoftCycleFacility.cs).
        Links to skeleton repair beds like vanilla's deathrest buildings: same room, line of sight, any distance
        (Patch_SoftCycleFacilitySameRoom; maxDistance is only a backstop). At most two per bed. Each soft cycle it joins
-       burns one advanced component and makes that cycle 15% shorter (two: 30%).
-       Art: a 3D model rendered from RimWorld's fixed camera for all four rotations (tools/art/tuningfork/), 320x320 per
-       view at drawSize (2.5,2.5), 128 px a cell like the other buildings, the 1x2 footprint centred. -->
+       burns one advanced component and makes that cycle 15% shorter (two: 30%). Power (Matthew): 50 W idle, 1000 W
+       while ringing for a cycle (CompRimshi_SoftCycleFacility sets the draw); unpowered it won't join a cycle.
+       Art: a 3D model rendered from RimWorld's fixed camera for all four rotations (tools/art/tuningfork/): the fork
+       upright on a stack of stereo equipment, ring gears on its tines. 384x384 per view at drawSize (3.2,3.2), drawn
+       0.55 cells north of centre so the tall fork has room; the 1x2 footprint sits at the bottom of the texture. -->
   <ThingDef ParentName="BuildingBase">
     <defName>Rimshi_TuningFork</defName>
     <label>brass tuning fork</label>
-    <description>A great brass tuning fork laid on a resonator box, its prongs bound together by a train of meshing gears. Struck beside a skeleton repair bed in the same room, its long, even tone gives a cycling CPU something steady to settle against, and the skeleton comes back to itself sooner. The strike burns out an advanced component every time it rings for a soft cycle. A repair bed can only hear two of them.</description>
+    <description>A great brass tuning fork standing in the cone of an old stereo stack, with gears threaded onto its tines that turn against each other. Struck beside a skeleton repair bed in the same room, its long, even tone gives a cycling CPU something steady to settle against, and the skeleton comes back to itself sooner. The strike burns out an advanced component every time it rings for a soft cycle, and it draws heavily on the power grid while it rings. A repair bed can only hear two of them.</description>
     <graphicData>
       <texPath>Rimshi/Buildings/TuningFork</texPath>
       <graphicClass>Graphic_Multi</graphicClass>
-      <drawSize>(2.5,2.5)</drawSize>
+      <drawSize>(3.2,3.2)</drawSize>
+      <drawOffset>(0,0,0.55)</drawOffset>
       <shadowData>
-        <volume>(0.85, 0.3, 1.85)</volume>
+        <volume>(0.85, 0.4, 1.85)</volume>
       </shadowData>
       <damageData>
         <rect>(0.08,0.05,0.84,1.9)</rect>
       </damageData>
     </graphicData>
     <castEdgeShadows>true</castEdgeShadows>
-    <staticSunShadowHeight>0.2</staticSunShadowHeight>
+    <staticSunShadowHeight>0.5</staticSunShadowHeight>
     <altitudeLayer>Building</altitudeLayer>
     <tickerType>Rare</tickerType>
     <size>(1,2)</size>
@@ -71,6 +74,11 @@
       <li>PlaceWorker_ShowFacilitiesConnections</li>
     </placeWorkers>
     <comps>
+      <li Class="CompProperties_Power">
+        <compClass>CompPowerTrader</compClass>
+        <basePowerConsumption>50</basePowerConsumption>
+      </li>
+      <li Class="CompProperties_Flickable"/>
       <li Class="CompProperties_Facility">
         <maxSimultaneous>2</maxSimultaneous>
         <!-- Vanilla deathrest buildings have no distance limit, only the room and line of sight. -->
@@ -98,6 +106,7 @@
       <li Class="RimshiSkeletons.CompProperties_Rimshi_SoftCycleFacility">
         <cycleTimeOffset>-0.15</cycleTimeOffset>
         <fuelPerCycle>1</fuelPerCycle>
+        <activeWatts>1000</activeWatts>
       </li>
     </comps>
   </ThingDef>

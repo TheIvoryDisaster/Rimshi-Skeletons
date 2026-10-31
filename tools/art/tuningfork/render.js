@@ -24,7 +24,7 @@ server.listen(0, async () => {
   const page = await browser.newPage();
   page.on('console', m => console.log('page:', m.text()));
   page.on('pageerror', e => console.log('page error:', e.message));
-  await page.goto(`http://localhost:${port}/page.html?size=1280`);
+  await page.goto(`http://localhost:${port}/page.html?size=1536`);
   await page.waitForFunction('window.ready === true', null, { timeout: 30000 });
   const images = await page.evaluate(() => window.renderAll());
   for (const [name, url] of Object.entries(images)) {
