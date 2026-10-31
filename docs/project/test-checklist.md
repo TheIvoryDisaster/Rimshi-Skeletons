@@ -29,6 +29,7 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | patch | Every patched private method found (this line only appears when one is missing) | not seen |  |  |
 | gene | Null chromosome makes a pawn genderless | passed | 7 | Acid: Female to None, body Thin |
 | gene | Skeleton frame gives a male, thin or hulk body and a skeleton head | passed | 7 | Acid: body Thin, head Rimshi_Head_Screamer |
+| cores | A skeleton's genetics screen opened, reading cores and chips | not seen |  |  |
 | gene | Skeletons generated without family | passed | 7 | Acid: relation generation skipped |
 | gene | Removing the null chromosome gives a gender back | passed | 7 | Acid: now Male |
 | gene | Relations a new genderless pawn got another way were removed (names them) | not seen |  |  |
@@ -178,6 +179,8 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | selftest | Self-test: removing the null chromosome restores a gender | passed | 7 | gender after removing null chromosome Male |
 | selftest | Self-test: no skeleton gene can roll in gene sets | not seen |  |  |
 | selftest | Self-test: every skeleton gene is marked core or chip, chip category loaded | not seen |  |  |
+| selftest | Self-test: a skeleton's genetics screen says cores and chips, a baseliner's still says genes | not seen |  |  |
+| selftest | Self-test: character card tooltip says view cores for a skeleton only, patches applied | not seen |  |  |
 | selftest | Self-test: 200 random gene sets hold no skeleton gene | not seen |  |  |
 | selftest | Self-test: a genepack drops skeleton genes and keeps the rest | not seen |  |  |
 | selftest | Self-test: gene buildings refuse the skeleton, not the baseliner | not seen |  |  |

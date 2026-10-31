@@ -62,6 +62,7 @@ namespace RimshiSkeletons
                 PartsChecks(skeleton, human);
                 BloodChecks(skeleton, human);
                 DrugChecks(skeleton, human);
+                CoreTermsChecks(skeleton, human);
                 FactionChecks(pawns);
                 ReproductionChecks(skeleton, human);
                 HordeChecks(pawns, human);
@@ -843,6 +844,37 @@ namespace RimshiSkeletons
                 }
             }
             return allowed.Count;
+        }
+
+        private static void CoreTermsChecks(Pawn s, Pawn human)
+        {
+            bool began = CoreTerms.Begin(s, log: false);
+            string cores, chips, overridden;
+            try
+            {
+                cores = "Endogenes".Translate();
+                chips = "Xenogenes".Translate();
+                overridden = "OverriddenByGene".Translate();
+            }
+            finally
+            {
+                CoreTerms.End(began);
+            }
+            bool humanBegan = CoreTerms.Begin(human, log: false);
+            CoreTerms.End(humanBegan);
+            string outside = "Endogenes".Translate();
+            Check("core terms", began && !humanBegan && !CoreTerms.Active && cores == "Rimshi_Cores".Translate()
+                && chips == "Rimshi_Chips".Translate() && overridden.IndexOf("gene", StringComparison.OrdinalIgnoreCase) < 0 && outside != cores,
+                "skeleton screen reads " + cores + " / " + chips + ", baseliner screen reads " + outside);
+
+            string skeletonTip = "ViewGenesDesc".Translate(s.Named("PAWN"));
+            string humanTip = "ViewGenesDesc".Translate(human.Named("PAWN"));
+            MethodBase translate = AccessTools.Method(typeof(Translator), nameof(Translator.TryTranslate));
+            MethodBase info = AccessTools.Method(typeof(GeneUIUtility), nameof(GeneUIUtility.DrawGenesInfo));
+            MethodBase dialog = AccessTools.Method(typeof(Dialog_ViewGenes), nameof(Dialog_ViewGenes.DoWindowContents), new[] { typeof(Rect) });
+            bool patched = new[] { translate, info, dialog }.All(m => m != null && (Harmony.GetPatchInfo(m)?.Owners.Contains(RimshiMod.HarmonyId) ?? false));
+            Check("core terms tip", patched && skeletonTip.Contains("cores") && !humanTip.Contains("cores"),
+                "skeleton: " + skeletonTip + " | baseliner: " + humanTip + (patched ? "" : " | a core terms patch is missing"));
         }
 
         private static void GeneRemovalCheck(Pawn s)
