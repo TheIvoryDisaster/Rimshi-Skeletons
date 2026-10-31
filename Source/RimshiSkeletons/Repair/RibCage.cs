@@ -125,13 +125,21 @@ namespace RimshiSkeletons
         }
     }
 
-    /// <summary>Freezes every need of a pawn suspended in a rib cage (Need_Food and others call this base getter too).</summary>
+    /// <summary>
+    /// Freezes every need of a pawn suspended in a rib cage (Need_Food and others call this base getter too), and every
+    /// need but CPU integrity of a skeleton in a soft cycle, in a repair bed or standing (Matthew, 2026-10-28: nothing
+    /// like maintenance, hygiene or recreation drops while it cycles). Integrity is raised by the cycle itself.
+    /// </summary>
     [HarmonyPatch(typeof(Need), "IsFrozen", MethodType.Getter)]
     public static class Patch_RibCageStasis
     {
-        public static void Postfix(Pawn ___pawn, ref bool __result)
+        public static void Postfix(Need __instance, Pawn ___pawn, ref bool __result)
         {
-            if (!__result && RibCage.Suspended(___pawn))
+            if (__result)
+            {
+                return;
+            }
+            if (RibCage.Suspended(___pawn) || (!(__instance is Need_Deathrest) && ___pawn != null && SoftCycle.Cycling(___pawn) && SkeletonUtility.HasFrame(___pawn)))
             {
                 __result = true;
             }

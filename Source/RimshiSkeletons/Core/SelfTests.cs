@@ -197,9 +197,30 @@ namespace RimshiSkeletons
                 Check("integrity raise", Mathf.Abs(half - 0.75f) < 0.01f && need.CurLevel >= 0.999f, "50% integrity, half a cycle " + half.ToStringPercent() + ", whole cycle " + need.CurLevel.ToStringPercent());
             }
 
+            if (need != null)
+            {
+                need.CurLevel = 0.4f;
+            }
             SoftCycle.Cancel(s, SoftCycleKind.RepairBed, "self-test");
+            float keptLevel = need?.CurLevel ?? -1f;
+            bool bedOverload = CpuOverload.Of(s) != null;
+            Check("bed wake keeps", Mathf.Approximately(keptLevel, 0.4f) && !bedOverload, "bed cycle cut short: integrity " + keptLevel.ToStringPercent() + ", overload " + bedOverload);
+            SoftCycle.Cancel(s, SoftCycleKind.Standing, "self-test");
             Hediff overload = CpuOverload.Of(s);
-            Check("cancel overloads", overload != null && need != null && need.CurLevel <= 0f, "integrity " + need?.CurLevelPercentage.ToStringPercent() + ", overload " + (overload != null));
+            Check("cancel overloads", overload != null && need != null && need.CurLevel <= 0f, "standing cycle cut short: integrity " + need?.CurLevelPercentage.ToStringPercent() + ", overload " + (overload != null));
+            Hediff resetting = s.health.AddHediff(RimshiDefOf.Rimshi_SoftResetting);
+            bool foodHeld = false, integrityHeld = true;
+            if (s.needs?.food != null)
+            {
+                Patch_RibCageStasis.Postfix(s.needs.food, s, ref foodHeld);
+            }
+            if (need != null)
+            {
+                integrityHeld = false;
+                Patch_RibCageStasis.Postfix(need, s, ref integrityHeld);
+            }
+            s.health.RemoveHediff(resetting);
+            Check("cycle needs held", foodHeld && !integrityHeld, "while soft cycling: maintenance frozen " + foodHeld + ", CPU integrity frozen " + integrityHeld);
             ThoughtDef exhaustion = DefDatabase<ThoughtDef>.AllDefsListForReading.FirstOrDefault(t => t.workerClass == typeof(ThoughtWorker_DeathrestExhaustion));
             Check("no exhaustion thought", exhaustion != null && need != null && need.CurLevel <= 0f && !exhaustion.Worker.CurrentState(s).Active,
                 "vanilla thought " + (exhaustion?.defName ?? "missing") + " active " + exhaustion?.Worker.CurrentState(s).Active + " at integrity " + need?.CurLevelPercentage.ToStringPercent());
@@ -452,6 +473,12 @@ namespace RimshiSkeletons
                 "cut skeleton needs repair " + SkeletonRepair.NeedsRepair(s) + " (" + SkeletonRepair.KitsFor(s) + " kit), cut human " + SkeletonRepair.NeedsRepair(h));
             Check("no tending", !cut.TendableNow() && !s.health.HasHediffsNeedingTend() && humanCut.TendableNow(),
                 "skeleton cut tendable " + cut.TendableNow() + ", skeleton needs tending " + s.health.HasHediffsNeedingTend() + ", human cut tendable " + humanCut.TendableNow());
+            FleshTypeDef.ResolvedWound skeletonWound = s.RaceProps.FleshType.ChooseWoundOverlay(cut);
+            FleshTypeDef.ResolvedWound humanWound = h.RaceProps.FleshType.ChooseWoundOverlay(humanCut);
+            bool mechTextures = SkeletonWounds.MechWoundTextures.All(t => ContentFinder<Texture2D>.Get(t, false) != null);
+            Check("grey wounds", mechTextures && skeletonWound != null && SkeletonWounds.MechWoundTextures.Contains(skeletonWound.wound.texture)
+                && humanWound != null && !SkeletonWounds.MechWoundTextures.Contains(humanWound.wound.texture),
+                "cut overlay: skeleton " + skeletonWound?.wound?.texture + ", baseliner " + humanWound?.wound?.texture + "; mech wound textures found " + mechTextures);
             s.health.RemoveHediff(cut);
             h.health.RemoveHediff(humanCut);
             Check("bed users", RestUtility.CanUseBedEver(s, bed) && !RestUtility.CanUseBedEver(h, bed) && RestUtility.CanUseBedEver(s, hospitalBed),
@@ -767,6 +794,7 @@ namespace RimshiSkeletons
             AccessTools.Method(typeof(Effecter), nameof(Effecter.Trigger)),
             AccessTools.Method(typeof(JobGiver_GetHemogen), nameof(JobGiver_GetHemogen.CanFeedOnPrisoner)),
             AccessTools.Method(typeof(SanguophageUtility), nameof(SanguophageUtility.DoBite)),
+            AccessTools.Method(typeof(FleshTypeDef), nameof(FleshTypeDef.ChooseWoundOverlay), new[] { typeof(Hediff) }),
         };
 
         private static int AddedParts(Pawn pawn) =>
