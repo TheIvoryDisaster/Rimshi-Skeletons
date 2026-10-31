@@ -181,6 +181,23 @@ namespace RimshiSkeletons
             Gene_Deathrest gene = SoftCycle.GeneOf(s);
             Check("soft cycle length", gene != null && Mathf.Abs(SoftCycle.BedTicksTotal(gene) - SoftCycle.BedCycleTicks) < 60, "bed cycle " + (gene == null ? "no gene" : SoftCycle.BedTicksTotal(gene).ToStringTicksToPeriod()));
 
+            ThingDef fork = RimshiDefOf.Rimshi_TuningFork;
+            CompProperties_Facility forkLink = fork.GetCompProperties<CompProperties_Facility>();
+            CompProperties_Refuelable forkFuel = fork.GetCompProperties<CompProperties_Refuelable>();
+            CompProperties_Rimshi_SoftCycleFacility forkProps = fork.GetCompProperties<CompProperties_Rimshi_SoftCycleFacility>();
+            bool forkLinks = bed.GetCompProperties<CompProperties_AffectedByFacilities>()?.linkableFacilities?.Contains(fork) ?? false;
+            bool forkArt = new[] { "south", "east", "north", "west" }.All(r => ContentFinder<Texture2D>.Get(fork.graphicData.texPath + "_" + r, false) != null);
+            MethodInfo linkCheck = AccessTools.Method(typeof(CompAffectedByFacilities), nameof(CompAffectedByFacilities.CanPotentiallyLinkTo_Static),
+                new[] { typeof(ThingDef), typeof(IntVec3), typeof(Rot4), typeof(ThingDef), typeof(IntVec3), typeof(Rot4), typeof(Map) });
+            bool sameRoom = linkCheck != null && (Harmony.GetPatchInfo(linkCheck)?.Owners.Contains(RimshiMod.HarmonyId) ?? false);
+            float oneFork = SoftCycle.BedCycleTicks * (1f + (forkProps?.cycleTimeOffset ?? 0f)) / GenDate.TicksPerHour;
+            Check("tuning fork", forkLink != null && forkLink.maxSimultaneous == 2 && forkLink.requiresLOS && forkFuel != null && forkFuel.fuelCapacity == 1f
+                && forkFuel.fuelFilter.Allows(ThingDefOf.ComponentSpacer) && forkProps != null && Mathf.Approximately(forkProps.cycleTimeOffset, -0.15f) && forkProps.fuelPerCycle == 1f
+                && forkLinks && forkArt && sameRoom && fork.size == new IntVec2(1, 2),
+                "max per bed " + forkLink?.maxSimultaneous + ", repair bed links it " + forkLinks + ", same-room patch " + sameRoom + ", art " + forkArt
+                + ", fuel " + forkProps?.fuelPerCycle + " advanced component a cycle, cycle with one fork " + oneFork.ToString("0.0") + " h, with two "
+                + (SoftCycle.BedCycleTicks * (1f + 2f * (forkProps?.cycleTimeOffset ?? 0f)) / GenDate.TicksPerHour).ToString("0.0") + " h");
+
             SimpleCurve curve = SoftCycle.StandingCurve;
             bool rising = true;
             for (int day = 1; day <= 5; day++)

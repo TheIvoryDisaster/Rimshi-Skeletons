@@ -67,6 +67,8 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | softcycle | A skeleton in a standing soft cycle refused a player order (names the job) | not seen |  |  |
 | softcycle | A skeleton in a standing soft cycle was not drafted | not seen |  |  |
 | softcycle | Skeletons with deathrest exhaustion from an older save got CPU overload instead | not seen |  |  |
+| facility | A tuning fork joined a soft cycle in a linked repair bed (burnt an advanced component, gives the cycle length factor) | not seen |  |  |
+| facility | A tuning fork let go of a skeleton when its soft cycle ended (finished or cut short) | not seen |  |  |
 | deathrest | Skeletons from an older save got the deathrest gene | not seen |  |  |
 | overload | CPU overload started (integrity ran out or a cycle was cancelled) | not seen |  |  |
 | overload | CPU overload moved to its next stage (steady at day 2, paranoid at day 4) | not seen |  |  |
@@ -160,6 +162,7 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | selftest | Self-test: a finished cycle clears the overload, fills integrity and flushes memories | not seen |  |  |
 | selftest | Self-test: rib cage is a 1x2 unrotatable medical bed, 80 steel + 3 components, basic mechtech, skeletons only | not seen |  |  |
 | selftest | Self-test: rib cage back and front textures load | not seen |  |  |
+| selftest | Self-test: tuning fork links to the repair bed (2 max, same room), takes advanced components, art loads | not seen |  |  |
 | selftest | Self-test: rib cage freezes needs and ranks between the repair bed and hospital bed for rescue | not seen |  |  |
 | selftest | Self-test: component packing patch applied | not seen |  |  |
 | selftest | Self-test: Skeletons food policy allows only components | not seen |  |  |

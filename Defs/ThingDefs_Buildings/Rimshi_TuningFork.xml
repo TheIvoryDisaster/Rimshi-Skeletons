@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!-- The brass tuning fork, the first soft cycle facility (docs/design/soft-cycle-facilities.md, SoftCycleFacility.cs).
+       Links to skeleton repair beds like vanilla's deathrest buildings: same room, line of sight, any distance
+       (Patch_SoftCycleFacilitySameRoom; maxDistance is only a backstop). At most two per bed. Each soft cycle it joins
+       burns one advanced component and makes that cycle 15% shorter (two: 30%).
+       Art: a 3D model rendered from RimWorld's fixed camera for all four rotations (tools/art/tuningfork/), 320x320 per
+       view at drawSize (2.5,2.5), 128 px a cell like the other buildings, the 1x2 footprint centred. -->
+  <ThingDef ParentName="BuildingBase">
+    <defName>Rimshi_TuningFork</defName>
+    <label>brass tuning fork</label>
+    <description>A great brass tuning fork laid on a resonator box, its prongs bound together by a train of meshing gears. Struck beside a skeleton repair bed in the same room, its long, even tone gives a cycling CPU something steady to settle against, and the skeleton comes back to itself sooner. The strike burns out an advanced component every time it rings for a soft cycle. A repair bed can only hear two of them.</description>
+    <graphicData>
+      <texPath>Rimshi/Buildings/TuningFork</texPath>
+      <graphicClass>Graphic_Multi</graphicClass>
+      <drawSize>(2.5,2.5)</drawSize>
+      <shadowData>
+        <volume>(0.85, 0.3, 1.85)</volume>
+      </shadowData>
+      <damageData>
+        <rect>(0.08,0.05,0.84,1.9)</rect>
+      </damageData>
+    </graphicData>
+    <castEdgeShadows>true</castEdgeShadows>
+    <staticSunShadowHeight>0.2</staticSunShadowHeight>
+    <altitudeLayer>Building</altitudeLayer>
+    <tickerType>Rare</tickerType>
+    <size>(1,2)</size>
+    <defaultPlacingRot>South</defaultPlacingRot>
+    <passability>PassThroughOnly</passability>
+    <pathCost>42</pathCost>
+    <fillPercent>0.4</fillPercent>
+    <canOverlapZones>false</canOverlapZones>
+    <drawerType>MapMeshAndRealTime</drawerType>
+    <minifiedDef>MinifiedThing</minifiedDef>
+    <thingCategories>
+      <li>BuildingsMisc</li>
+    </thingCategories>
+    <designationCategory>Furniture</designationCategory>
+    <uiOrder>2025</uiOrder>
+    <statBases>
+      <MaxHitPoints>220</MaxHitPoints>
+      <WorkToBuild>6000</WorkToBuild>
+      <Mass>45</Mass>
+      <Flammability>0</Flammability>
+      <Beauty>2</Beauty>
+    </statBases>
+    <costList>
+      <ComponentSpacer>2</ComponentSpacer>
+      <Rimshi_Motor>3</Rimshi_Motor>
+      <Steel>120</Steel>
+      <Plasteel>40</Plasteel>
+      <ComponentIndustrial>8</ComponentIndustrial>
+    </costList>
+    <constructionSkillPrerequisite>6</constructionSkillPrerequisite>
+    <researchPrerequisites>
+      <li>Rimshi_SkeletonRepairBeds</li>
+    </researchPrerequisites>
+    <techLevel>Industrial</techLevel>
+    <descriptionHyperlinks>
+      <ThingDef>Rimshi_SkeletonRepairBed</ThingDef>
+    </descriptionHyperlinks>
+    <building>
+      <relatedBuildCommands>
+        <li>Rimshi_SkeletonRepairBed</li>
+      </relatedBuildCommands>
+      <buildingSizeCategory>Small</buildingSizeCategory>
+    </building>
+    <placeWorkers>
+      <li>PlaceWorker_ShowFacilitiesConnections</li>
+    </placeWorkers>
+    <comps>
+      <li Class="CompProperties_Facility">
+        <maxSimultaneous>2</maxSimultaneous>
+        <!-- Vanilla deathrest buildings have no distance limit, only the room and line of sight. -->
+        <maxDistance>999</maxDistance>
+        <requiresLOS>true</requiresLOS>
+      </li>
+      <li Class="CompProperties_Refuelable">
+        <fuelConsumptionRate>0</fuelConsumptionRate>
+        <consumeFuelOnlyWhenUsed>true</consumeFuelOnlyWhenUsed>
+        <fuelCapacity>1</fuelCapacity>
+        <initialFuelPercent>0</initialFuelPercent>
+        <autoRefuelPercent>0.5</autoRefuelPercent>
+        <fuelLabel>Advanced components</fuelLabel>
+        <fuelGizmoLabel>Advanced components</fuelGizmoLabel>
+        <fuelFilter>
+          <thingDefs>
+            <li>ComponentSpacer</li>
+          </thingDefs>
+        </fuelFilter>
+        <outOfFuelMessage>Silent without an advanced component</outOfFuelMessage>
+        <showFuelGizmo>true</showFuelGizmo>
+        <showAllowAutoRefuelToggle>true</showAllowAutoRefuelToggle>
+        <canEjectFuel>true</canEjectFuel>
+      </li>
+      <li Class="RimshiSkeletons.CompProperties_Rimshi_SoftCycleFacility">
+        <cycleTimeOffset>-0.15</cycleTimeOffset>
+        <fuelPerCycle>1</fuelPerCycle>
+      </li>
+    </comps>
+  </ThingDef>
+
+</Defs>

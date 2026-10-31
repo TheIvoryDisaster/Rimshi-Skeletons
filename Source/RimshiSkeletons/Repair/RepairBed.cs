@@ -30,20 +30,6 @@ namespace RimshiSkeletons
     }
 
     /// <summary>
-    /// A building linked to repair beds (through CompAffectedByFacilities) that changes the soft cycle's power draw.
-    /// Nothing uses it yet; it is the hook for the soft cycle buildings to come.
-    /// </summary>
-    public class CompProperties_Rimshi_SoftCycleFacility : CompProperties
-    {
-        public float cyclePowerFactor = 1f;
-
-        public CompProperties_Rimshi_SoftCycleFacility()
-        {
-            compClass = typeof(ThingComp);
-        }
-    }
-
-    /// <summary>
     /// While powered, repairs every skeleton lying in the bed, one injury at a time, worst first (the same idea as
     /// Biotech's MechRepairUtility). Lost parts are not regrown. Runs on the rare tick (every 250 ticks), and sets the
     /// bed's power draw: standby, more while repairing, and a skill-scaled draw for each skeleton soft cycling in it.
@@ -88,7 +74,7 @@ namespace RimshiSkeletons
 
         /// <summary>
         /// The bed's grid can carry the skeleton's cycle: its spare generation covers the extra draw, or its batteries hold
-        /// enough to make up the shortfall for the full 48 hours.
+        /// enough to make up the shortfall for the full 48 hours (less with fuelled tuning forks linked).
         /// </summary>
         public bool CanPowerCycle(Pawn pawn)
         {
@@ -112,7 +98,7 @@ namespace RimshiSkeletons
             {
                 return true;
             }
-            return net.CurrentStoredEnergy() >= (extra - spare) * SoftCycle.BedCycleTicks / GenDate.TicksPerDay;
+            return net.CurrentStoredEnergy() >= (extra - spare) * SoftCycle.BedCycleTicks * SoftCycleFacilities.TimeFactor(this, pawn, readyOnly: true) / GenDate.TicksPerDay;
         }
 
         public override void CompTickRare()

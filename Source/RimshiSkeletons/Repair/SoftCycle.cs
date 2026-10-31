@@ -35,13 +35,19 @@ namespace RimshiSkeletons
         /// </summary>
         public const float BedCycleSpeed = (float)Gene_Deathrest.BaseDeathrestTicksWithoutInterruptedHediff / BedCycleTicks;
 
-        /// <summary>Real time left in a bed cycle.</summary>
-        public static int BedTicksLeft(Gene_Deathrest gene) => Mathf.Max(0, Mathf.RoundToInt((gene.MinDeathrestTicks - gene.deathrestTicks) / BedCycleSpeed));
+        /// <summary>
+        /// How fast the skeleton's bed cycle runs now: BedCycleSpeed, faster still for each soft cycle facility (tuning
+        /// fork) engaged with it, whose time offsets shorten the cycle (SoftCycleFacility.cs).
+        /// </summary>
+        public static float BedSpeed(Pawn pawn) => BedCycleSpeed / SoftCycleFacilities.TimeFactor(RepairBedOf(pawn?.CurrentBed()), pawn, readyOnly: false);
 
-        /// <summary>Real time a bed cycle has run.</summary>
-        public static int BedTicksDone(Gene_Deathrest gene) => Mathf.RoundToInt(gene.deathrestTicks / BedCycleSpeed);
+        /// <summary>Real time left in a bed cycle, at the current speed.</summary>
+        public static int BedTicksLeft(Gene_Deathrest gene) => Mathf.Max(0, Mathf.RoundToInt((gene.MinDeathrestTicks - gene.deathrestTicks) / BedSpeed(gene.pawn)));
 
-        public static int BedTicksTotal(Gene_Deathrest gene) => Mathf.RoundToInt(gene.MinDeathrestTicks / BedCycleSpeed);
+        /// <summary>Real time a bed cycle has run, as if it had run at the current speed throughout.</summary>
+        public static int BedTicksDone(Gene_Deathrest gene) => Mathf.RoundToInt(gene.deathrestTicks / BedSpeed(gene.pawn));
+
+        public static int BedTicksTotal(Gene_Deathrest gene) => Mathf.RoundToInt(gene.MinDeathrestTicks / BedSpeed(gene.pawn));
         public const int StandingResetTicks = 5 * GenDate.TicksPerDay;
         public const float IntegrityFallPerDay = 1f / 30f;
 
@@ -621,6 +627,7 @@ namespace RimshiSkeletons
     {
         private static readonly HashSet<int> loggedCycle = new HashSet<int>();
         private static readonly HashSet<int> loggedHeld = new HashSet<int>();
+        private static readonly Dictionary<int, float> remainder = new Dictionary<int, float>();
 
         public static void Prefix(Gene_Deathrest __instance, ref bool paused, int delta)
         {
@@ -650,9 +657,14 @@ namespace RimshiSkeletons
                 __instance.Wake();
                 return;
             }
-            // Vanilla adds delta after this; the extra makes the cycle run BedCycleSpeed times as fast.
+            // Vanilla adds delta after this; the extra makes the cycle run BedCycleSpeed times as fast, and faster with
+            // engaged tuning forks. Their speeds aren't whole ticks, so the fraction carries over to the next tick.
+            float speed = SoftCycle.BedCycleSpeed / SoftCycleFacilities.Engage(bed, pawn);
             int total = __instance.MinDeathrestTicks;
-            int extra = Mathf.RoundToInt(delta * (SoftCycle.BedCycleSpeed - 1f));
+            remainder.TryGetValue(pawn.thingIDNumber, out float carried);
+            float exact = delta * (speed - 1f) + carried;
+            int extra = Mathf.FloorToInt(exact);
+            remainder[pawn.thingIDNumber] = exact - extra;
             float before = Mathf.Clamp01((float)__instance.deathrestTicks / total);
             __instance.deathrestTicks += extra;
             float after = Mathf.Clamp01((float)(__instance.deathrestTicks + delta) / total);
@@ -684,8 +696,10 @@ namespace RimshiSkeletons
             if (__instance.DeathrestPercent >= 1f)
             {
                 SoftCycle.Complete(pawn, SoftCycleKind.RepairBed);
+                SoftCycleFacilities.ReleaseAll(pawn, "cycle finished");
                 return true;
             }
+            SoftCycleFacilities.ReleaseAll(pawn, "cycle cut short: " + reason);
             __instance.deathrestTicks = 0;
             __instance.adjustedDeathrestTicks = 0f;
             Hediff deathrest = pawn.health.hediffSet.GetFirstHediffOfDef(HediffDefOf.Deathrest);
