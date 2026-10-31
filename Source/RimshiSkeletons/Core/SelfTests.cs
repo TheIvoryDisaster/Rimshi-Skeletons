@@ -69,6 +69,7 @@ namespace RimshiSkeletons
                 HordeChecks(pawns, human);
                 ConversionChecks(pawns);
                 SoftCycleChecks(skeleton, human);
+                SpireStormChecks(skeleton);
                 RemainsChecks(skeleton, human);
                 // Last: it takes the null chromosome off the skeleton, and every check above needs it.
                 GeneRemovalCheck(skeleton);
@@ -200,6 +201,21 @@ namespace RimshiSkeletons
                 + ", power " + fork.GetCompProperties<CompProperties_Power>()?.PowerConsumption + " W idle, " + forkProps?.activeWatts + " W ringing"
                 + ", fuel " + forkProps?.fuelPerCycle + " advanced component a cycle, cycle with one fork " + oneFork.ToString("0.0") + " h, with two "
                 + (SoftCycle.BedCycleTicks * (1f + 2f * (forkProps?.cycleTimeOffset ?? 0f)) / GenDate.TicksPerHour).ToString("0.0") + " h");
+
+            ThingDef spire = RimshiDefOf.Rimshi_ChemicalSpire;
+            CompProperties_Facility spireLink = spire.GetCompProperties<CompProperties_Facility>();
+            CompProperties_Refuelable spireFuel = spire.GetCompProperties<CompProperties_Refuelable>();
+            CompProperties_Rimshi_SpireCharge spireCharge = spire.GetCompProperties<CompProperties_Rimshi_SpireCharge>();
+            CompProperties_Rimshi_SoftCycleFacility spireProps = spire.GetCompProperties<CompProperties_Rimshi_SoftCycleFacility>();
+            bool spireLinks = bed.GetCompProperties<CompProperties_AffectedByFacilities>()?.linkableFacilities?.Contains(spire) ?? false;
+            AbilityDef burst = DefDatabase<AbilityDef>.GetNamedSilentFail("Rimshi_LooseTheTempest");
+            bool spireArt = ContentFinder<Texture2D>.Get(spire.graphicData.texPath, false) != null && burst != null && ContentFinder<Texture2D>.Get(burst.iconPath, false) != null;
+            Check("chemical spire", spireLink != null && spireLink.maxSimultaneous == 1 && spireLink.requiresLOS && spireFuel != null && spireFuel.fuelCapacity == 100f
+                && spireFuel.fuelFilter.Allows(ThingDefOf.Chemfuel) && !spireFuel.canEjectFuel && spireCharge != null && spireCharge.chargeWatts == 100f
+                && spireCharge.chargeTicks == 36 * GenDate.TicksPerHour && spireProps != null && !spireProps.requiresPower && spireProps.fuelPerCycle == 0f
+                && spireLinks && spireArt && spire.size == new IntVec2(3, 3) && !spire.rotatable,
+                "max per bed " + spireLink?.maxSimultaneous + ", repair bed links it " + spireLinks + ", art and icon " + spireArt + ", chemfuel " + spireFuel?.fuelCapacity
+                + ", charge " + spireCharge?.chargeWatts + " W for " + spireCharge?.chargeTicks.ToStringTicksToPeriod() + ", 3x3 unrotatable " + (spire.size == new IntVec2(3, 3) && !spire.rotatable));
 
             SimpleCurve curve = SoftCycle.StandingCurve;
             bool rising = true;
@@ -933,6 +949,34 @@ namespace RimshiSkeletons
             Check("social penalty", trade < 1f && negotiation < 1f && impact < 1f && Mathf.Approximately(persona, 1f),
                 "archaic speech: trade price x" + trade + ", negotiation x" + negotiation + ", social impact x" + impact
                 + "; archaic persona social impact x" + persona);
+        }
+
+        private static void SpireStormChecks(Pawn s)
+        {
+            HediffDef held = SpireStorm.HeldTempest;
+            HediffDef wake = SpireStorm.TempestWake;
+            AbilityDef burst = DefDatabase<AbilityDef>.GetNamedSilentFail("Rimshi_LooseTheTempest");
+            if (held == null || wake == null || burst == null || s.abilities == null)
+            {
+                Check("spire storm", false, "missing: held " + (held != null) + ", wake " + (wake != null) + ", ability " + (burst != null) + ", ability tracker " + (s.abilities != null));
+                return;
+            }
+            bool before = SkeletonModules.EmpSusceptible(s);
+            s.health.AddHediff(held);
+            bool heldProof = !SkeletonModules.EmpSusceptible(s);
+            bool hasAbility = s.abilities.GetAbility(burst) != null;
+            float speed = held.stages?[0]?.statFactors?.GetStatFactorFromList(StatDefOf.MoveSpeed) ?? 1f;
+            s.health.AddHediff(wake);
+            s.health.RemoveHediff(s.health.hediffSet.GetFirstHediffOfDef(held));
+            bool wakeProof = !SkeletonModules.EmpSusceptible(s);
+            bool abilityGone = s.abilities.GetAbility(burst) == null;
+            SpireStorm.End(s, "self-test");
+            bool after = SkeletonModules.EmpSusceptible(s);
+            float damage = SpireStorm.Damage(s);
+            Check("spire storm", before && heldProof && hasAbility && Mathf.Approximately(speed, 1.1f) && wakeProof && abilityGone && after
+                && damage >= SpireStorm.MinDamage && damage <= SpireStorm.MaxDamage && Mathf.Approximately(120 * SpireStorm.DamagePerSkillLevel, 30f),
+                "EMP-proof while held " + heldProof + " and in its wake " + wakeProof + ", burst ability " + hasAbility + " (gone after " + abilityGone + "), move speed x" + speed
+                + ", stunnable again after the next cycle " + after + ", burst damage " + damage.ToString("0.0") + " for " + SoftCycle.SkillLevels(s) + " skill levels");
         }
 
         private static void GeneRemovalCheck(Pawn s)

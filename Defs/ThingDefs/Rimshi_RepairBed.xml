@@ -47,13 +47,14 @@
       </li>
       <!-- Vanilla BedBase gives every bed PlaceWorker_ShowFacilitiesConnections, which throws in the build menu unless the
            bed links to facilities. The hospital bed's list (a vitals monitor works with this bed too), plus the soft cycle
-           facilities (Rimshi_TuningFork, SoftCycleFacility.cs). -->
+           facilities (Rimshi_TuningFork, Rimshi_ChemicalSpire, SoftCycleFacility.cs). -->
       <li Class="CompProperties_AffectedByFacilities">
         <linkableFacilities>
           <li>VitalsMonitor</li>
           <li>EndTable</li>
           <li>Dresser</li>
           <li>Rimshi_TuningFork</li>
+          <li>Rimshi_ChemicalSpire</li>
         </linkableFacilities>
       </li>
     </comps>

@@ -67,8 +67,13 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | softcycle | A skeleton in a standing soft cycle refused a player order (names the job) | not seen |  |  |
 | softcycle | A skeleton in a standing soft cycle was not drafted | not seen |  |  |
 | softcycle | Skeletons with deathrest exhaustion from an older save got CPU overload instead | not seen |  |  |
-| facility | A tuning fork joined a soft cycle in a linked repair bed (burnt an advanced component, gives the cycle length factor) | not seen |  |  |
-| facility | A tuning fork let go of a skeleton when its soft cycle ended (finished or cut short) | not seen |  |  |
+| facility | A soft cycle facility joined a soft cycle in a linked repair bed (a tuning fork burnt an advanced component, gives the cycle length factor) | not seen |  |  |
+| facility | A soft cycle facility let go of a skeleton when its soft cycle ended (finished or cut short) | not seen |  |  |
+| spire | A chemical spire finished charging (or was charged by the dev gizmo); it now holds the charge | not seen |  |  |
+| spire | A chemical spire lost power while charging and its charge started over (chemfuel kept) | not seen |  |  |
+| spire | A soft cycle a charged spire joined finished: the skeleton took the held tempest (EMP-proof, x1.1 speed, burst) | not seen |  |  |
+| spire | A skeleton loosed the tempest: radius 10, mechs and skeletons hit, damage from summed skill levels, stunned count | not seen |  |  |
+| spire | A held tempest or its wake ended at the next finished soft cycle | not seen |  |  |
 | deathrest | Skeletons from an older save got the deathrest gene | not seen |  |  |
 | overload | CPU overload started (integrity ran out or a cycle was cancelled) | not seen |  |  |
 | overload | CPU overload moved to its next stage (steady at day 2, paranoid at day 4) | not seen |  |  |
@@ -165,6 +170,8 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | selftest | Self-test: rib cage is a 1x2 unrotatable medical bed, 80 steel + 3 components, basic mechtech, skeletons only | not seen |  |  |
 | selftest | Self-test: rib cage back and front textures load | not seen |  |  |
 | selftest | Self-test: tuning fork links to the repair bed (2 max, same room), takes advanced components, 50 W idle and 1000 W ringing, art loads | not seen |  |  |
+| selftest | Self-test: chemical spire is 3x3 unrotatable, links to the repair bed (1 max, same room), 100 chemfuel, 100 W for 36 h, joins unpowered, art and icon load | not seen |  |  |
+| selftest | Self-test: held tempest makes a skeleton EMP-proof with x1.1 speed and the burst ability; its wake stays EMP-proof; both end, burst damage 5 to 40 | not seen |  |  |
 | selftest | Self-test: rib cage freezes needs and ranks between the repair bed and hospital bed for rescue | not seen |  |  |
 | selftest | Self-test: component packing patch applied | not seen |  |  |
 | selftest | Self-test: Skeletons food policy allows only components | not seen |  |  |

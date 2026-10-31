@@ -218,6 +218,8 @@ namespace RimshiSkeletons
                 need.CurLevel = need.MaxLevel;
             }
             bool wasOverloaded = CpuOverload.End(pawn);
+            // A storm held since the last cycle ends with this one (a spire that joined it gives a new one after this).
+            SpireStorm.End(pawn, "a soft cycle finished");
             int forgotten = ForgetShortTermMemories(pawn);
             var lostSkills = new List<string>();
             List<string> lost = LoseSkills(pawn, kind == SoftCycleKind.RepairBed ? 1 : 2, lostSkills);
@@ -696,7 +698,7 @@ namespace RimshiSkeletons
             if (__instance.DeathrestPercent >= 1f)
             {
                 SoftCycle.Complete(pawn, SoftCycleKind.RepairBed);
-                SoftCycleFacilities.ReleaseAll(pawn, "cycle finished");
+                SoftCycleFacilities.ReleaseAll(pawn, "cycle finished", finished: true);
                 return true;
             }
             SoftCycleFacilities.ReleaseAll(pawn, "cycle cut short: " + reason);

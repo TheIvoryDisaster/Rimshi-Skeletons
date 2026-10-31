@@ -40,6 +40,7 @@ namespace RimshiSkeletons
         public static JobDef Rimshi_HangInRibCage;
         public static ThingDef Rimshi_RibCage;
         public static ThingDef Rimshi_TuningFork;
+        public static ThingDef Rimshi_ChemicalSpire;
         public static ThoughtDef Rimshi_SoftCycleHoned;
         public static ThoughtDef Rimshi_SoftResetForeign;
         public static RecipeDef Rimshi_ScrapSkeletonRemains;
