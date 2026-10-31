@@ -21,6 +21,12 @@ namespace RimshiSkeletons
     public class SkeletonGeneExtension : DefModExtension
     {
         public SkeletonGeneKind kind = SkeletonGeneKind.Core;
+
+        /// <summary>
+        /// A module: a core gene the chip system and soft cycle facilities are meant to change later (suppress, swap or
+        /// soften), unlike the fixed hardware. Set by Rimshi_SkeletonModuleBase. See docs/design/skeleton-modules.md.
+        /// </summary>
+        public bool modifiable;
     }
 
     public static class SkeletonChips

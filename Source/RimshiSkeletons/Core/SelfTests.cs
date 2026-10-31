@@ -63,6 +63,7 @@ namespace RimshiSkeletons
                 BloodChecks(skeleton, human);
                 DrugChecks(skeleton, human);
                 CoreTermsChecks(skeleton, human);
+                ModuleChecks(skeleton, human);
                 FactionChecks(pawns);
                 ReproductionChecks(skeleton, human);
                 HordeChecks(pawns, human);
@@ -896,6 +897,44 @@ namespace RimshiSkeletons
                 "skeleton: " + skeletonTip + " | baseliner: " + humanTip + (patched ? "" : " | a core terms patch is missing"));
         }
 
+        private static void ModuleChecks(Pawn s, Pawn human)
+        {
+            GeneDef circuits = SkeletonModules.UnshieldedCircuits;
+            GeneDef speech = SkeletonModules.ArchaicSpeech;
+            List<GeneDef> modules = RimshiDefOf.Rimshi_Skeleton.genes.FindAll(SkeletonModules.IsModule);
+            Check("modules", circuits != null && speech != null && modules.Contains(circuits) && modules.Contains(speech)
+                && SkeletonChips.IsCoreGene(circuits) && SkeletonChips.IsCoreGene(speech)
+                && SkeletonUtility.HasActiveGene(s, circuits) && SkeletonUtility.HasActiveGene(s, speech),
+                "xenotype modules: " + string.Join(", ", modules.ConvertAll(g => g.defName)));
+
+            StunHandler stunner = s.stances?.stunner;
+            StunHandler humanStunner = human.stances?.stunner;
+            if (stunner == null || humanStunner == null)
+            {
+                Check("emp stun", false, "no stun handler");
+                return;
+            }
+            var adapts = AccessTools.Method(typeof(StunHandler), "CanAdaptToDamage", new[] { typeof(DamageDef) });
+            stunner.StopStun();
+            humanStunner.StopStun();
+            stunner.Notify_DamageApplied(new DamageInfo(DamageDefOf.EMP, 10f));
+            humanStunner.Notify_DamageApplied(new DamageInfo(DamageDefOf.EMP, 10f));
+            bool adapting = adapts != null && (bool)adapts.Invoke(stunner, new object[] { DamageDefOf.EMP })
+                && !(bool)adapts.Invoke(humanStunner, new object[] { DamageDefOf.EMP });
+            Check("emp stun", stunner.Stunned && stunner.StunFromEMP && !humanStunner.Stunned && adapting,
+                "after an EMP hit: skeleton stunned " + stunner.Stunned + " (" + stunner.StunTicksLeft.ToStringSecondsFromTicks() + "), baseliner stunned "
+                + humanStunner.Stunned + ", skeleton adapts like a mech " + adapting);
+            stunner.StopStun();
+
+            float trade = speech?.statFactors?.GetStatFactorFromList(StatDefOf.TradePriceImprovement) ?? 1f;
+            float negotiation = speech?.statFactors?.GetStatFactorFromList(StatDefOf.NegotiationAbility) ?? 1f;
+            float persona = DefDatabase<GeneDef>.GetNamed("Rimshi_ArchaicMind").statFactors?.GetStatFactorFromList(StatDefOf.SocialImpact) ?? 1f;
+            float impact = speech?.statFactors?.GetStatFactorFromList(StatDefOf.SocialImpact) ?? 1f;
+            Check("social penalty", trade < 1f && negotiation < 1f && impact < 1f && Mathf.Approximately(persona, 1f),
+                "archaic speech: trade price x" + trade + ", negotiation x" + negotiation + ", social impact x" + impact
+                + "; archaic persona social impact x" + persona);
+        }
+
         private static void GeneRemovalCheck(Pawn s)
         {
             Gene gene = s.genes.GetGene(RimshiDefOf.Rimshi_NullChromosome);
@@ -1111,6 +1150,7 @@ namespace RimshiSkeletons
             }
             LongEventHandler.ExecuteWhenFinished(SoftCycle.MigrateSave);
             LongEventHandler.ExecuteWhenFinished(SkeletonAnatomy.MigrateSave);
+            LongEventHandler.ExecuteWhenFinished(SkeletonModules.MigrateSave);
             LongEventHandler.ExecuteWhenFinished(SetFoodPoliciesOnce);
             LongEventHandler.ExecuteWhenFinished(SelfTests.RunIfDevMode);
         }
