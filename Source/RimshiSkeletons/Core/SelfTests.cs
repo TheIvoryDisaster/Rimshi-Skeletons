@@ -234,7 +234,7 @@ namespace RimshiSkeletons
             ThingDef blocks = DefDatabase<ThingDef>.GetNamedSilentFail("BlocksGranite");
             bool stoneCost = fissure.MadeFromStuff && fissure.costStuffCount == 60 && fissure.CostList.Any(c => c.thingDef == ThingDefOf.Plasteel && c.count == 100)
                 && fissure.CostList.Any(c => c.thingDef == ThingDefOf.ComponentSpacer && c.count == 2) && blocks != null && fissure.stuffCategories.Any(c => blocks.stuffProps?.categories?.Contains(c) ?? false);
-            Thing uft = tune?.unfinishedThingDef == null ? null : ThingMaker.MakeThing(tune.unfinishedThingDef);
+            Thing uft = tune?.unfinishedThingDef == null ? null : ThingMaker.MakeThing(tune.unfinishedThingDef, GenStuff.DefaultStuffFor(tune.unfinishedThingDef));
             string uftLabel = uft?.LabelNoCount;
             bool tuneOk = tune != null && ingredient(ThingDefOf.ComponentIndustrial) == 4f && ingredient(ThingDefOf.Steel) == 100f && blocks != null && ingredient(blocks) == 40f
                 && tune.workSpeedStat == StatDefOf.ResearchSpeed && Mathf.Abs(tune.workAmount * 0.00825f - 250f) < 1f && tune.recipeUsers.Contains(fissure)
@@ -297,8 +297,10 @@ namespace RimshiSkeletons
             Check("cpu gizmo", gizmos.OfType<GeneGizmo_Rimshi_CpuIntegrity>().Count() == 1 && !gizmos.Any(g => g.GetType() == typeof(GeneGizmo_DeathrestCapacity)),
                 "gizmos " + string.Join(", ", gizmos.Select(g => g.GetType().Name)));
             string tip = need?.GetTipString() ?? "";
-            Check("cpu tip", tip.Contains("CPU integrity") && tip.IndexOf("deathrest", System.StringComparison.OrdinalIgnoreCase) < 0,
-                "integrity tooltip: " + tip.Replace("\n", " / "));
+            bool tipOk = tip.Contains("CPU integrity") && tip.IndexOf("deathrest", System.StringComparison.OrdinalIgnoreCase) < 0;
+            string tipOwners = tipOk ? "" : "; patches on Need_Deathrest.GetTipString: " + PatchOwners(AccessTools.DeclaredMethod(typeof(Need_Deathrest), nameof(Need.GetTipString)))
+                + "; on Need.GetTipString: " + PatchOwners(AccessTools.Method(typeof(Need), nameof(Need.GetTipString)));
+            Check("cpu tip", tipOk, "integrity tooltip: " + tip.Replace("\n", " / ") + tipOwners);
             MethodBase[] wakeOnly = { AccessTools.Method(typeof(Pawn_JobTracker), nameof(Pawn_JobTracker.TryTakeOrderedJob)), AccessTools.PropertySetter(typeof(Pawn_DraftController), nameof(Pawn_DraftController.Drafted)), AccessTools.Method(typeof(Pawn_DraftController), "GetGizmos") };
             List<string> unguarded = wakeOnly.Where(m => m == null || !(Harmony.GetPatchInfo(m)?.Owners.Contains(RimshiMod.HarmonyId) ?? false)).Select(m => m == null ? "missing method" : m.DeclaringType.Name + "." + m.Name).ToList();
             Check("wake only", unguarded.Count == 0, unguarded.Count == 0 ? "orders, drafting and the draft button are guarded during a standing soft cycle" : "not patched: " + string.Join(", ", unguarded));
@@ -1025,8 +1027,11 @@ namespace RimshiSkeletons
             int distance = Overclock.Distance(s);
             s.health.RemoveHediff(s.health.hediffSet.GetFirstHediffOfDef(overclocked));
             bool abilityGone = s.abilities.GetAbility(heave) == null;
-            Check("overclock", Mathf.Approximately(during - before, 20f) && hasAbility && abilityGone && distance == Mathf.FloorToInt(during / 10f),
-                "carrying capacity " + before.ToString("0.#") + " -> " + during.ToString("0.#") + ", heave ability " + hasAbility + " (gone after " + abilityGone + "), heave distance " + distance + " cells");
+            // Other mods can scale carrying capacity after offsets (Matthew's list gave +20.4), so check the hediff's own
+            // offset is 20 and that the stat rose by about that much.
+            float offset = overclocked.stages?.FirstOrDefault()?.statOffsets?.FirstOrDefault(m => m.stat == StatDefOf.CarryingCapacity)?.value ?? 0f;
+            Check("overclock", Mathf.Approximately(offset, 20f) && during - before >= 15f && during - before <= 25f && hasAbility && abilityGone && distance == Mathf.FloorToInt(during / 10f),
+                "offset " + offset.ToString("0.#") + ", carrying capacity " + before.ToString("0.#") + " -> " + during.ToString("0.#") + ", heave ability " + hasAbility + " (gone after " + abilityGone + "), heave distance " + distance + " cells");
         }
 
         private static void GeneRemovalCheck(Pawn s)
@@ -1205,6 +1210,17 @@ namespace RimshiSkeletons
             core.Worker.ApplyOnPawn(s, brain, null, new List<Thing>(), null);
             int left = s.health.hediffSet.hediffs.Count(h => h.Part == brain && h is Hediff_Injury);
             Check("ai core repair", hasCore && offered && left == 0 && !s.Dead, "core installed " + hasCore + ", repair offered when damaged " + offered + ", injuries left " + left + ", alive " + !s.Dead);
+        }
+
+        private static string PatchOwners(MethodBase method)
+        {
+            Patches info = method == null ? null : Harmony.GetPatchInfo(method);
+            if (info == null)
+            {
+                return method == null ? "method missing" : "none";
+            }
+            string list(IEnumerable<Patch> patches) => string.Join(", ", patches.Select(p => p.owner + " " + p.PatchMethod.DeclaringType?.Name + " (" + p.priority + ")"));
+            return "prefixes [" + list(info.Prefixes) + "], postfixes [" + list(info.Postfixes) + "], transpilers [" + list(info.Transpilers) + "]";
         }
 
         private static void Check(string name, bool ok, string detail)
