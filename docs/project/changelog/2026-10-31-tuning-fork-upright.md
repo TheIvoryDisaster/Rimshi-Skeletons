@@ -1,1 +1,0 @@
-The brass tuning fork now stands upright on a stack of old stereo equipment, with gears threaded onto its tines, and draws power: 50 W idle and 1000 W while it rings for a soft cycle. Unpowered, it won't join a cycle.

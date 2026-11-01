@@ -1,1 +1,0 @@
-Wounded skeletons no longer show red flesh wounds. Injuries and lost parts on a skeleton are drawn with grey and black marks, the same kind mechanoids show; bionic eyes and other added-part overlays look as before.
