@@ -72,6 +72,8 @@ namespace RimshiSkeletons
                 SpireStormChecks(skeleton);
                 OverclockChecks(skeleton);
                 RemainsChecks(skeleton, human);
+                GeneRestoreCheck(skeleton);
+                PowerDownChecks(skeleton, human);
                 // Last: it takes the null chromosome off the skeleton, and every check above needs it.
                 GeneRemovalCheck(skeleton);
             }
@@ -1105,6 +1107,62 @@ namespace RimshiSkeletons
             bool back = s.health.hediffSet.hediffs.Any(h => h.def == fan.addsHediff && h.Part == lung) && !s.health.hediffSet.PartIsMissing(lung);
             Check("organ replace", !offeredWhole && offeredGone && back && !s.Dead, "offered on a fitted lung " + offeredWhole + ", on a missing lung " + offeredGone
                 + ", cooling fan back " + back + ", alive " + !s.Dead);
+
+            // No human organ comes out of a skeleton: a fitted lung is offered for removal (as its cooling fan), a bare one
+            // is not, and a bare one brought back by RestorePart (healer serum, biosculpter) gets its cooling fan.
+            BodyPartRecord other = s.RaceProps.body.GetPartsWithDef(BodyPartDefOf.Lung).FirstOrDefault(p => p != lung);
+            RecipeDef remove = RecipeDefOf.RemoveBodyPart;
+            Hediff fitted = other == null ? null : s.health.hediffSet.hediffs.FirstOrDefault(h => h is Hediff_Rimshi_SkeletonOrgan && h.Part == other);
+            bool offeredFitted = fitted != null && remove.Worker.GetPartsToApplyOn(s, remove).Contains(other);
+            if (fitted != null)
+            {
+                s.health.RemoveHediff(fitted);
+            }
+            bool offeredBare = other != null && remove.Worker.GetPartsToApplyOn(s, remove).Contains(other);
+            if (other != null)
+            {
+                s.health.RestorePart(other);
+            }
+            bool refitted = other != null && s.health.hediffSet.hediffs.Any(h => h is Hediff_Rimshi_SkeletonOrgan && h.Part == other);
+            Check("organ harvest", fitted != null && offeredFitted && !offeredBare && refitted, other == null ? "no second lung"
+                : "removal offered on a fitted lung " + offeredFitted + ", on a bare lung " + offeredBare + ", cooling fan refitted on restore " + refitted);
+        }
+
+        /// <summary>A skeleton that lost mechanical nature gets it back from its xenotype (SkeletonGeneRestore).</summary>
+        private static void GeneRestoreCheck(Pawn s)
+        {
+            Gene nature = s.genes.GetGene(RimshiDefOf.Rimshi_MechanicalNature);
+            if (nature != null)
+            {
+                s.genes.RemoveGene(nature);
+            }
+            bool gone = !SkeletonUtility.HasMechanicalNature(s);
+            List<string> back = SkeletonGeneRestore.Restore(s, "self-test");
+            bool restored = SkeletonUtility.HasMechanicalNature(s) && s.genes.GetGene(RimshiDefOf.Rimshi_MechanicalNature) is Gene_MechanicalNature;
+            Check("gene restore", gone && restored && back.Contains(RimshiDefOf.Rimshi_MechanicalNature.defName),
+                "removed " + gone + ", restored " + restored + " (" + string.Join(", ", back) + ")");
+        }
+
+        /// <summary>Skeletons get "temporarily power down" and maintenance mode instead of Anesthetize and anaesthetic.</summary>
+        private static void PowerDownChecks(Pawn s, Pawn human)
+        {
+            RecipeDef power = RimshiDefOf.Rimshi_PowerDown;
+            RecipeDef anesthetize = SkeletonPowerDown.Anesthetize;
+            bool onSkeleton = power.Worker.AvailableOnNow(s);
+            bool onHuman = power.Worker.AvailableOnNow(human);
+            bool vanillaOnSkeleton = anesthetize != null && anesthetize.Worker.AvailableOnNow(s);
+            bool vanillaOnHuman = anesthetize == null || anesthetize.Worker.AvailableOnNow(human);
+            string label = power.Worker.GetLabelWhenUsedOn(s, null);
+            HealthUtility.TryAnesthetize(s);
+            Hediff mode = s.health.hediffSet.GetFirstHediffOfDef(RimshiDefOf.Rimshi_MaintenanceMode);
+            bool anesthetic = s.health.hediffSet.HasHediff(HediffDefOf.Anesthetic);
+            if (mode != null)
+            {
+                s.health.RemoveHediff(mode);
+            }
+            Check("power down", onSkeleton && !onHuman && !vanillaOnSkeleton && vanillaOnHuman && mode != null && !anesthetic,
+                "'" + label + "' on the skeleton " + onSkeleton + ", on the baseliner " + onHuman + "; Anesthetize on the skeleton " + vanillaOnSkeleton
+                + ", on the baseliner " + vanillaOnHuman + "; anaesthetic became maintenance mode " + (mode != null && !anesthetic));
         }
 
         private static void PartsChecks(Pawn s, Pawn human)
@@ -1241,6 +1299,8 @@ namespace RimshiSkeletons
                 LongEventHandler.ExecuteWhenFinished(OldSkeletonConversion.ConvertAll);
             }
             LongEventHandler.ExecuteWhenFinished(SoftCycle.MigrateSave);
+            // Before the organs: restoring mechanical nature fits them.
+            LongEventHandler.ExecuteWhenFinished(SkeletonGeneRestore.MigrateSave);
             LongEventHandler.ExecuteWhenFinished(SkeletonAnatomy.MigrateSave);
             LongEventHandler.ExecuteWhenFinished(SkeletonModules.MigrateSave);
             LongEventHandler.ExecuteWhenFinished(SetFoodPoliciesOnce);

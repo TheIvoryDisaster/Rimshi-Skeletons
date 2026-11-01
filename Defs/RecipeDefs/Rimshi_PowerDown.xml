@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!-- Skeletons' Anesthetize (SkeletonPowerDown.cs, docs/design/power-down.md). Vanilla's Anesthetize is hidden on
+       skeletons. Takes no medicine: skeletons take none. Maintenance mode comes from the anaesthetic vanilla gives as the
+       operation starts, swapped for Rimshi_MaintenanceMode on skeletons. -->
+  <RecipeDef ParentName="SurgeryFlesh">
+    <defName>Rimshi_PowerDown</defName>
+    <label>temporarily power down</label>
+    <description>Put this unit into maintenance mode for hardware modifications. Its systems are shut down so its frame and parts can be opened up and worked on safely.</description>
+    <workerClass>RimshiSkeletons.Recipe_Rimshi_PowerDown</workerClass>
+    <jobString>Powering down.</jobString>
+    <workAmount>0</workAmount>
+    <hideBodyPartNames>true</hideBodyPartNames>
+    <targetsBodyPart>false</targetsBodyPart>
+    <surgerySuccessChanceFactor>2</surgerySuccessChanceFactor>
+    <recipeUsers>
+      <li>Human</li>
+    </recipeUsers>
+  </RecipeDef>
+
+</Defs>

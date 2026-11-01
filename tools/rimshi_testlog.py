@@ -34,6 +34,9 @@ CHECKLIST = [
     ("gene", "no relations", "Skeletons generated without family"),
     ("gene", "gender restored", "Removing the null chromosome gives a gender back"),
     ("gene", "relations cleared", "Relations a new genderless pawn got another way were removed (names them)"),
+    ("gene", "core restored", "A skeleton got back core genes its xenotype lists but it had lost (names them)"),
+    ("gene", "restored on load", "Skeletons in a save that had lost core genes got them back on load"),
+    ("gene", "core removed", "A core gene was removed from a skeleton, and by what (diagnostic; the gene removal self-test causes one)"),
     ("faction", "replace", "Mod setting on: old Rim-Skeletons faction replaced by ours on load"),
     ("faction", "replace none", "Mod setting on: save had no old Rim-Skeletons factions"),
     ("faction", "added", "Debug action added the skeletal imperium to the world"),
@@ -114,6 +117,8 @@ CHECKLIST = [
     ("parts", "ai core repaired", "A second AI core repaired a damaged one (names what it removed)"),
     ("anatomy", "organs fitted", "A skeleton got its machine organs (generation, gene added or older save; names the organs)"),
     ("anatomy", "save migrated", "Skeletons in an older save were given machine organs on load"),
+    ("powerdown", "powered down", "A temporarily power down operation finished on a skeleton (says if it is in maintenance mode)"),
+    ("powerdown", "anesthetic swapped", "A skeleton got maintenance mode where it would have got anesthetic (first time each session)"),
     ("blood", "oil dropped", "A hit skeleton leaked ancient oil (black filth) instead of blood"),
     ("module", "emp stun", "An EMP hit stunned a skeleton the way it stuns a mechanoid (unshielded circuits)"),
     ("module", "added on load", "Skeletons from an older save got the module genes their xenotype now lists"),
@@ -231,6 +236,7 @@ CHECKLIST = [
     ("selftest", "organs hidden", "Self-test: machine organs are hidden in the health tab like natural organs"),
     ("selftest", "organ label sites", "Self-test: the health tab, surgery menu, medical bills and combat log name parts through the machine names"),
     ("selftest", "organ replace", "Self-test: a cooling fan install is offered only once the lung is gone, and puts the cooling fan back"),
+    ("selftest", "organ harvest", "Self-test: a fitted lung can be removed (as its cooling fan), a bare one cannot, and a restored one gets its cooling fan"),
     ("selftest", "part install", "Self-test: a KLR arm installs on a skeleton's shoulder"),
     ("selftest", "part armour", "Self-test: a KLR arm takes 20% off the damage that reaches it"),
     ("selftest", "ai core repair", "Self-test: an AI core installs, and a second one repairs a damaged core"),
@@ -256,6 +262,8 @@ CHECKLIST = [
     ("selftest", "scrap recipe", "Self-test: the scrap skeleton remains bill takes only skeleton corpses, at the crafting spot and machining bench"),
     ("selftest", "scrap yield", "Self-test: a skeleton corpse yields 1-5 each of steel, plasteel and uranium and at most one component"),
     ("selftest", "remains patched", "Self-test: the remains patches are applied"),
+    ("selftest", "gene restore", "Self-test: a skeleton that lost mechanical nature gets it back from its xenotype"),
+    ("selftest", "power down", "Self-test: temporarily power down is offered on skeletons only, Anesthetize on baseliners only, and anesthetic becomes maintenance mode"),
 ]
 
 
