@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!-- Skeleton chips: the swappable half of a skeleton's genes, kept apart from Biotech's gene trade. Chips are gene
+       defs so the gene tracker, stats and biostats work unchanged, but they only move through the chip buildings
+       (extractor, processor, assembler), never genepacks or xenogerms. No chips exist yet; this is the frame they
+       slot into. See docs/design/skeleton-chips.md. -->
+
+  <GeneCategoryDef>
+    <defName>Rimshi_SkeletonChips</defName>
+    <label>skeleton chips</label>
+    <displayPriorityInXenotype>989</displayPriorityInXenotype>
+  </GeneCategoryDef>
+
+  <GeneDef Name="Rimshi_SkeletonChipBase" Abstract="True">
+    <displayCategory>Rimshi_SkeletonChips</displayCategory>
+    <iconColor>(0.55, 0.75, 0.85)</iconColor>
+    <canGenerateInGeneSet>false</canGenerateInGeneSet>
+    <modExtensions>
+      <li Class="RimshiSkeletons.SkeletonGeneExtension">
+        <kind>Chip</kind>
+      </li>
+    </modExtensions>
+  </GeneDef>
+
+</Defs>

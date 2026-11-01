@@ -1,0 +1,745 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!-- Install surgeries for skeleton parts. Not based on vanilla's install bases, which add Human-wide medicine
+       ingredients: skeletons take no medicine, so each install uses a repair kit instead. The worker only offers them on
+       skeletons, and the prosthetics lock leaves recipes named Rimshi_ alone. No anaesthetic: skeletons are machines. -->
+  <RecipeDef Name="Rimshi_InstallSkeletonPartBase" ParentName="SurgeryFlesh" Abstract="True">
+    <workerClass>RimshiSkeletons.Recipe_Rimshi_InstallSkeletonPart</workerClass>
+    <workAmount>2500</workAmount>
+    <anesthetize>false</anesthetize>
+    <recipeUsers>
+      <li>Human</li>
+    </recipeUsers>
+    <skillRequirements>
+      <Medicine>5</Medicine>
+    </skillRequirements>
+  </RecipeDef>
+
+  <RecipeDef ParentName="Rimshi_InstallSkeletonPartBase">
+    <defName>Rimshi_Install_EconomyArm</defName>
+    <label>install economy skeleton arm</label>
+    <description>Install an economy skeleton arm.</description>
+    <descriptionHyperlinks>
+      <ThingDef>Rimshi_EconomyArm</ThingDef>
+      <HediffDef>Rimshi_EconomyArm</HediffDef>
+    </descriptionHyperlinks>
+    <jobString>Installing economy skeleton arm.</jobString>
+    <ingredients>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>Rimshi_RepairKit</li>
+          </thingDefs>
+        </filter>
+        <count>1</count>
+      </li>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>Rimshi_EconomyArm</li>
+          </thingDefs>
+        </filter>
+        <count>1</count>
+      </li>
+    </ingredients>
+    <fixedIngredientFilter>
+      <thingDefs>
+        <li>Rimshi_RepairKit</li>
+        <li>Rimshi_EconomyArm</li>
+      </thingDefs>
+    </fixedIngredientFilter>
+    <appliedOnFixedBodyParts>
+      <li>Shoulder</li>
+    </appliedOnFixedBodyParts>
+    <addsHediff>Rimshi_EconomyArm</addsHediff>
+  </RecipeDef>
+  <RecipeDef ParentName="Rimshi_InstallSkeletonPartBase">
+    <defName>Rimshi_Install_EconomyLeg</defName>
+    <label>install economy skeleton leg</label>
+    <description>Install an economy skeleton leg.</description>
+    <descriptionHyperlinks>
+      <ThingDef>Rimshi_EconomyLeg</ThingDef>
+      <HediffDef>Rimshi_EconomyLeg</HediffDef>
+    </descriptionHyperlinks>
+    <jobString>Installing economy skeleton leg.</jobString>
+    <ingredients>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>Rimshi_RepairKit</li>
+          </thingDefs>
+        </filter>
+        <count>1</count>
+      </li>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>Rimshi_EconomyLeg</li>
+          </thingDefs>
+        </filter>
+        <count>1</count>
+      </li>
+    </ingredients>
+    <fixedIngredientFilter>
+      <thingDefs>
+        <li>Rimshi_RepairKit</li>
+        <li>Rimshi_EconomyLeg</li>
+      </thingDefs>
+    </fixedIngredientFilter>
+    <appliedOnFixedBodyParts>
+      <li>Leg</li>
+    </appliedOnFixedBodyParts>
+    <addsHediff>Rimshi_EconomyLeg</addsHediff>
+  </RecipeDef>
+  <RecipeDef ParentName="Rimshi_InstallSkeletonPartBase">
+    <defName>Rimshi_Install_StandardArm</defName>
+    <label>install skeleton arm</label>
+    <description>Install a skeleton arm.</description>
+    <descriptionHyperlinks>
+      <ThingDef>Rimshi_StandardArm</ThingDef>
+      <HediffDef>Rimshi_StandardArm</HediffDef>
+    </descriptionHyperlinks>
+    <jobString>Installing skeleton arm.</jobString>
+    <ingredients>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>Rimshi_RepairKit</li>
+          </thingDefs>
+        </filter>
+        <count>1</count>
+      </li>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>Rimshi_StandardArm</li>
+          </thingDefs>
+        </filter>
+        <count>1</count>
+      </li>
+    </ingredients>
+    <fixedIngredientFilter>
+      <thingDefs>
+        <li>Rimshi_RepairKit</li>
+        <li>Rimshi_StandardArm</li>
+      </thingDefs>
+    </fixedIngredientFilter>
+    <appliedOnFixedBodyParts>
+      <li>Shoulder</li>
+    </appliedOnFixedBodyParts>
+    <addsHediff>Rimshi_StandardArm</addsHediff>
+  </RecipeDef>
+  <RecipeDef ParentName="Rimshi_InstallSkeletonPartBase">
+    <defName>Rimshi_Install_StandardLeg</defName>
+    <label>install skeleton leg</label>
+    <description>Install a skeleton leg.</description>
+    <descriptionHyperlinks>
+      <ThingDef>Rimshi_StandardLeg</ThingDef>
+      <HediffDef>Rimshi_StandardLeg</HediffDef>
+    </descriptionHyperlinks>
+    <jobString>Installing skeleton leg.</jobString>
+    <ingredients>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>Rimshi_RepairKit</li>
+          </thingDefs>
+        </filter>
+        <count>1</count>
+      </li>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>Rimshi_StandardLeg</li>
+          </thingDefs>
+        </filter>
+        <count>1</count>
+      </li>
+    </ingredients>
+    <fixedIngredientFilter>
+      <thingDefs>
+        <li>Rimshi_RepairKit</li>
+        <li>Rimshi_StandardLeg</li>
+      </thingDefs>
+    </fixedIngredientFilter>
+    <appliedOnFixedBodyParts>
+      <li>Leg</li>
+    </appliedOnFixedBodyParts>
+    <addsHediff>Rimshi_StandardLeg</addsHediff>
+  </RecipeDef>
+  <RecipeDef ParentName="Rimshi_InstallSkeletonPartBase">
+    <defName>Rimshi_Install_KLRArm</defName>
+    <label>install KLR skeleton arm</label>
+    <description>Install a KLR skeleton arm.</description>
+    <descriptionHyperlinks>
+      <ThingDef>Rimshi_KLRArm</ThingDef>
+      <HediffDef>Rimshi_KLRArm</HediffDef>
+    </descriptionHyperlinks>
+    <jobString>Installing KLR skeleton arm.</jobString>
+    <ingredients>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>Rimshi_RepairKit</li>
+          </thingDefs>
+        </filter>
+        <count>1</count>
+      </li>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>Rimshi_KLRArm</li>
+          </thingDefs>
+        </filter>
+        <count>1</count>
+      </li>
+    </ingredients>
+    <fixedIngredientFilter>
+      <thingDefs>
+        <li>Rimshi_RepairKit</li>
+        <li>Rimshi_KLRArm</li>
+      </thingDefs>
+    </fixedIngredientFilter>
+    <appliedOnFixedBodyParts>
+      <li>Shoulder</li>
+    </appliedOnFixedBodyParts>
+    <addsHediff>Rimshi_KLRArm</addsHediff>
+  </RecipeDef>
+  <RecipeDef ParentName="Rimshi_InstallSkeletonPartBase">
+    <defName>Rimshi_Install_KLRLeg</defName>
+    <label>install KLR skeleton leg</label>
+    <description>Install a KLR skeleton leg.</description>
+    <descriptionHyperlinks>
+      <ThingDef>Rimshi_KLRLeg</ThingDef>
+      <HediffDef>Rimshi_KLRLeg</HediffDef>
+    </descriptionHyperlinks>
+    <jobString>Installing KLR skeleton leg.</jobString>
+    <ingredients>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>Rimshi_RepairKit</li>
+          </thingDefs>
+        </filter>
+        <count>1</count>
+      </li>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>Rimshi_KLRLeg</li>
+          </thingDefs>
+        </filter>
+        <count>1</count>
+      </li>
+    </ingredients>
+    <fixedIngredientFilter>
+      <thingDefs>
+        <li>Rimshi_RepairKit</li>
+        <li>Rimshi_KLRLeg</li>
+      </thingDefs>
+    </fixedIngredientFilter>
+    <appliedOnFixedBodyParts>
+      <li>Leg</li>
+    </appliedOnFixedBodyParts>
+    <addsHediff>Rimshi_KLRLeg</addsHediff>
+  </RecipeDef>
+  <RecipeDef ParentName="Rimshi_InstallSkeletonPartBase">
+    <defName>Rimshi_Install_IndustrialArm</defName>
+    <label>install industrial skeleton arm</label>
+    <description>Install an industrial skeleton arm.</description>
+    <descriptionHyperlinks>
+      <ThingDef>Rimshi_IndustrialArm</ThingDef>
+      <HediffDef>Rimshi_IndustrialArm</HediffDef>
+    </descriptionHyperlinks>
+    <jobString>Installing industrial skeleton arm.</jobString>
+    <ingredients>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>Rimshi_RepairKit</li>
+          </thingDefs>
+        </filter>
+        <count>1</count>
+      </li>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>Rimshi_IndustrialArm</li>
+          </thingDefs>
+        </filter>
+        <count>1</count>
+      </li>
+    </ingredients>
+    <fixedIngredientFilter>
+      <thingDefs>
+        <li>Rimshi_RepairKit</li>
+        <li>Rimshi_IndustrialArm</li>
+      </thingDefs>
+    </fixedIngredientFilter>
+    <appliedOnFixedBodyParts>
+      <li>Shoulder</li>
+    </appliedOnFixedBodyParts>
+    <addsHediff>Rimshi_IndustrialArm</addsHediff>
+  </RecipeDef>
+  <RecipeDef ParentName="Rimshi_InstallSkeletonPartBase">
+    <defName>Rimshi_Install_IndustrialLeg</defName>
+    <label>install industrial skeleton leg</label>
+    <description>Install an industrial skeleton leg.</description>
+    <descriptionHyperlinks>
+      <ThingDef>Rimshi_IndustrialLeg</ThingDef>
+      <HediffDef>Rimshi_IndustrialLeg</HediffDef>
+    </descriptionHyperlinks>
+    <jobString>Installing industrial skeleton leg.</jobString>
+    <ingredients>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>Rimshi_RepairKit</li>
+          </thingDefs>
+        </filter>
+        <count>1</count>
+      </li>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>Rimshi_IndustrialLeg</li>
+          </thingDefs>
+        </filter>
+        <count>1</count>
+      </li>
+    </ingredients>
+    <fixedIngredientFilter>
+      <thingDefs>
+        <li>Rimshi_RepairKit</li>
+        <li>Rimshi_IndustrialLeg</li>
+      </thingDefs>
+    </fixedIngredientFilter>
+    <appliedOnFixedBodyParts>
+      <li>Leg</li>
+    </appliedOnFixedBodyParts>
+    <addsHediff>Rimshi_IndustrialLeg</addsHediff>
+  </RecipeDef>
+  <RecipeDef ParentName="Rimshi_InstallSkeletonPartBase">
+    <defName>Rimshi_Install_SteadyArm</defName>
+    <label>install steady skeleton arm</label>
+    <description>Install a steady skeleton arm.</description>
+    <descriptionHyperlinks>
+      <ThingDef>Rimshi_SteadyArm</ThingDef>
+      <HediffDef>Rimshi_SteadyArm</HediffDef>
+    </descriptionHyperlinks>
+    <jobString>Installing steady skeleton arm.</jobString>
+    <ingredients>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>Rimshi_RepairKit</li>
+          </thingDefs>
+        </filter>
+        <count>1</count>
+      </li>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>Rimshi_SteadyArm</li>
+          </thingDefs>
+        </filter>
+        <count>1</count>
+      </li>
+    </ingredients>
+    <fixedIngredientFilter>
+      <thingDefs>
+        <li>Rimshi_RepairKit</li>
+        <li>Rimshi_SteadyArm</li>
+      </thingDefs>
+    </fixedIngredientFilter>
+    <appliedOnFixedBodyParts>
+      <li>Shoulder</li>
+    </appliedOnFixedBodyParts>
+    <addsHediff>Rimshi_SteadyArm</addsHediff>
+  </RecipeDef>
+  <RecipeDef ParentName="Rimshi_InstallSkeletonPartBase">
+    <defName>Rimshi_Install_SteadyLeg</defName>
+    <label>install steady skeleton leg</label>
+    <description>Install a steady skeleton leg.</description>
+    <descriptionHyperlinks>
+      <ThingDef>Rimshi_SteadyLeg</ThingDef>
+      <HediffDef>Rimshi_SteadyLeg</HediffDef>
+    </descriptionHyperlinks>
+    <jobString>Installing steady skeleton leg.</jobString>
+    <ingredients>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>Rimshi_RepairKit</li>
+          </thingDefs>
+        </filter>
+        <count>1</count>
+      </li>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>Rimshi_SteadyLeg</li>
+          </thingDefs>
+        </filter>
+        <count>1</count>
+      </li>
+    </ingredients>
+    <fixedIngredientFilter>
+      <thingDefs>
+        <li>Rimshi_RepairKit</li>
+        <li>Rimshi_SteadyLeg</li>
+      </thingDefs>
+    </fixedIngredientFilter>
+    <appliedOnFixedBodyParts>
+      <li>Leg</li>
+    </appliedOnFixedBodyParts>
+    <addsHediff>Rimshi_SteadyLeg</addsHediff>
+  </RecipeDef>
+  <RecipeDef ParentName="Rimshi_InstallSkeletonPartBase">
+    <defName>Rimshi_Install_AICore</defName>
+    <label>install AI core</label>
+    <description>Install an AI core.</description>
+    <descriptionHyperlinks>
+      <ThingDef>Rimshi_AICore</ThingDef>
+      <HediffDef>Rimshi_AICore</HediffDef>
+    </descriptionHyperlinks>
+    <jobString>Installing AI core.</jobString>
+    <workerClass>RimshiSkeletons.Recipe_Rimshi_InstallAICore</workerClass>
+    <ingredients>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>Rimshi_RepairKit</li>
+          </thingDefs>
+        </filter>
+        <count>1</count>
+      </li>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>Rimshi_AICore</li>
+          </thingDefs>
+        </filter>
+        <count>1</count>
+      </li>
+    </ingredients>
+    <fixedIngredientFilter>
+      <thingDefs>
+        <li>Rimshi_RepairKit</li>
+        <li>Rimshi_AICore</li>
+      </thingDefs>
+    </fixedIngredientFilter>
+    <appliedOnFixedBodyParts>
+      <li>Brain</li>
+    </appliedOnFixedBodyParts>
+    <addsHediff>Rimshi_AICore</addsHediff>
+  </RecipeDef>
+
+  <!-- Skeleton organs (docs/design/skeleton-organs.md). Offered once the organ is gone: a skeleton already has them. -->
+  <RecipeDef ParentName="Rimshi_InstallSkeletonPartBase">
+    <defName>Rimshi_Install_CoolingFan</defName>
+    <label>install cooling fan</label>
+    <description>Install a cooling fan.</description>
+    <descriptionHyperlinks>
+      <ThingDef>Rimshi_CoolingFan</ThingDef>
+      <HediffDef>Rimshi_CoolingFan</HediffDef>
+    </descriptionHyperlinks>
+    <jobString>Installing cooling fan.</jobString>
+    <ingredients>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>Rimshi_RepairKit</li>
+          </thingDefs>
+        </filter>
+        <count>1</count>
+      </li>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>Rimshi_CoolingFan</li>
+          </thingDefs>
+        </filter>
+        <count>1</count>
+      </li>
+    </ingredients>
+    <fixedIngredientFilter>
+      <thingDefs>
+        <li>Rimshi_RepairKit</li>
+        <li>Rimshi_CoolingFan</li>
+      </thingDefs>
+    </fixedIngredientFilter>
+    <appliedOnFixedBodyParts>
+      <li>Lung</li>
+    </appliedOnFixedBodyParts>
+    <addsHediff>Rimshi_CoolingFan</addsHediff>
+  </RecipeDef>
+  <RecipeDef ParentName="Rimshi_InstallSkeletonPartBase">
+    <defName>Rimshi_Install_FluidReprocessor</defName>
+    <label>install fluid reprocessor</label>
+    <description>Install a fluid reprocessor.</description>
+    <descriptionHyperlinks>
+      <ThingDef>Rimshi_FluidReprocessor</ThingDef>
+      <HediffDef>Rimshi_FluidReprocessor</HediffDef>
+    </descriptionHyperlinks>
+    <jobString>Installing fluid reprocessor.</jobString>
+    <ingredients>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>Rimshi_RepairKit</li>
+          </thingDefs>
+        </filter>
+        <count>1</count>
+      </li>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>Rimshi_FluidReprocessor</li>
+          </thingDefs>
+        </filter>
+        <count>1</count>
+      </li>
+    </ingredients>
+    <fixedIngredientFilter>
+      <thingDefs>
+        <li>Rimshi_RepairKit</li>
+        <li>Rimshi_FluidReprocessor</li>
+      </thingDefs>
+    </fixedIngredientFilter>
+    <appliedOnFixedBodyParts>
+      <li>Kidney</li>
+    </appliedOnFixedBodyParts>
+    <addsHediff>Rimshi_FluidReprocessor</addsHediff>
+  </RecipeDef>
+  <RecipeDef ParentName="Rimshi_InstallSkeletonPartBase">
+    <defName>Rimshi_Install_Capacitor</defName>
+    <label>install capacitor</label>
+    <description>Install a capacitor.</description>
+    <descriptionHyperlinks>
+      <ThingDef>Rimshi_Capacitor</ThingDef>
+      <HediffDef>Rimshi_Capacitor</HediffDef>
+    </descriptionHyperlinks>
+    <jobString>Installing capacitor.</jobString>
+    <ingredients>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>Rimshi_RepairKit</li>
+          </thingDefs>
+        </filter>
+        <count>1</count>
+      </li>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>Rimshi_Capacitor</li>
+          </thingDefs>
+        </filter>
+        <count>1</count>
+      </li>
+    </ingredients>
+    <fixedIngredientFilter>
+      <thingDefs>
+        <li>Rimshi_RepairKit</li>
+        <li>Rimshi_Capacitor</li>
+      </thingDefs>
+    </fixedIngredientFilter>
+    <appliedOnFixedBodyParts>
+      <li>Stomach</li>
+    </appliedOnFixedBodyParts>
+    <addsHediff>Rimshi_Capacitor</addsHediff>
+  </RecipeDef>
+  <RecipeDef ParentName="Rimshi_InstallSkeletonPartBase">
+    <defName>Rimshi_Install_OilFilter</defName>
+    <label>install oil filter</label>
+    <description>Install an oil filter.</description>
+    <descriptionHyperlinks>
+      <ThingDef>Rimshi_OilFilter</ThingDef>
+      <HediffDef>Rimshi_OilFilter</HediffDef>
+    </descriptionHyperlinks>
+    <jobString>Installing oil filter.</jobString>
+    <ingredients>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>Rimshi_RepairKit</li>
+          </thingDefs>
+        </filter>
+        <count>1</count>
+      </li>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>Rimshi_OilFilter</li>
+          </thingDefs>
+        </filter>
+        <count>1</count>
+      </li>
+    </ingredients>
+    <fixedIngredientFilter>
+      <thingDefs>
+        <li>Rimshi_RepairKit</li>
+        <li>Rimshi_OilFilter</li>
+      </thingDefs>
+    </fixedIngredientFilter>
+    <appliedOnFixedBodyParts>
+      <li>Liver</li>
+    </appliedOnFixedBodyParts>
+    <addsHediff>Rimshi_OilFilter</addsHediff>
+  </RecipeDef>
+  <RecipeDef ParentName="Rimshi_InstallSkeletonPartBase">
+    <defName>Rimshi_Install_FluidPump</defName>
+    <label>install fluid pump</label>
+    <description>Install a fluid pump.</description>
+    <descriptionHyperlinks>
+      <ThingDef>Rimshi_FluidPump</ThingDef>
+      <HediffDef>Rimshi_FluidPump</HediffDef>
+    </descriptionHyperlinks>
+    <jobString>Installing fluid pump.</jobString>
+    <ingredients>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>Rimshi_RepairKit</li>
+          </thingDefs>
+        </filter>
+        <count>1</count>
+      </li>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>Rimshi_FluidPump</li>
+          </thingDefs>
+        </filter>
+        <count>1</count>
+      </li>
+    </ingredients>
+    <fixedIngredientFilter>
+      <thingDefs>
+        <li>Rimshi_RepairKit</li>
+        <li>Rimshi_FluidPump</li>
+      </thingDefs>
+    </fixedIngredientFilter>
+    <appliedOnFixedBodyParts>
+      <li>Heart</li>
+    </appliedOnFixedBodyParts>
+    <addsHediff>Rimshi_FluidPump</addsHediff>
+  </RecipeDef>
+  <RecipeDef ParentName="Rimshi_InstallSkeletonPartBase">
+    <defName>Rimshi_Install_OpticalSensor</defName>
+    <label>install optical sensor</label>
+    <description>Install an optical sensor.</description>
+    <descriptionHyperlinks>
+      <ThingDef>Rimshi_OpticalSensor</ThingDef>
+      <HediffDef>Rimshi_OpticalSensor</HediffDef>
+    </descriptionHyperlinks>
+    <jobString>Installing optical sensor.</jobString>
+    <ingredients>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>Rimshi_RepairKit</li>
+          </thingDefs>
+        </filter>
+        <count>1</count>
+      </li>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>Rimshi_OpticalSensor</li>
+          </thingDefs>
+        </filter>
+        <count>1</count>
+      </li>
+    </ingredients>
+    <fixedIngredientFilter>
+      <thingDefs>
+        <li>Rimshi_RepairKit</li>
+        <li>Rimshi_OpticalSensor</li>
+      </thingDefs>
+    </fixedIngredientFilter>
+    <appliedOnFixedBodyParts>
+      <li>Eye</li>
+    </appliedOnFixedBodyParts>
+    <addsHediff>Rimshi_OpticalSensor</addsHediff>
+  </RecipeDef>
+  <RecipeDef ParentName="Rimshi_InstallSkeletonPartBase">
+    <defName>Rimshi_Install_AudioReceiver</defName>
+    <label>install auditory array</label>
+    <description>Install an auditory array.</description>
+    <descriptionHyperlinks>
+      <ThingDef>Rimshi_AudioReceiver</ThingDef>
+      <HediffDef>Rimshi_AudioReceiver</HediffDef>
+    </descriptionHyperlinks>
+    <jobString>Installing auditory array.</jobString>
+    <ingredients>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>Rimshi_RepairKit</li>
+          </thingDefs>
+        </filter>
+        <count>1</count>
+      </li>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>Rimshi_AudioReceiver</li>
+          </thingDefs>
+        </filter>
+        <count>1</count>
+      </li>
+    </ingredients>
+    <fixedIngredientFilter>
+      <thingDefs>
+        <li>Rimshi_RepairKit</li>
+        <li>Rimshi_AudioReceiver</li>
+      </thingDefs>
+    </fixedIngredientFilter>
+    <appliedOnFixedBodyParts>
+      <li>Ear</li>
+    </appliedOnFixedBodyParts>
+    <addsHediff>Rimshi_AudioReceiver</addsHediff>
+  </RecipeDef>
+  <RecipeDef ParentName="Rimshi_InstallSkeletonPartBase">
+    <defName>Rimshi_Install_IRCamera</defName>
+    <label>install IR camera</label>
+    <description>Install an IR camera.</description>
+    <descriptionHyperlinks>
+      <ThingDef>Rimshi_IRCamera</ThingDef>
+      <HediffDef>Rimshi_IRCamera</HediffDef>
+    </descriptionHyperlinks>
+    <jobString>Installing IR camera.</jobString>
+    <ingredients>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>Rimshi_RepairKit</li>
+          </thingDefs>
+        </filter>
+        <count>1</count>
+      </li>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>Rimshi_IRCamera</li>
+          </thingDefs>
+        </filter>
+        <count>1</count>
+      </li>
+    </ingredients>
+    <fixedIngredientFilter>
+      <thingDefs>
+        <li>Rimshi_RepairKit</li>
+        <li>Rimshi_IRCamera</li>
+      </thingDefs>
+    </fixedIngredientFilter>
+    <appliedOnFixedBodyParts>
+      <li>Nose</li>
+    </appliedOnFixedBodyParts>
+    <addsHediff>Rimshi_IRCamera</addsHediff>
+  </RecipeDef>
+
+</Defs>

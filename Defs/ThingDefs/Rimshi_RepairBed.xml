@@ -8,12 +8,13 @@
   <ThingDef ParentName="BedWithQualityBase">
     <defName>Rimshi_SkeletonRepairBed</defName>
     <label>skeleton repair bed</label>
-    <description>A powered cradle of clamps, tool arms and diagnostic cables, run by an AI persona core, of the kind the old empire kept for its skeletons. A skeleton lying in it is slowly repaired back to full health, scars and all, though lost parts still need a prosthetic. Only skeletons can use it. Without power it is just a hard bed.</description>
+    <description>A powered cradle of clamps, tool arms and diagnostic cables, run by an AI persona core, of the kind the old empire kept for its skeletons. A skeleton lying in it is slowly repaired back to full health, scars and all, though it cannot rebuild a lost part. It is also where skeletons run a CPU soft cycle, which draws heavily on the power grid while it runs. Only skeletons can use it.</description>
     <graphicData>
-      <!-- 256x256 like the vanilla hospital bed: the 1x2 bed centred, sides transparent. West is east mirrored. -->
+      <!-- 256x256 like the vanilla hospital bed: the 1x2 bed centred, sides transparent. West is east mirrored.
+           Drawn 20% larger than the hospital bed's (2,2) at Matthew's ask, so it overhangs its cells a little. -->
       <texPath>Rimshi/Buildings/RepairBed</texPath>
       <graphicClass>Graphic_Multi</graphicClass>
-      <drawSize>(2,2)</drawSize>
+      <drawSize>(2.4,2.4)</drawSize>
     </graphicData>
     <castEdgeShadows>True</castEdgeShadows>
     <tickerType>Rare</tickerType>
@@ -29,14 +30,33 @@
       <SurgerySuccessChanceFactor>1.1</SurgerySuccessChanceFactor>
     </statBases>
     <comps>
+      <!-- Standby draw; CompRimshi_RepairBed sets the live draw each rare tick: + repairWatts while repairing, + skill
+           levels x cycleWattsPerSkillLevel for each skeleton soft cycling (SoftCycle.cs). -->
       <li Class="CompProperties_Power">
         <compClass>CompPowerTrader</compClass>
-        <basePowerConsumption>400</basePowerConsumption>
+        <basePowerConsumption>50</basePowerConsumption>
       </li>
       <li Class="CompProperties_Flickable"/>
       <li Class="RimshiSkeletons.CompProperties_Rimshi_RepairBed">
-        <repairPerDay>40</repairPerDay>
+        <!-- Doubled from 40 (Matthew, 2026-10-28). -->
+        <repairPerDay>80</repairPerDay>
         <repairsScars>true</repairsScars>
+        <standbyWatts>50</standbyWatts>
+        <repairWatts>400</repairWatts>
+        <cycleWattsPerSkillLevel>15</cycleWattsPerSkillLevel>
+      </li>
+      <!-- Vanilla BedBase gives every bed PlaceWorker_ShowFacilitiesConnections, which throws in the build menu unless the
+           bed links to facilities. The hospital bed's list (a vitals monitor works with this bed too), plus the soft cycle
+           facilities (Rimshi_TuningFork, Rimshi_ChemicalSpire, SoftCycleFacility.cs). -->
+      <li Class="CompProperties_AffectedByFacilities">
+        <linkableFacilities>
+          <li>VitalsMonitor</li>
+          <li>EndTable</li>
+          <li>Dresser</li>
+          <li>Rimshi_TuningFork</li>
+          <li>Rimshi_ChemicalSpire</li>
+          <li>Rimshi_CableFissure</li>
+        </linkableFacilities>
       </li>
     </comps>
     <size>(1,2)</size>
@@ -53,6 +73,9 @@
       <bed_healPerDay>0</bed_healPerDay>
       <bed_defaultMedical>true</bed_defaultMedical>
       <buildingSizeCategory>Small</buildingSizeCategory>
+      <relatedBuildCommands>
+        <li>Rimshi_TuningFork</li>
+      </relatedBuildCommands>
     </building>
     <fillPercent>0.4</fillPercent>
     <pathCost>42</pathCost>

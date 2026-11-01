@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!-- The rib cage (docs/design/cpu-soft-cycle.md, RibCage.cs): a skeleton-only medical bed that holds a skeleton upright
+       in stasis. 1 wide, 2 tall, never rotated: it always faces south, so the pawn in it draws upright (vanilla draws a
+       pawn in a south-facing bed head up). Built from BuildingBase rather than BedBase so it is not minifiable: a
+       reinstalled unrotatable building would face north and hang its skeleton upside down. Medical by default and the
+       medical toggle is hidden, so it is never assigned. Its tend offset (0.11) sits just below the repair bed's (0.12),
+       so rescuers carry a downed skeleton to a repair bed first, then a rib cage, then any other bed.
+       Art: proposal A (the cross) seen from above like a bed and painted through ComfyUI (docs/art/proposals/ribcage/topdown/). The back texture is the building;
+       the front ribs are drawn over the skeleton by CompRimshi_RibCage. -->
+  <ThingDef ParentName="BuildingBase">
+    <defName>Rimshi_RibCage</defName>
+    <label>rib cage</label>
+    <description>An upright frame of curved metal ribs, somewhere between a cross and a gibbet, that clamps a skeleton in place. A skeleton hanging in it is held perfectly still, as if time had stopped for it. Skeletons can step in by choice, colonists can carry downed skeletons here, and a skeleton can even reset its CPU while hanging in one. Only skeletons can use it.</description>
+    <thingClass>Building_Bed</thingClass>
+    <graphicData>
+      <texPath>Rimshi/Buildings/RibCage</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <drawSize>(1.25,2.5)</drawSize>
+      <drawOffset>(0,0,0.15)</drawOffset>
+      <!-- Unrotatable but placed facing south: without this Graphic_Single turns the texture 180 degrees. -->
+      <drawRotated>false</drawRotated>
+    </graphicData>
+    <drawerType>MapMeshAndRealTime</drawerType>
+    <altitudeLayer>Building</altitudeLayer>
+    <rotatable>false</rotatable>
+    <defaultPlacingRot>South</defaultPlacingRot>
+    <size>(1,2)</size>
+    <passability>PassThroughOnly</passability>
+    <pathCost>42</pathCost>
+    <fillPercent>0.4</fillPercent>
+    <castEdgeShadows>false</castEdgeShadows>
+    <staticSunShadowHeight>0.3</staticSunShadowHeight>
+    <canOverlapZones>false</canOverlapZones>
+    <drawGUIOverlay>true</drawGUIOverlay>
+    <designationCategory>Furniture</designationCategory>
+    <uiOrder>2030</uiOrder>
+    <uiIconScale>0.9</uiIconScale>
+    <statBases>
+      <MaxHitPoints>220</MaxHitPoints>
+      <WorkToBuild>2500</WorkToBuild>
+      <Mass>40</Mass>
+      <Flammability>0</Flammability>
+      <Beauty>-2</Beauty>
+      <BedRestEffectiveness>1</BedRestEffectiveness>
+      <Comfort>0</Comfort>
+      <MedicalTendQualityOffset>0.11</MedicalTendQualityOffset>
+      <SurgerySuccessChanceFactor>0.8</SurgerySuccessChanceFactor>
+    </statBases>
+    <costList>
+      <Steel>80</Steel>
+      <ComponentIndustrial>3</ComponentIndustrial>
+    </costList>
+    <placeWorkers>
+      <li>PlaceWorker_ShowFacilitiesConnections</li>
+    </placeWorkers>
+    <comps>
+      <li Class="CompProperties_AssignableToPawn">
+        <drawAssignmentOverlay>false</drawAssignmentOverlay>
+        <compClass>CompAssignableToPawn_Bed</compClass>
+      </li>
+      <li Class="RimshiSkeletons.CompProperties_Rimshi_RibCage">
+        <frontTexPath>Rimshi/Buildings/RibCage_front</frontTexPath>
+      </li>
+      <!-- PlaceWorker_ShowFacilitiesConnections needs this on every bed (test_facility_placeworker_has_facility_comp). -->
+      <li Class="CompProperties_AffectedByFacilities">
+        <linkableFacilities>
+          <li>VitalsMonitor</li>
+        </linkableFacilities>
+      </li>
+    </comps>
+    <building>
+      <bed_showSleeperBody>True</bed_showSleeperBody>
+      <bed_healPerDay>0</bed_healPerDay>
+      <bed_defaultMedical>true</bed_defaultMedical>
+      <!-- Keeps the painted brown and grey; otherwise the medical sheet colour tints the whole texture blue. -->
+      <bed_UseSheetColor>false</bed_UseSheetColor>
+      <buildingSizeCategory>Small</buildingSizeCategory>
+      <ai_chillDestination>false</ai_chillDestination>
+      <buildingTags>
+        <li>Bed</li>
+      </buildingTags>
+    </building>
+    <researchPrerequisites>
+      <li>BasicMechtech</li>
+    </researchPrerequisites>
+    <constructionSkillPrerequisite>4</constructionSkillPrerequisite>
+    <techLevel>Industrial</techLevel>
+  </ThingDef>
+
+</Defs>

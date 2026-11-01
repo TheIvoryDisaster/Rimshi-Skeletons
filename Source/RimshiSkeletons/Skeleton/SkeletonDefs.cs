@@ -7,7 +7,8 @@ namespace RimshiSkeletons
 {
     /// <summary>
     /// Fills in the def links that name defs from DLCs and other mods, once all defs are loaded: thoughts the
-    /// mechanical nature gene blocks, the vanilla hunger thought the fuel reactor blocks, and the immunity list. Looking
+    /// mechanical nature gene blocks, the vanilla hunger thought the component maintenance gene blocks, the immunity list, and the needs from other mods
+    /// that skeleton genes remove or relabel (SkeletonNeeds). Looking
     /// the names up here means a missing DLC or mod just skips that name (it is listed in the log) instead of throwing
     /// a cross-reference error. Lists are the original's (race cannotReceiveThoughts and MechanicalNature_Hediff).
     /// </summary>
@@ -77,28 +78,28 @@ namespace RimshiSkeletons
             RimshiLog.Test("defs", "immunities", nature.makeImmuneTo.Count + " of " + Immunities.Length + " immunities"
                 + (missingHediffs.Count > 0 ? "; not loaded: " + string.Join(", ", missingHediffs) : ""));
 
-            int fuels = 0;
-            foreach (ThingDef def in DefDatabase<ThingDef>.AllDefsListForReading)
+            var items = DefDatabase<ThingDef>.AllDefsListForReading.Where(d => d.HasModExtension<MaintenanceItemExtension>()).ToList();
+            foreach (ThingDef def in items)
             {
-                if (def.HasModExtension<FuelExtension>())
+                if (def.ingestible == null || def.GetStatValueAbstract(StatDefOf.Nutrition) <= 0f)
                 {
-                    fuels++;
-                    if (def.ingestible == null)
-                    {
-                        RimshiLog.Fail("defs", "fuel", def.defName + " is tagged as fuel but is not ingestible");
-                    }
-                    else
-                    {
-                        RimshiLog.Test("defs", "fuel", def.defName + ": nutrition " + def.GetStatValueAbstract(StatDefOf.Nutrition) + ", food type "
-                            + def.ingestible.foodType + ", preferability " + def.ingestible.preferability
-                            + (ThingDefOf.Human.race.CanEverEat(def) ? "" : "; another mod restricts it from humans (the diet patch lets skeletons eat it anyway)"));
-                    }
+                    RimshiLog.Fail("defs", "maintenance item", def.defName + " is tagged as a maintenance item but is not ingestible");
+                }
+                else
+                {
+                    RimshiLog.Test("defs", "maintenance item", def.defName + ": nutrition " + def.GetStatValueAbstract(StatDefOf.Nutrition) + ", preferability "
+                        + def.ingestible.preferability + ", one lasts " + SkeletonNeeds.DaysPerItem + " days ("
+                        + (SkeletonNeeds.MaintenancePerTick * GenDate.TicksPerDay).ToString("0.###") + " maintenance a day)"
+                        + (ThingDefOf.Human.race.CanEverEat(def) ? "" : "; another mod restricts it from humans (the diet patch lets skeletons consume it anyway)"));
                 }
             }
-            if (fuels == 0)
+            if (items.Count == 0)
             {
-                RimshiLog.Fail("defs", "fuel", "no ThingDef is tagged as fuel; skeletons cannot eat");
+                RimshiLog.Fail("defs", "maintenance item", "no ThingDef is tagged as a maintenance item; skeletons cannot keep themselves running");
             }
+
+            string optional = SkeletonNeeds.ApplyOptionalDefs();
+            RimshiLog.Test("defs", "need changes", optional.Length > 0 ? optional : "none (Dubs Bad Hygiene not loaded)");
 
             int backstories = DefDatabase<BackstoryDef>.AllDefsListForReading.Count(b => b.spawnCategories.Contains(SkeletonUtility.BackstoryCategory));
             RimshiLog.Test("defs", "backstories", backstories + " skeleton backstories");

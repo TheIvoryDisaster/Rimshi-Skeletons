@@ -8,7 +8,7 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 
 **How to use it:** play with Development mode on, then tell Claude to check the logs. Claude pulls Player.log and Player-prev.log from `C:\Users\Matthew\AppData\LocalLow\Ludeon Studios\RimWorld by Ludeon Studios`, runs `tools/rimshi_testlog.py` over them and updates this table. Results add up across sessions; any exception that mentions the mod is reported too. A PR that only updates this file is merged by Claude without asking, and its description lists every test that ran and its outcome.
 
-**Self-tests:** with Development mode on, loading or starting a game runs the in-game self-tests once per session (also on demand: Debug actions > Rimshi Skeletons > Run self-tests). They generate a skeleton, a baseliner and a skeletal imperium town guard off the map, check genes, looks, diet, thoughts, immunity, the gene lock, backstory, faction, reproduction, the recall array and horde skeletons (gear, protocol, failsafe core, one reprogramming session), discard the pawns, and log one `selftest` line per check plus a summary.
+**Self-tests:** with Development mode on, loading or starting a game runs the in-game self-tests once per session (also on demand: Debug actions > Rimshi Skeletons > Run self-tests). They generate a skeleton, a baseliner and a skeletal imperium town guard off the map, check genes, looks, diet, thoughts, immunity, the gene lock, the prosthetics lock, skeleton parts (install bills, KLR arm armour, AI core repair), machine organs (fitted, named, hidden, replaceable), blood and ancient oil, grey wound overlays, the drug lock, skeleton remains (inedible, no butchering, the scrap recipe and its yield), backstory, faction, reproduction, the recall array and horde skeletons (gear, protocol, failsafe core, one reprogramming session), discard the pawns, and log one `selftest` line per check plus a summary.
 
 **Unit tests:** `python3 -m unittest discover -s tests` runs the offline tests (def cross-references, textures, checklist coverage, the log reader, house style). CI runs them on every push.
 
@@ -20,17 +20,22 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | --- | --- | --- | --- | --- |
 | build | Build line at startup | passed | 7 | version dev, build 7 (DESKTOP-ESRRCQ3 2026-10-24T18:45Z), dll written 2026-10-24 18:45 UTC; biotech True, royalty True, ideology True, odyssey True |
 | defs | Blocked thoughts linked at startup (lists any not loaded) | passed | 7 | 27 of 30 blocked; not loaded: RG_Wet, RG_ExtremelyWet, RG_HotSpringWet |
-| defs | Vanilla hunger thought nullified by the fuel reactor | passed | 7 | NeedFood nullified by Rimshi_FuelReactor |
+| defs | Vanilla hunger thought nullified by component maintenance | not seen |  |  |
 | defs | Immunity list linked at startup (lists any not loaded) | passed | 7 | 23 of 23 immunities |
-| defs | Chemfuel and uranium tagged as edible fuel | passed | 7 | Uranium: nutrition 0.5, food type Fluid |
+| defs | Component tagged as the maintenance item (nutrition, days one lasts) | not seen |  |  |
+| defs | Needs from other mods removed or relabelled (Dubs Bad Hygiene), or says none | not seen |  |  |
 | defs | Skeleton backstories loaded | not seen |  |  |
 | defs | Outlander, pirate, tribe and Empire xenotype sets include skeletons | not seen |  |  |
 | patch | Every patched private method found (this line only appears when one is missing) | not seen |  |  |
 | gene | Null chromosome makes a pawn genderless | passed | 7 | Acid: Female to None, body Thin |
 | gene | Skeleton frame gives a male, thin or hulk body and a skeleton head | passed | 7 | Acid: body Thin, head Rimshi_Head_Screamer |
+| cores | A skeleton's genetics screen opened, reading cores and chips | not seen |  |  |
 | gene | Skeletons generated without family | passed | 7 | Acid: relation generation skipped |
 | gene | Removing the null chromosome gives a gender back | passed | 7 | Acid: now Male |
 | gene | Relations a new genderless pawn got another way were removed (names them) | not seen |  |  |
+| gene | A skeleton got back core genes its xenotype lists but it had lost (names them) | not seen |  |  |
+| gene | Skeletons in a save that had lost core genes got them back on load | not seen |  |  |
+| gene | A core gene was removed from a skeleton, and by what (diagnostic; the gene removal self-test causes one) | not seen |  |  |
 | faction | Mod setting on: old Rim-Skeletons faction replaced by ours on load | not seen |  |  |
 | faction | Mod setting on: save had no old Rim-Skeletons factions | not seen |  |  |
 | faction | Debug action added the skeletal imperium to the world | not seen |  |  |
@@ -43,11 +48,44 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | render | Skeleton body texture drawn | not seen |  |  |
 | repair | Crafter started repairing a skeleton with repair kits | not seen |  |  |
 | repair | Repair used up a kit | not seen |  |  |
+| repair | Repair sealed leaks or treated a tendable condition with kits | not seen |  |  |
 | repair | Skeleton fully repaired by a crafter | not seen |  |  |
 | bed | Non-skeleton kept out of a skeleton repair bed | not seen |  |  |
 | bed | Repair bed repairing a skeleton's injury | not seen |  |  |
 | bed | Skeleton fully repaired in a repair bed | not seen |  |  |
-| diet | Skeleton ate chemfuel or uranium (fails if it ate anything else) | not seen |  |  |
+| diet | Skeleton consumed a component for maintenance (fails if it ate anything else) | not seen |  |  |
+| maintenance | Skeleton out of maintenance did not get malnutrition | not seen |  |  |
+| maintenance | Need bar and tooltips relabel needs (this line only appears when a patch target is missing) | not seen |  |  |
+| maintenance | Components allowed in the save's food policies and Skeletons policy added (once per save) | not seen |  |  |
+| maintenance | Skeleton picking up a component to carry | not seen |  |  |
+| softcycle | Skeleton went to soft cycle in a repair bed (gives the cycle's power draw) | not seen |  |  |
+| softcycle | Skeleton soft cycling in a powered repair bed (48 hours, power draw, integrity) | not seen |  |  |
+| softcycle | Soft cycle held outside a repair bed (carried, in a rib cage, older save) | not seen |  |  |
+| softcycle | Skeleton due a soft cycle found no usable repair bed (gives the reason) | not seen |  |  |
+| softcycle | Soft cycle finished in a repair bed (integrity 100%, memories flushed, skill lost, +3 thought) | not seen |  |  |
+| softcycle | Bed soft cycle cut short: power lost or woken early (integrity kept, no overload) | not seen |  |  |
+| softcycle | Skeleton began a soft reset standing or hanging in a rib cage | not seen |  |  |
+| softcycle | Soft reset finished without a repair bed (integrity 100%, -3 thought) | not seen |  |  |
+| softcycle | Soft reset cancelled: woken, downed or a mental break (integrity 0%) | not seen |  |  |
+| softcycle | A skeleton in a standing soft cycle refused a player order (names the job) | not seen |  |  |
+| softcycle | A skeleton in a standing soft cycle was not drafted | not seen |  |  |
+| softcycle | Skeletons with deathrest exhaustion from an older save got CPU overload instead | not seen |  |  |
+| facility | A soft cycle facility joined a soft cycle in a linked repair bed (a tuning fork burnt an advanced component, gives the cycle length factor) | not seen |  |  |
+| facility | A soft cycle facility let go of a skeleton when its soft cycle ended (finished or cut short) | not seen |  |  |
+| spire | A chemical spire finished charging (or was charged by the dev gizmo); it now holds the charge | not seen |  |  |
+| spire | A chemical spire lost power while charging and its charge started over (chemfuel kept) | not seen |  |  |
+| spire | A soft cycle a charged spire joined finished: the skeleton took the held tempest (EMP-proof, x1.1 speed, burst) | not seen |  |  |
+| spire | A skeleton loosed the tempest: radius 10, hostile mechs and skeletons hit, damage from summed skill levels, stunned count | not seen |  |  |
+| fissure | A cable fissure's tuning bill finished (or the dev gizmo tuned it); it now draws 0 W and can join a soft cycle | not seen |  |  |
+| fissure | A soft cycle a tuned cable fissure joined finished: the skeleton is overclocked (+20 carrying capacity, heave) | not seen |  |  |
+| fissure | A skeleton heaved an adjacent enemy: disarmed, thrown carrying capacity / 10 cells, a hit per cell on different parts, double per cell blocked by a wall | not seen |  |  |
+| spire | A held tempest or its wake ended at the next finished soft cycle | not seen |  |  |
+| deathrest | Skeletons from an older save got the deathrest gene | not seen |  |  |
+| overload | CPU overload started (integrity ran out or a cycle was cancelled) | not seen |  |  |
+| overload | CPU overload moved to its next stage (steady at day 2, paranoid at day 4) | not seen |  |  |
+| overload | Paranoid overloaded skeleton limited to violent mental breaks | not seen |  |  |
+| overload | CPU overload cleared by a finished soft cycle | not seen |  |  |
+| ribcage | Skeleton hanging in a rib cage (needs frozen) | not seen |  |  |
 | reproduction | A pregnancy added to a skeleton was refused | not seen |  |  |
 | horde | Recall array inherited the mechband antenna graphic | not seen |  |  |
 | horde | Recall research on the research tab, overlapping nothing (gives its position) | not seen |  |  |
@@ -67,6 +105,31 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | geneproof | No xenogerm reached a skeleton past the checks (this line only appears when one did) | not seen |  |  |
 | geneproof | No reimplant involving a skeleton got past the checks (this line only appears when one did) | not seen |  |  |
 | geneproof | Skeleton genes kept out of a genepack (fails if a pack held only skeleton genes) | not seen |  |  |
+| prosthetics | Generated skeleton got no prosthetics, bionics or implants | not seen |  |  |
+| prosthetics | Skeleton refused a self-installed implant (neuroformer or another mod's; mechlinks still allowed) | not seen |  |  |
+| prosthetics | A psylink was refused on a skeleton (royal title, bestowing, anima tree, dev mode) | not seen |  |  |
+| prosthetics | No install surgery reached a skeleton past the checks (this line only appears when one did) | not seen |  |  |
+| parts | Skeleton fabrication and advanced parts research placed on the research tab without overlaps | not seen |  |  |
+| parts | A skeleton part was installed on a skeleton (names the part) | not seen |  |  |
+| parts | A KLR or industrial part took reduced damage (first hit each session) | not seen |  |  |
+| parts | A steady arm knocked a weapon out of an enemy's hands in melee | not seen |  |  |
+| parts | A second AI core repaired a damaged one (names what it removed) | not seen |  |  |
+| anatomy | A skeleton got its machine organs (generation, gene added or older save; names the organs) | not seen |  |  |
+| anatomy | Skeletons in an older save were given machine organs on load | not seen |  |  |
+| powerdown | A temporarily power down operation finished on a skeleton (says if it is in maintenance mode) | not seen |  |  |
+| powerdown | A skeleton got maintenance mode where it would have got anesthetic (first time each session) | not seen |  |  |
+| blood | A hit skeleton leaked ancient oil (black filth) instead of blood | not seen |  |  |
+| module | An EMP hit stunned a skeleton the way it stuns a mechanoid (unshielded circuits) | not seen |  |  |
+| module | Skeletons from an older save got the module genes their xenotype now lists | not seen |  |  |
+| blood | A hit skeleton showed the black oil spray instead of the red blood spray | not seen |  |  |
+| blood | A sanguophage bit a skeleton and got no hemogen (bloodfeed ability or another mod) | not seen |  |  |
+| wounds | A wounded skeleton on the map showed grey and black wound marks instead of red ones | not seen |  |  |
+| drugs | A skeleton was refused a drug (ingest menu, drug policy, recreation, AI job, binge or generation; one line per route) | not seen |  |  |
+| drugs | No drug reached a skeleton past the checks (this line only appears when one did; the drug did nothing) | not seen |  |  |
+| remains | A skeleton corpse was scrapped for steel, plasteel, uranium and at most one component (names the yield) | not seen |  |  |
+| remains | A butchery bill skipped a skeleton corpse (butcher spot, butcher table or another mod's) | not seen |  |  |
+| remains | A pawn or animal that went to eat a skeleton corpse (a predator after a hunt) stopped instead | not seen |  |  |
+| remains | No skeleton corpse was eaten past the checks (this line only appears when one got that far; nothing was eaten) | not seen |  |  |
 | selftest | Self-tests: all passed (summary line) | failed | 7 | FAILED: 21 passed, 4 failed |
 | selftest | Self-test: skeleton and baseliner generate | passed | 7 | skeleton Acid, baseliner Norman |
 | selftest | Self-test: no exceptions while testing | not seen |  |  |
@@ -83,14 +146,47 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | selftest | Self-test: skeleton generated without family | failed | 7 | FAILED: direct relations 2 |
 | selftest | Self-test: skeleton fertility is 0 | passed | 7 | fertility 0 |
 | selftest | Self-test: skeleton toxic resistance 100% | passed | 7 | toxic resistance 1 |
+| selftest | Self-test: skeleton psychic sensitivity 0% | not seen |  |  |
 | selftest | Self-test: skeleton immune to flu | passed | 7 | immune to flu |
-| selftest | Self-test: skeleton can eat chemfuel and uranium | failed | 7 | FAILED: chemfuel and uranium suitable |
+| selftest | Self-test: skeleton can consume components | not seen |  |  |
 | selftest | Self-test: skeleton refuses meals | passed | 7 | simple meal suitable False |
-| selftest | Self-test: skeleton hunger well below human | passed | 7 | skeleton/human hunger 0.225 |
+| selftest | Self-test: one component lasts a skeleton 2 days | not seen |  |  |
+| selftest | Self-test: skeleton consumes one component at a time | not seen |  |  |
+| selftest | Self-test: skeleton food bar shown as Maintenance with the Second Empire tooltip (human keeps Food) | not seen |  |  |
+| selftest | Self-test: skeleton cannot get malnutrition | not seen |  |  |
 | selftest | Self-test: vanilla hunger thought nullified for skeleton | passed | 7 | NeedFood nullified |
-| selftest | Self-test: fuel need thought can apply to skeleton | passed | 7 | Rimshi_FuelNeed can apply |
+| selftest | Self-test: maintenance thought can apply to skeleton | not seen |  |  |
+| selftest | Self-test: with Dubs Bad Hygiene, no thirst or bladder and self-cleaning at half rate (passes when not loaded) | not seen |  |  |
+| selftest | Self-test: skeleton has deathrest (gene, need, icon); human does not | not seen |  |  |
+| selftest | Self-test: deathrest need shown as CPU integrity with the soft cycle tooltip | not seen |  |  |
+| selftest | Self-test: repair bed draws 15 W per skill level for a cycle and has no chemfuel tank | not seen |  |  |
+| selftest | Self-test: a bed soft cycle takes 48 hours | not seen |  |  |
+| selftest | Self-test: soft reset is slow for 3 days and speeds up to 100% at 5 days | not seen |  |  |
+| selftest | Self-test: a cycle raises integrity in step and ends at 100% | not seen |  |  |
+| selftest | Self-test: a bed soft cycle cut short keeps its integrity and causes no overload | not seen |  |  |
+| selftest | Self-test: a cancelled standing cycle leaves 0% integrity and a CPU overload | not seen |  |  |
+| selftest | Self-test: needs other than CPU integrity are frozen during a soft cycle | not seen |  |  |
+| selftest | Self-test: a skeleton at 0% CPU integrity gets no vanilla deathrest exhaustion thought | not seen |  |  |
+| selftest | Self-test: skeleton shows the CPU integrity gizmo and one soft cycle button instead of vanilla's deathrest gizmo | not seen |  |  |
+| selftest | Self-test: orders, drafting and the draft button are guarded during a standing soft cycle | not seen |  |  |
+| selftest | Self-test: the CPU integrity tooltip is skeleton lore with no vanilla deathrest text | not seen |  |  |
+| selftest | Self-test: the rib cage texture is drawn unrotated and without the medical sheet tint | not seen |  |  |
+| selftest | Self-test: overload stages (sluggish x0.8, recalibrating at day 2, vigilant x1.1 at day 4, -1 mood a day) | not seen |  |  |
+| selftest | Self-test: vigilant (paranoid) thought has the four lines and applies to the skeleton only | not seen |  |  |
+| selftest | Self-test: violent break filter patched (berserk counts, sad wander does not) | not seen |  |  |
+| selftest | Self-test: a finished cycle clears the overload, fills integrity and flushes memories | not seen |  |  |
+| selftest | Self-test: rib cage is a 1x2 unrotatable medical bed, 80 steel + 3 components, basic mechtech, skeletons only | not seen |  |  |
+| selftest | Self-test: rib cage back and front textures load | not seen |  |  |
+| selftest | Self-test: tuning fork links to the repair bed (2 max, same room), takes advanced components, 50 W idle and 1000 W ringing, art loads | not seen |  |  |
+| selftest | Self-test: chemical spire is 3x3 unrotatable, links to the repair bed (1 max, same room), 100 chemfuel, 100 W for 36 h, joins unpowered, art and icon load | not seen |  |  |
+| selftest | Self-test: cable fissure is 2x3 rotatable, links to the repair bed (1 max), costs 100 plasteel + 2 advanced components + 60 stone, 250 W untuned, tuning bill 4 components/100 steel/40 blocks/250 research points, art, masks and icon load | not seen |  |  |
+| selftest | Self-test: overclocked musculature gives +20 carrying capacity and the heave ability, heave distance is carrying capacity / 10, ability goes with the hediff | not seen |  |  |
+| selftest | Self-test: held tempest makes a skeleton EMP-proof with x1.1 speed and the burst ability; its wake stays EMP-proof; both end, burst damage 5 to 40 | not seen |  |  |
+| selftest | Self-test: rib cage freezes needs and ranks between the repair bed and hospital bed for rescue | not seen |  |  |
+| selftest | Self-test: component packing patch applied | not seen |  |  |
+| selftest | Self-test: Skeletons food policy allows only components | not seen |  |  |
 | selftest | Self-test: naked thought nullified for skeleton | passed | 7 | Naked nullified |
-| selftest | Self-test: human refuses chemfuel | passed | 7 | chemfuel suitable False |
+| selftest | Self-test: human refuses components | not seen |  |  |
 | selftest | Self-test: human still eats meals | passed | 7 | simple meal suitable True |
 | selftest | Self-test: human keeps gender and hunger thought | passed | 7 | gender Male, hunger thought nullified False |
 | selftest | Self-test: both repair research projects need Basic mechtech | not seen |  |  |
@@ -100,9 +196,16 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | selftest | Self-test: skeleton injury healing is 0%, human's is not | not seen |  |  |
 | selftest | Self-test: skeleton repair is a Smith job using Crafting | not seen |  |  |
 | selftest | Self-test: a cut skeleton needs repair, a cut human does not | not seen |  |  |
+| selftest | Self-test: nothing on a skeleton is tendable with medicine; a human cut still is | not seen |  |  |
 | selftest | Self-test: only skeletons can use a repair bed; skeletons can still use hospital beds | not seen |  |  |
 | selftest | Self-test: removing the null chromosome restores a gender | passed | 7 | gender after removing null chromosome Male |
 | selftest | Self-test: no skeleton gene can roll in gene sets | not seen |  |  |
+| selftest | Self-test: every skeleton gene is marked core or chip, chip category loaded | not seen |  |  |
+| selftest | Self-test: skeleton xenotype carries the unshielded circuits and archaic speech modules, marked core and modifiable | not seen |  |  |
+| selftest | Self-test: EMP stuns a skeleton (and it adapts like a mech), not a baseliner | not seen |  |  |
+| selftest | Self-test: archaic speech lowers trade price, negotiation and social impact; archaic persona no longer does | not seen |  |  |
+| selftest | Self-test: a skeleton's genetics screen says cores and chips, a baseliner's still says genes | not seen |  |  |
+| selftest | Self-test: character card tooltip says view cores for a skeleton only, patches applied | not seen |  |  |
 | selftest | Self-test: 200 random gene sets hold no skeleton gene | not seen |  |  |
 | selftest | Self-test: a genepack drops skeleton genes and keeps the rest | not seen |  |  |
 | selftest | Self-test: gene buildings refuse the skeleton, not the baseliner | not seen |  |  |
@@ -120,6 +223,32 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | selftest | Self-test: horde skeletons are not hostile to each other | not seen |  |  |
 | selftest | Self-test: failsafe core sets the death on downed chance | not seen |  |  |
 | selftest | Self-test: a reprogramming session lowers the corruption | not seen |  |  |
+| selftest | Self-test: a bionics-rolling kind gives the skeleton none and the baseliner some | not seen |  |  |
+| selftest | Self-test: no install surgery is offered on a skeleton (bionic arm and natural heart still offered on a baseliner) | not seen |  |  |
+| selftest | Self-test: removing a body part is still offered on a skeleton | not seen |  |  |
+| selftest | Self-test: mechlink allowed and psylink neuroformer refused for skeletons | not seen |  |  |
+| selftest | Self-test: giving a skeleton a psylink adds none and no psycast, a baseliner gets one (Royalty only) | not seen |  |  |
+| selftest | Self-test: the prosthetics lock patches are applied | not seen |  |  |
+| selftest | Self-test: every skeleton part install is offered on a skeleton and not on a baseliner | not seen |  |  |
+| selftest | Self-test: a new skeleton has a machine part on all 8 organ types | not seen |  |  |
+| selftest | Self-test: a skeleton's organs are named after their machine parts (left lung reads left cooling fan), a baseliner's are not | not seen |  |  |
+| selftest | Self-test: machine organs are hidden in the health tab like natural organs | not seen |  |  |
+| selftest | Self-test: the health tab, surgery menu, medical bills and combat log name parts through the machine names | not seen |  |  |
+| selftest | Self-test: a cooling fan install is offered only once the lung is gone, and puts the cooling fan back | not seen |  |  |
+| selftest | Self-test: a fitted lung can be removed (as its cooling fan), a bare one cannot, and a restored one gets its cooling fan | not seen |  |  |
+| selftest | Self-test: a KLR arm installs on a skeleton's shoulder | not seen |  |  |
+| selftest | Self-test: a KLR arm takes 20% off the damage that reaches it | not seen |  |  |
+| selftest | Self-test: an AI core installs, and a second one repairs a damaged core | not seen |  |  |
+| selftest | Self-test: skeleton cannot bleed, baseliner can | not seen |  |  |
+| selftest | Self-test: a cut skeleton has bleed rate 0, a cut baseliner bleeds | not seen |  |  |
+| selftest | Self-test: ancient oil filth and black hit effect loaded | not seen |  |  |
+| selftest | Self-test: a cut skeleton gets a grey and black mech wound overlay, a cut baseliner a flesh one | not seen |  |  |
+| selftest | Self-test: the blood patches are applied | not seen |  |  |
+| selftest | Self-test: a skeleton cannot take beer or penoxycyline, a baseliner can | not seen |  |  |
+| selftest | Self-test: a policy allowing every drug schedules and carries none for the skeleton, some for a baseliner | not seen |  |  |
+| selftest | Self-test: no administer drug bill is offered on a skeleton, some are on a baseliner | not seen |  |  |
+| selftest | Self-test: no drug binge mental state can start on a skeleton | not seen |  |  |
+| selftest | Self-test: the drug lock patches are applied | not seen |  |  |
 | selftest | Self-test: every old skeleton body part maps to its own human part (old mod loaded) | not seen |  |  |
 | selftest | Self-test: converted old skeleton is race Human with the human body | not seen |  |  |
 | selftest | Self-test: converted old skeleton has the Skeleton xenotype and no gender | not seen |  |  |
@@ -127,6 +256,13 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | selftest | Self-test: converted old skeleton has our pawn kind | not seen |  |  |
 | selftest | Self-test: converted old skeleton has no old hediff and only human body parts | not seen |  |  |
 | selftest | Self-test: a converted skeleton is not converted again | not seen |  |  |
+| selftest | Self-test: a skeleton corpse cannot be eaten, a baseliner corpse can | not seen |  |  |
+| selftest | Self-test: a butchery bill refuses a skeleton corpse and takes a baseliner corpse | not seen |  |  |
+| selftest | Self-test: the scrap skeleton remains bill takes only skeleton corpses, at the crafting spot and machining bench | not seen |  |  |
+| selftest | Self-test: a skeleton corpse yields 1-5 each of steel, plasteel and uranium and at most one component | not seen |  |  |
+| selftest | Self-test: the remains patches are applied | not seen |  |  |
+| selftest | Self-test: a skeleton that lost mechanical nature gets it back from its xenotype | not seen |  |  |
+| selftest | Self-test: temporarily power down is offered on skeletons only, Anesthetize on baseliners only, and anesthetic becomes maintenance mode | not seen |  |  |
 
 ## Manual checks
 
@@ -134,10 +270,21 @@ Things the log cannot show; tick them off by hand after looking in game.
 
 - [ ] A skeleton spawned in dev mode (xenotype Skeleton) looks right: skeleton body and head, steel or rust colour, bald, no beard, no tattoos.
 - [ ] A skeleton is genderless in its info card and has the Asexual trait.
-- [ ] A hungry skeleton walks to chemfuel or uranium and eats it ("Fueling reactor with chemfuel").
-- [ ] A skeleton refuses ordinary meals (right-click shows "not suitable"), and a human or animal refuses chemfuel.
-- [ ] A hungry skeleton gets the "fuel need" thought; the vanilla hunger thought shows as nullified.
+- [ ] A skeleton's needs tab shows "Maintenance" instead of "Food"; its tooltip tells of the fall of the Second Empire. A human still shows "Food".
+- [ ] When maintenance drops to about 30% (about two days after a full bar), a skeleton walks to a component and strips it ("Stripping component for maintenance"), one at a time, and the bar fills back up.
+- [ ] In a save from before components were edible, the food policies now allow components and there is a Skeletons policy allowing only components; a hungry skeleton walks to a component, and idle skeletons pick up one component to carry and strip it when hungry. Disallowing components in a skeleton's policy stops it eating them, and the change sticks after a reload.
+- [ ] A skeleton refuses ordinary meals (right-click shows "not suitable"), and a human or animal refuses components.
+- [ ] Without components, a skeleton gets "maintenance due", then "maintenance overdue", then "worn parts" at 0%, getting one stage worse per day (down to "falling apart", -22); the vanilla hunger thought shows as nullified, and it never gets malnutrition.
+- [ ] CPU integrity: a skeleton's needs tab shows "CPU integrity" with a lore line for its current state (no countdown). The gizmo by the draft button reads "CPU integrity" with the bar and the CPU's state (Running, Soft cycling, Overloaded...), never "Deathrest" or a deathrest building count. Hovering the bar shows a lore tooltip about the CPU and soft cycling, with no mention of deathrest or a deathrest gene. The one "Soft cycle" button targets a repair bed, a rib cage or any standable spot, and is not greyed out when the repair bed is taken; vanilla's wake buttons are gone. A skeleton at 0% integrity has no "Deathrest exhaustion" (-12) mood, only "CPU overloaded" (-8).
+- [ ] Bed soft cycle: a repair bed draws 50 W idle, 400 W more while repairing, and 15 W per skill level of a cycling skeleton (inspect the bed and the power grid). The cycle takes 48 hours, the bar climbs to 100%, the skeleton gets "Honing my memories like an edgewalker." (+3, 5 days), its other memories are gone and one skill lost a little XP. Flicking the bed off, cutting power, a solar flare or "Wake up" cuts it short: integrity stays where the cycle got it, with no overload and no memory flush, skill loss or thought. Other needs (maintenance, hygiene, recreation, mood) do not move while it cycles.
+- [ ] Standing soft reset: "Soft cycle" on an empty cell; the skeleton walks there, stands facing south for 5 days (slow for 3 days, fast on the last), then gets "It's like these memories aren't mine..." (-3, 2 days). Once it stands still, right-click orders are refused ("will not respond until woken") and the draft button is disabled; only "Wake up" (with a warning tooltip and a confirmation) cancels it, with 0% integrity and an overload. Other needs do not move while it stands there. Targeting a rib cage makes it hang there instead.
+- [ ] Ancient gene: a skeleton's genes list shows "ancient" (not "null chromosome pattern"), described as being so old it predates the constructs of gender.
+- [ ] CPU overload: sluggish for 2 days (moving and manipulation x80%, "CPU overloaded" -8), then recalibrating with no effects for 2 days, then vigilant (paranoid) (x110% moving and manipulation, negotiation and trade price improvement x110%), a mood line that changes daily through the four quotes and gets 1 worse a day, and only violent mental breaks. A finished cycle clears it. Each stage's health tab tooltip describes only that state (no mention of later stages or of violent breaks), and the stage messages say only what just happened.
+- [ ] Rib cage: 1x2, cannot be rotated, 80 steel and 3 components after basic mechtech; no medical toggle or owner assignment; only skeletons can use it. Right-click with a skeleton: "Hang in rib cage" (it stays there, needs frozen, integrity and overload hold) and "Soft cycle in rib cage". A downed skeleton is rescued to a repair bed first, then a rib cage. The skeleton draws upright behind the front ribs. The cage's head is at the top (north) and it shows its painted brown and grey, not tinted blue.
+- [ ] With Dubs Bad Hygiene: a skeleton has no thirst or bladder bar, its hygiene bar reads "Self-cleaning" with the motor debris tooltip, and it drops about half as fast as a human's. The mechanical nature gene lists the changes and "hygiene rate factor x50%".
 - [ ] Naked, dark, wet and pain thoughts show as nullified by mechanical nature.
+- [ ] Skeleton remains: a butcher spot or butcher table bill (allowing human corpses) never takes a skeleton corpse, but still takes a human one. The crafting spot and machining table have "scrap skeleton remains"; a colonist hauls a skeleton corpse there and it yields 1-5 each of steel, plasteel and uranium and sometimes one component, with no meat, leather, blood or "butchered humanlike" mood. The corpse's apparel and weapon drop on the floor. A human corpse is never taken by the scrap bill. The bill text says nothing about the yield.
+- [ ] Nothing eats a skeleton corpse: a cannibal or starving colonist has no eat option on it, and animals (tame or wild) ignore it as food. A predator may still hunt a skeleton, but walks away from the body once it is down, with no error in the log.
 - [ ] A skeleton never needs sleep (no rest bar).
 - [ ] A new world lists the skeletal imperium in the faction setup (one by default) and it appears on the world map.
 - [ ] Skeletal imperium visitors, traders and raids are mostly skeletons (with some human villagers and guards), with skeleton names and backstories.
@@ -149,7 +296,10 @@ Things the log cannot show; tick them off by hand after looking in game.
 - [ ] After the kit research, the machining table has "make skeleton repair kit"; kits show the steel repair case with the wrench.
 - [ ] Repair kits are not offered as medicine (medical care settings, doctors never carry them to tend anyone).
 - [ ] A hurt skeleton does not heal on its own (health tab shows injury healing 0%). A colonist with Smith work fetches repair kits, kneels by it and its wounds close while the work goes on; kits are used up (about one per 20 damage) and leftovers are dropped.
-- [ ] A bleeding skeleton still lies down to be tended (first aid, no healing). With only tended wounds it keeps working unless a powered repair bed is free, then goes to it; with only scars it goes during its sleep hours.
+- [ ] No one tends a hurt skeleton (colonist, prisoner, slave or guest) with herbal or any other medicine: no doctor job, no self-tend, no drafted "Tend" option, no "needs tending" alert. The repair job, with kits, is the only treatment; with no kits it shows "No skeleton repair kits".
+- [ ] While repairing, the repairer shows the mechanitor repair sparks and sound over the skeleton, and the skeleton's wounds close.
+- [ ] Repair bed heal rate: a skeleton in a powered repair bed heals about twice as fast as before (80 severity a day, scaled by body size).
+- [ ] A hurt skeleton keeps working unless downed or a powered repair bed is free, then goes to it; with only scars it goes during its sleep hours.
 - [ ] After the bed research, the skeleton repair bed is in Furniture and costs an AI persona core; deconstructing it gives the core back.
 - [ ] The repair bed shows the repair machine art, facing the right way in all four rotations (west mirrors east), and the skeleton lies on the deck.
 - [ ] The repair bed is medical by default and a hurt skeleton picks it over a hospital bed. A human cannot be assigned to or rest in it; a hurt skeleton resting in a powered one is repaired, scars included, and gets a "fully repaired" message. Unpowered, the bed says so and does nothing.

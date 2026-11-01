@@ -12,8 +12,9 @@ namespace RimshiSkeletons
     /// Skeleton repair, modelled on Biotech's mech repair (WorkGiver_RepairMech, JobDriver_RepairMech, which only take
     /// mechanitors and mechs). Skeletons have InjuryHealingFactor 0 from the frame gene, so they never heal on their own;
     /// a crafter carrying repair kits works on one and its worst injury mends every second while the work goes on, using
-    /// up a kit per KitSeverity healed. Scars are left to the repair bed. All our own defs and classes; nothing vanilla
-    /// is patched for it.
+    /// up a kit per KitSeverity healed. Scars are left to the repair bed. Medicine never works on a skeleton: nothing on
+    /// one is tendable (Patch_SkeletonNoTending), so doctors, self-tend and drafted tend all leave skeletons alone and
+    /// the repair job, with kits, is the only treatment.
     /// </summary>
     public static class SkeletonRepair
     {
@@ -21,6 +22,9 @@ namespace RimshiSkeletons
 
         /// <summary>Injury severity repaired per kit.</summary>
         public const float KitSeverity = 20f;
+
+        /// <summary>Kit use, in severity, of treating one tendable condition (a leak, or a mod's tend-only hediff).</summary>
+        public const float TreatCost = 5f;
 
         /// <summary>Severity repaired per second of work: base plus per Crafting level (1.0 at Crafting 10).</summary>
         public const float RepairBase = 0.4f;
@@ -53,9 +57,22 @@ namespace RimshiSkeletons
             return injuries.Count > 0;
         }
 
-        public static bool NeedsRepair(Pawn pawn) => SkeletonUtility.HasFrame(pawn) && WorstFreshInjury(pawn) != null;
+        /// <summary>Repair quality for treating tendable conditions: the same curve as the repair speed, capped at 1.</summary>
+        public static float TreatQuality(Pawn repairer) => Mathf.Clamp01(RepairPerInterval(repairer));
 
-        public static int KitsFor(Pawn patient) => Mathf.Max(1, Mathf.CeilToInt(FreshSeverity(patient) / KitSeverity));
+        /// <summary>
+        /// What vanilla would tend on a skeleton if medicine worked on it: bleeding injuries and tendable non-injury
+        /// conditions, the same tests as Hediff.TendableNow apart from the skeleton block.
+        /// </summary>
+        public static List<Hediff> NeedingTreatment(Pawn pawn)
+        {
+            return pawn.health.hediffSet.hediffs.FindAll(h => h.def.tendable && h.Severity > 0f && h.Visible && !h.IsPermanent() && !h.FullyImmune()
+                && (!(h is Hediff_Injury) || h.BleedRate > 0f) && (h.TryGetComp<HediffComp_TendDuration>()?.AllowTend ?? true));
+        }
+
+        public static bool NeedsRepair(Pawn pawn) => SkeletonUtility.HasFrame(pawn) && (WorstFreshInjury(pawn) != null || NeedingTreatment(pawn).Count > 0);
+
+        public static int KitsFor(Pawn patient) => Mathf.Max(1, Mathf.CeilToInt((FreshSeverity(patient) + NeedingTreatment(patient).Count * TreatCost) / KitSeverity));
 
         /// <summary>A powered repair bed on the pawn's map that it could lie in now (or is lying in).</summary>
         public static bool RepairBedAvailable(Pawn pawn)
@@ -172,7 +189,9 @@ namespace RimshiSkeletons
             // One session; the work giver starts another if there is still damage. The skeleton is made to wait (lying
             // down stays lying down) and is released in the finish action.
             Toil repair = Toils_General.WaitWith(TargetIndex.A, SessionTicks, maintainPosture: true);
-            repair.WithEffect(EffecterDefOf.ConstructMetal, TargetIndex.A);
+            // The mechanitor's repair sparks and sound (JobDriver_RepairMech).
+            repair.WithEffect(EffecterDefOf.MechRepairing, TargetIndex.A);
+            repair.PlaySustainerOrSound(SoundDefOf.RepairMech_Touch);
             repair.activeSkill = () => SkillDefOf.Crafting;
             repair.tickAction = () =>
             {
@@ -187,30 +206,60 @@ namespace RimshiSkeletons
 
         private void RepairStep()
         {
-            Hediff_Injury injury = SkeletonRepair.WorstFreshInjury(Patient);
             Thing kits = pawn.carryTracker.CarriedThing;
-            if (injury == null || kits == null || kits.def != RimshiDefOf.Rimshi_RepairKit)
+            if (kits == null || kits.def != RimshiDefOf.Rimshi_RepairKit)
             {
-                Finish(injury == null);
+                Finish(!SkeletonRepair.NeedsRepair(Patient));
+                return;
+            }
+            Treat();
+            Hediff_Injury injury = SkeletonRepair.WorstFreshInjury(Patient);
+            if (injury == null)
+            {
+                Finish(true);
                 return;
             }
             float amount = Mathf.Min(SkeletonRepair.RepairPerInterval(pawn), injury.Severity);
-            if (healedSinceKit == 0f && ticks == SkeletonRepair.Interval)
+            if (ticks == SkeletonRepair.Interval)
             {
                 RimshiLog.Test("repair", "start", pawn.LabelShort + " repairing " + Patient.LabelShort + ": " + injury.LabelCap + " on " + (injury.Part?.Label ?? "body")
                     + ", " + amount.ToString("0.00") + " per second, carrying " + kits.stackCount + " kits");
             }
             injury.Heal(amount);
             healedSinceKit += amount;
-            if (healedSinceKit >= SkeletonRepair.KitSeverity)
+            UseKits(kits);
+            if (!SkeletonRepair.NeedsRepair(Patient))
+            {
+                Finish(true);
+            }
+        }
+
+        /// <summary>Seals leaks and treats tend-only conditions with the kits, which is what tending does for flesh.</summary>
+        private void Treat()
+        {
+            List<Hediff> treat = SkeletonRepair.NeedingTreatment(Patient);
+            if (treat.Count == 0)
+            {
+                return;
+            }
+            float quality = SkeletonRepair.TreatQuality(pawn);
+            for (int i = 0; i < treat.Count; i++)
+            {
+                treat[i].Tended(quality, 1f, i);
+                healedSinceKit += SkeletonRepair.TreatCost;
+            }
+            RimshiLog.Test("repair", "treated", pawn.LabelShort + " treated " + string.Join(", ", treat.ConvertAll(h => h.LabelCap.ToString())) + " on " + Patient.LabelShort
+                + " with repair kits, quality " + quality.ToStringPercent());
+            UseKits(pawn.carryTracker.CarriedThing);
+        }
+
+        private void UseKits(Thing kits)
+        {
+            while (healedSinceKit >= SkeletonRepair.KitSeverity && kits != null && !kits.Destroyed)
             {
                 healedSinceKit -= SkeletonRepair.KitSeverity;
                 kits.SplitOff(1).Destroy();
                 RimshiLog.Test("repair", "kit used", pawn.LabelShort + " used a repair kit on " + Patient.LabelShort);
-            }
-            if (SkeletonRepair.WorstFreshInjury(Patient) == null)
-            {
-                Finish(true);
             }
         }
 
@@ -218,7 +267,8 @@ namespace RimshiSkeletons
         {
             if (repaired)
             {
-                if (healedSinceKit > SkeletonRepair.KitSeverity / 2f && pawn.carryTracker.CarriedThing is Thing kits && kits.def == RimshiDefOf.Rimshi_RepairKit)
+                // A kit that has been started is used up.
+                if (healedSinceKit > 0f && pawn.carryTracker.CarriedThing is Thing kits && kits.def == RimshiDefOf.Rimshi_RepairKit)
                 {
                     kits.SplitOff(1).Destroy();
                 }
@@ -249,6 +299,24 @@ namespace RimshiSkeletons
             bool fresh = SkeletonRepair.WorstFreshInjury(pawn) != null;
             bool scarsTonight = SkeletonRepair.HasScars(pawn) && pawn.timetable?.CurrentAssignment == TimeAssignmentDefOf.Sleep;
             __result = (fresh || scarsTonight) && SkeletonRepair.RepairBedAvailable(pawn);
+        }
+    }
+
+    /// <summary>
+    /// Medicine does nothing for a skeleton: nothing on one is tendable, so no doctor, self-tend, drafted tend or other
+    /// mod's tend AI picks it up with herbal or any other medicine, and it raises no "needs tending" alert. Repair kits,
+    /// through the repair job, are the only treatment (it seals leaks and treats tend-only conditions itself). Runs only
+    /// when vanilla said yes, so the usual false answers cost nothing.
+    /// </summary>
+    [HarmonyPatch(typeof(Hediff), nameof(Hediff.TendableNow))]
+    public static class Patch_SkeletonNoTending
+    {
+        public static void Postfix(Hediff __instance, ref bool __result)
+        {
+            if (__result && __instance.pawn != null && SkeletonUtility.HasFrame(__instance.pawn))
+            {
+                __result = false;
+            }
         }
     }
 }

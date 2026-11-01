@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!-- CPU overload (CpuOverload.cs, docs/design/cpu-soft-cycle.md). Severity is days overloaded, advanced by the comp
+       except while soft cycling or suspended in a rib cage. Only a finished soft cycle removes it. Moods come from
+       Rimshi_CpuSluggish (stage 0) and Rimshi_CpuMadness (stage 2). Player text follows the no-spoiler rule
+       (docs/design/cpu-soft-cycle.md): each stage's tooltip describes only the state it is in, never what comes next. -->
+  <HediffDef>
+    <defName>Rimshi_CpuOverload</defName>
+    <label>CPU overload</label>
+    <description>This skeleton's CPU is overloaded.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <defaultLabelColor>(0.9, 1.0, 0.35)</defaultLabelColor>
+    <initialSeverity>0.001</initialSeverity>
+    <maxSeverity>9999</maxSeverity>
+    <isBad>true</isBad>
+    <everCurableByItem>false</everCurableByItem>
+    <comps>
+      <li Class="RimshiSkeletons.HediffCompProperties_Rimshi_CpuOverload"/>
+    </comps>
+    <stages>
+      <li>
+        <label>sluggish</label>
+        <overrideTooltip>Centuries of memory and feeling, never expressed and never cleared, have backed up through {PAWN_labelShort}'s CPU. Every thought has to drag itself through the weight of them, and its motors lag a beat behind what it means to do. Nothing has flushed its memory buffer in a very long time.</overrideTooltip>
+        <capMods>
+          <li>
+            <capacity>Moving</capacity>
+            <postFactor>0.8</postFactor>
+          </li>
+          <li>
+            <capacity>Manipulation</capacity>
+            <postFactor>0.8</postFactor>
+          </li>
+        </capMods>
+      </li>
+      <li>
+        <minSeverity>2</minSeverity>
+        <label>recalibrating</label>
+        <overrideTooltip>{PAWN_labelShort} has stopped fighting the overload. Its CPU is recalibrating, rebalancing its processes around the constant load as if it were the way things have always been.</overrideTooltip>
+      </li>
+      <li>
+        <minSeverity>4</minSeverity>
+        <label>vigilant</label>
+        <overrideTooltip>The overload is simply how {PAWN_labelShort}'s CPU runs now, and running this hot for this long is passively waking defensive protocols that have not stirred since the old empire's wars. It feels quicker and sharper than it has in years. Perhaps this is for the better. Lately, though, it watches everyone a little too closely.</overrideTooltip>
+        <capMods>
+          <li>
+            <capacity>Moving</capacity>
+            <postFactor>1.1</postFactor>
+          </li>
+          <li>
+            <capacity>Manipulation</capacity>
+            <postFactor>1.1</postFactor>
+          </li>
+        </capMods>
+        <statFactors>
+          <NegotiationAbility>1.1</NegotiationAbility>
+          <TradePriceImprovement>1.1</TradePriceImprovement>
+        </statFactors>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <!-- The soft reset without a repair bed (StandingReset.cs): tracks progress; removed when the reset ends either way. -->
+  <HediffDef>
+    <defName>Rimshi_SoftResetting</defName>
+    <label>CPU soft reset</label>
+    <description>This skeleton is resetting its CPU and memory buffer the hard way, without a repair bed. It has to stay perfectly still while its processes wind down and start over.</description>
+    <hediffClass>RimshiSkeletons.Hediff_Rimshi_SoftReset</hediffClass>
+    <defaultLabelColor>(149, 189, 252)</defaultLabelColor>
+    <isBad>false</isBad>
+    <everCurableByItem>false</everCurableByItem>
+  </HediffDef>
+
+</Defs>

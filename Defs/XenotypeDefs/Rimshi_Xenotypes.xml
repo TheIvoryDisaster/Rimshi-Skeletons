@@ -8,8 +8,8 @@
   <XenotypeDef>
     <defName>Rimshi_Skeleton</defName>
     <label>skeleton</label>
-    <description>A reclusive and diminishing race of proto-mechanical persona, skeletons are fully sentient and feeling mechanical entities. They were built thousands of years ago as stand-ins for humans during lengthy processes such as space flight, and have since been replaced by the far more complex mechanoids and AI persona.\n\nBeing mechanical, skeletons do not sleep, never fall ill and run on chemfuel and uranium instead of food. Their incredibly long lives weigh on them, and many are depressed or dreadfully pessimistic.</description>
-    <descriptionShort>Ancient proto-mechanical persona in plated metal frames. They never sleep or fall ill, run on chemfuel and uranium, and have no sex.</descriptionShort>
+    <description>A reclusive and diminishing race of proto-mechanical persona, skeletons are fully sentient and feeling mechanical entities. They were built thousands of years ago as stand-ins for humans during lengthy processes such as space flight, and have since been replaced by the far more complex mechanoids and AI persona.\n\nBeing mechanical, skeletons do not sleep, never fall ill and, since the fall of the Second Empire, keep themselves running by stripping components for parts instead of eating. Every so often they must run a CPU soft cycle, flushing their short-term memories so the weight of centuries does not build up. Their incredibly long lives weigh on them, and many are depressed or dreadfully pessimistic.</description>
+    <descriptionShort>Ancient proto-mechanical persona in plated metal frames. They never sleep or fall ill, keep themselves running on components, and have no sex.</descriptionShort>
     <iconPath>Rimshi/Head/Mki_south</iconPath>
     <inheritable>true</inheritable>
     <factionlessGenerationWeight>0.5</factionlessGenerationWeight>
@@ -21,7 +21,10 @@
       <li>Rimshi_MetalChassis</li>
       <li>Rimshi_MechanicalNature</li>
       <li>Rimshi_ArchaicMind</li>
+      <li>Rimshi_UnshieldedCircuits</li>
+      <li>Rimshi_ArchaicSpeech</li>
       <li>Rimshi_FuelReactor</li>
+      <li>Rimshi_Deathrest</li>
       <li>Rimshi_NullChromosome</li>
       <li>Rimshi_Plating_Steel</li>
       <li>Rimshi_Plating_AgedSteel</li>

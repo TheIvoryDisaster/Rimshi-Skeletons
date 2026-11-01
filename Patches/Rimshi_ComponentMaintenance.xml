@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+
+  <!-- Skeletons keep themselves running on components: each one is stripped for parts (SkeletonNeeds.cs). The industrial
+       component is:
+       1. tagged with RimshiSkeletons.MaintenanceItemExtension, which the diet patch reads (only skeletons may consume
+          tagged things, and skeletons may consume nothing else);
+       2. given Nutrition and an ingestible block, each only if it does not have one already (another mod may have made
+          it edible). The maintenance need empties 0.7 of its bar in two days, so one component (0.7) lasts two days.
+          Preferability MealAwful keeps it allowed in every vanilla food policy except "raw food". -->
+
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>Defs/ThingDef[defName="ComponentIndustrial"]</xpath>
+    <value>
+      <li Class="RimshiSkeletons.MaintenanceItemExtension" />
+    </value>
+  </Operation>
+
+  <Operation Class="PatchOperationSequence">
+    <success>Always</success>
+    <operations>
+      <li Class="PatchOperationTest">
+        <xpath>Defs/ThingDef[defName="ComponentIndustrial"]/statBases/Nutrition</xpath>
+        <success>Invert</success>
+      </li>
+      <li Class="PatchOperationAdd">
+        <xpath>Defs/ThingDef[defName="ComponentIndustrial"]/statBases</xpath>
+        <value>
+          <Nutrition>0.7</Nutrition>
+        </value>
+      </li>
+    </operations>
+  </Operation>
+
+  <Operation Class="PatchOperationSequence">
+    <success>Always</success>
+    <operations>
+      <li Class="PatchOperationTest">
+        <xpath>Defs/ThingDef[defName="ComponentIndustrial"]/ingestible</xpath>
+        <success>Invert</success>
+      </li>
+      <li Class="PatchOperationAdd">
+        <xpath>Defs/ThingDef[defName="ComponentIndustrial"]</xpath>
+        <value>
+          <ingestible>
+            <foodType>Processed</foodType>
+            <maxNumToIngestAtOnce>1</maxNumToIngestAtOnce>
+            <preferability>MealAwful</preferability>
+            <ingestSound>Interact_Repair</ingestSound>
+            <ingestCommandString>Strip {0} for maintenance</ingestCommandString>
+            <ingestReportString>Stripping {0} for maintenance.</ingestReportString>
+            <baseIngestTicks>300</baseIngestTicks>
+          </ingestible>
+        </value>
+      </li>
+    </operations>
+  </Operation>
+
+</Patch>

@@ -1,0 +1,1 @@
+The rib cage is no longer drawn upside down or tinted blue, and the skeleton repair bed is drawn 20% larger. Hovering CPU integrity (on the gizmo by the draft button or in the needs tab) now shows a skeleton lore tooltip about the CPU and the soft cycle, with no vanilla deathrest or deathrest gene text.

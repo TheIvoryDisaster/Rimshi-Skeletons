@@ -1,0 +1,440 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!-- Skeleton parts (docs/design/skeleton-parts.md): limbs from Kenshi's robot limbs in five tiers, plus senses and the
+       AI core. Made at the skeleton workbench from the skeleton intermediates, Crafting 11. Installed only on skeletons
+       (Recipe_Rimshi_InstallSkeletonPart). Placeholder art: vanilla's body part item recoloured brown with grey trim. Never burns.
+       Work amounts are in ticks: the game shows them divided by 60 (3000 shows as 50). -->
+  <ThingDef Name="Rimshi_SkeletonPartBase" ParentName="BodyPartBase" Abstract="True">
+    <techLevel>Industrial</techLevel>
+    <thingCategories>
+      <li>Rimshi_SkeletonParts</li>
+    </thingCategories>
+    <graphicData>
+      <texPath>Rimshi/Items/Placeholder_Part</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <drawSize>0.80</drawSize>
+    </graphicData>
+    <statBases>
+      <Flammability>0</Flammability>
+      <DeteriorationRate>0.5</DeteriorationRate>
+    </statBases>
+    <recipeMaker>
+      <workSpeedStat>GeneralLaborSpeed</workSpeedStat>
+      <workSkill>Crafting</workSkill>
+      <effectWorking>Smith</effectWorking>
+      <soundWorking>Recipe_Smith</soundWorking>
+      <unfinishedThingDef>UnfinishedHealthItemBionic</unfinishedThingDef>
+      <skillRequirements>
+        <Crafting>11</Crafting>
+      </skillRequirements>
+      <recipeUsers>
+        <li>Rimshi_SkeletonWorkbench</li>
+      </recipeUsers>
+      <displayPriority>200</displayPriority>
+    </recipeMaker>
+  </ThingDef>
+
+  <ThingDef ParentName="Rimshi_SkeletonPartBase">
+    <defName>Rimshi_EconomyArm</defName>
+    <label>economy skeleton arm</label>
+    <description>A replacement arm for a skeleton. A cheap, light-duty replacement built from the fewest parts that will do. It is weaker and clumsier than the original. Only fits a skeleton.</description>
+    <descriptionHyperlinks>
+      <HediffDef>Rimshi_EconomyArm</HediffDef>
+    </descriptionHyperlinks>
+    <costList>
+      <Rimshi_Motor>1</Rimshi_Motor>
+      <Rimshi_RoboticComponent>1</Rimshi_RoboticComponent>
+      <Steel>20</Steel>
+    </costList>
+    <statBases>
+      <WorkToMake>3000</WorkToMake>
+      <Mass>5</Mass>
+    </statBases>
+    <recipeMaker>
+      <researchPrerequisite>Rimshi_SkeletonFabrication</researchPrerequisite>
+    </recipeMaker>
+  </ThingDef>
+  <ThingDef ParentName="Rimshi_SkeletonPartBase">
+    <defName>Rimshi_EconomyLeg</defName>
+    <label>economy skeleton leg</label>
+    <description>A replacement leg for a skeleton. A cheap, light-duty replacement built from the fewest parts that will do. It is weaker and clumsier than the original. Only fits a skeleton.</description>
+    <descriptionHyperlinks>
+      <HediffDef>Rimshi_EconomyLeg</HediffDef>
+    </descriptionHyperlinks>
+    <costList>
+      <Rimshi_Motor>1</Rimshi_Motor>
+      <Rimshi_RoboticComponent>1</Rimshi_RoboticComponent>
+      <Steel>20</Steel>
+    </costList>
+    <statBases>
+      <WorkToMake>3000</WorkToMake>
+      <Mass>8</Mass>
+    </statBases>
+    <recipeMaker>
+      <researchPrerequisite>Rimshi_SkeletonFabrication</researchPrerequisite>
+    </recipeMaker>
+  </ThingDef>
+  <ThingDef ParentName="Rimshi_SkeletonPartBase">
+    <defName>Rimshi_StandardArm</defName>
+    <label>skeleton arm</label>
+    <description>A replacement arm for a skeleton. The standard pattern, built to the old empire's specifications. It works exactly as well as the original. Only fits a skeleton.</description>
+    <descriptionHyperlinks>
+      <HediffDef>Rimshi_StandardArm</HediffDef>
+    </descriptionHyperlinks>
+    <costList>
+      <Rimshi_Motor>2</Rimshi_Motor>
+      <Rimshi_RoboticComponent>1</Rimshi_RoboticComponent>
+      <Rimshi_SkeletonMuscle>1</Rimshi_SkeletonMuscle>
+      <Steel>40</Steel>
+    </costList>
+    <statBases>
+      <WorkToMake>3900</WorkToMake>
+      <Mass>5</Mass>
+    </statBases>
+    <recipeMaker>
+      <researchPrerequisite>Rimshi_SkeletonFabrication</researchPrerequisite>
+    </recipeMaker>
+  </ThingDef>
+  <ThingDef ParentName="Rimshi_SkeletonPartBase">
+    <defName>Rimshi_StandardLeg</defName>
+    <label>skeleton leg</label>
+    <description>A replacement leg for a skeleton. The standard pattern, built to the old empire's specifications. It works exactly as well as the original. Only fits a skeleton.</description>
+    <descriptionHyperlinks>
+      <HediffDef>Rimshi_StandardLeg</HediffDef>
+    </descriptionHyperlinks>
+    <costList>
+      <Rimshi_Motor>2</Rimshi_Motor>
+      <Rimshi_RoboticComponent>1</Rimshi_RoboticComponent>
+      <Rimshi_SkeletonMuscle>1</Rimshi_SkeletonMuscle>
+      <Steel>40</Steel>
+    </costList>
+    <statBases>
+      <WorkToMake>3900</WorkToMake>
+      <Mass>8</Mass>
+    </statBases>
+    <recipeMaker>
+      <researchPrerequisite>Rimshi_SkeletonFabrication</researchPrerequisite>
+    </recipeMaker>
+  </ThingDef>
+  <ThingDef ParentName="Rimshi_SkeletonPartBase">
+    <defName>Rimshi_KLRArm</defName>
+    <label>KLR skeleton arm</label>
+    <description>A replacement arm for a skeleton. A KLR pattern part with a heavy uranium-weighted frame. It works as well as the original and is much harder to damage: it takes 20% less damage. Only fits a skeleton.</description>
+    <descriptionHyperlinks>
+      <HediffDef>Rimshi_KLRArm</HediffDef>
+    </descriptionHyperlinks>
+    <costList>
+      <Rimshi_Motor>2</Rimshi_Motor>
+      <Rimshi_RoboticComponent>1</Rimshi_RoboticComponent>
+      <Rimshi_SkeletonMuscle>1</Rimshi_SkeletonMuscle>
+      <Steel>120</Steel>
+      <Uranium>30</Uranium>
+    </costList>
+    <statBases>
+      <WorkToMake>4800</WorkToMake>
+      <Mass>5</Mass>
+    </statBases>
+    <recipeMaker>
+      <researchPrerequisite>Rimshi_AdvancedSkeletonParts</researchPrerequisite>
+    </recipeMaker>
+  </ThingDef>
+  <ThingDef ParentName="Rimshi_SkeletonPartBase">
+    <defName>Rimshi_KLRLeg</defName>
+    <label>KLR skeleton leg</label>
+    <description>A replacement leg for a skeleton. A KLR pattern part with a heavy uranium-weighted frame. It works as well as the original and is much harder to damage: it takes 20% less damage. Only fits a skeleton.</description>
+    <descriptionHyperlinks>
+      <HediffDef>Rimshi_KLRLeg</HediffDef>
+    </descriptionHyperlinks>
+    <costList>
+      <Rimshi_Motor>2</Rimshi_Motor>
+      <Rimshi_RoboticComponent>1</Rimshi_RoboticComponent>
+      <Rimshi_SkeletonMuscle>1</Rimshi_SkeletonMuscle>
+      <Steel>120</Steel>
+      <Uranium>30</Uranium>
+    </costList>
+    <statBases>
+      <WorkToMake>4800</WorkToMake>
+      <Mass>8</Mass>
+    </statBases>
+    <recipeMaker>
+      <researchPrerequisite>Rimshi_AdvancedSkeletonParts</researchPrerequisite>
+    </recipeMaker>
+  </ThingDef>
+  <ThingDef ParentName="Rimshi_SkeletonPartBase">
+    <defName>Rimshi_IndustrialArm</defName>
+    <label>industrial skeleton arm</label>
+    <description>A replacement arm for a skeleton. A heavy industrial pattern part with oversized motors and doubled muscle. It takes 8% less damage. It is stronger than the original, and its wearer hits 10% harder in melee per arm. Only fits a skeleton.</description>
+    <descriptionHyperlinks>
+      <HediffDef>Rimshi_IndustrialArm</HediffDef>
+    </descriptionHyperlinks>
+    <costList>
+      <Rimshi_Motor>4</Rimshi_Motor>
+      <Rimshi_RoboticComponent>1</Rimshi_RoboticComponent>
+      <Rimshi_SkeletonMuscle>2</Rimshi_SkeletonMuscle>
+      <Uranium>30</Uranium>
+    </costList>
+    <statBases>
+      <WorkToMake>5400</WorkToMake>
+      <Mass>5</Mass>
+    </statBases>
+    <recipeMaker>
+      <researchPrerequisite>Rimshi_AdvancedSkeletonParts</researchPrerequisite>
+    </recipeMaker>
+  </ThingDef>
+  <ThingDef ParentName="Rimshi_SkeletonPartBase">
+    <defName>Rimshi_IndustrialLeg</defName>
+    <label>industrial skeleton leg</label>
+    <description>A replacement leg for a skeleton. A heavy industrial pattern part with oversized motors and doubled muscle. It takes 8% less damage. It is faster than the original. Only fits a skeleton.</description>
+    <descriptionHyperlinks>
+      <HediffDef>Rimshi_IndustrialLeg</HediffDef>
+    </descriptionHyperlinks>
+    <costList>
+      <Rimshi_Motor>4</Rimshi_Motor>
+      <Rimshi_RoboticComponent>1</Rimshi_RoboticComponent>
+      <Rimshi_SkeletonMuscle>2</Rimshi_SkeletonMuscle>
+      <Uranium>30</Uranium>
+    </costList>
+    <statBases>
+      <WorkToMake>5400</WorkToMake>
+      <Mass>8</Mass>
+    </statBases>
+    <recipeMaker>
+      <researchPrerequisite>Rimshi_AdvancedSkeletonParts</researchPrerequisite>
+    </recipeMaker>
+  </ThingDef>
+  <ThingDef ParentName="Rimshi_SkeletonPartBase">
+    <defName>Rimshi_SteadyArm</defName>
+    <label>steady skeleton arm</label>
+    <description>A replacement arm for a skeleton. A precision pattern part with fine motor control and dense sensor wiring. It is more dexterous than the original, and its grip can tear the weapon out of an enemy's hand in melee. Only fits a skeleton.</description>
+    <descriptionHyperlinks>
+      <HediffDef>Rimshi_SteadyArm</HediffDef>
+    </descriptionHyperlinks>
+    <costList>
+      <Rimshi_Motor>3</Rimshi_Motor>
+      <Rimshi_RoboticComponent>4</Rimshi_RoboticComponent>
+      <Rimshi_SkeletonMuscle>2</Rimshi_SkeletonMuscle>
+      <Plasteel>10</Plasteel>
+    </costList>
+    <statBases>
+      <WorkToMake>6000</WorkToMake>
+      <Mass>5</Mass>
+    </statBases>
+    <recipeMaker>
+      <researchPrerequisite>Rimshi_AdvancedSkeletonParts</researchPrerequisite>
+    </recipeMaker>
+  </ThingDef>
+  <ThingDef ParentName="Rimshi_SkeletonPartBase">
+    <defName>Rimshi_SteadyLeg</defName>
+    <label>steady skeleton leg</label>
+    <description>A replacement leg for a skeleton. A precision pattern part with fine motor control and dense sensor wiring. Its quick footwork makes its wearer much harder to hit in melee. Only fits a skeleton.</description>
+    <descriptionHyperlinks>
+      <HediffDef>Rimshi_SteadyLeg</HediffDef>
+    </descriptionHyperlinks>
+    <costList>
+      <Rimshi_Motor>3</Rimshi_Motor>
+      <Rimshi_RoboticComponent>4</Rimshi_RoboticComponent>
+      <Rimshi_SkeletonMuscle>2</Rimshi_SkeletonMuscle>
+      <Plasteel>10</Plasteel>
+    </costList>
+    <statBases>
+      <WorkToMake>6000</WorkToMake>
+      <Mass>8</Mass>
+    </statBases>
+    <recipeMaker>
+      <researchPrerequisite>Rimshi_AdvancedSkeletonParts</researchPrerequisite>
+    </recipeMaker>
+  </ThingDef>
+  <ThingDef ParentName="Rimshi_SkeletonPartBase">
+    <defName>Rimshi_AICore</defName>
+    <label>AI core</label>
+    <description>A skeleton's mind: an AI persona core wired into the old empire's control lattice. Installed in place of a skeleton's brain, it does the same job. Installed again over a damaged AI core, it repairs all the damage. Destroying it still kills the skeleton. Only fits a skeleton.</description>
+    <descriptionHyperlinks>
+      <HediffDef>Rimshi_AICore</HediffDef>
+    </descriptionHyperlinks>
+    <costList>
+      <Rimshi_RoboticComponent>2</Rimshi_RoboticComponent>
+      <ComponentSpacer>2</ComponentSpacer>
+      <AIPersonaCore>1</AIPersonaCore>
+    </costList>
+    <statBases>
+      <WorkToMake>6000</WorkToMake>
+      <Mass>0.5</Mass>
+    </statBases>
+    <recipeMaker>
+      <researchPrerequisite>Rimshi_AdvancedSkeletonParts</researchPrerequisite>
+    </recipeMaker>
+  </ThingDef>
+
+  <!-- Skeleton organs (docs/design/skeleton-organs.md): replacements for the machine parts every skeleton has in place of
+       its organs. Same cost and work as the standard skeleton limbs. -->
+  <ThingDef ParentName="Rimshi_SkeletonPartBase">
+    <defName>Rimshi_CoolingFan</defName>
+    <label>cooling fan</label>
+    <description>A skeleton's cooling fan: a shrouded impeller that draws air across its circuits to keep them from cooking. Only fits a skeleton.</description>
+    <descriptionHyperlinks>
+      <HediffDef>Rimshi_CoolingFan</HediffDef>
+    </descriptionHyperlinks>
+    <costList>
+      <Rimshi_Motor>2</Rimshi_Motor>
+      <Rimshi_RoboticComponent>1</Rimshi_RoboticComponent>
+      <Rimshi_SkeletonMuscle>1</Rimshi_SkeletonMuscle>
+      <Steel>40</Steel>
+    </costList>
+    <statBases>
+      <WorkToMake>3900</WorkToMake>
+      <Mass>1</Mass>
+    </statBases>
+    <recipeMaker>
+      <researchPrerequisite>Rimshi_SkeletonFabrication</researchPrerequisite>
+    </recipeMaker>
+  </ThingDef>
+  <ThingDef ParentName="Rimshi_SkeletonPartBase">
+    <defName>Rimshi_FluidReprocessor</defName>
+    <label>fluid reprocessor</label>
+    <description>A skeleton's fluid reprocessor: a sealed unit that strips the spent coolant circulating through the frame and sends it round again. Only fits a skeleton.</description>
+    <descriptionHyperlinks>
+      <HediffDef>Rimshi_FluidReprocessor</HediffDef>
+    </descriptionHyperlinks>
+    <costList>
+      <Rimshi_Motor>2</Rimshi_Motor>
+      <Rimshi_RoboticComponent>1</Rimshi_RoboticComponent>
+      <Rimshi_SkeletonMuscle>1</Rimshi_SkeletonMuscle>
+      <Steel>40</Steel>
+    </costList>
+    <statBases>
+      <WorkToMake>3900</WorkToMake>
+      <Mass>0.5</Mass>
+    </statBases>
+    <recipeMaker>
+      <researchPrerequisite>Rimshi_SkeletonFabrication</researchPrerequisite>
+    </recipeMaker>
+  </ThingDef>
+  <ThingDef ParentName="Rimshi_SkeletonPartBase">
+    <defName>Rimshi_Capacitor</defName>
+    <label>capacitor</label>
+    <description>A skeleton's capacitor: a heavy cell that holds the charge stripped from salvaged parts and feeds it to the frame. Only fits a skeleton.</description>
+    <descriptionHyperlinks>
+      <HediffDef>Rimshi_Capacitor</HediffDef>
+    </descriptionHyperlinks>
+    <costList>
+      <Rimshi_Motor>2</Rimshi_Motor>
+      <Rimshi_RoboticComponent>1</Rimshi_RoboticComponent>
+      <Rimshi_SkeletonMuscle>1</Rimshi_SkeletonMuscle>
+      <Steel>40</Steel>
+    </costList>
+    <statBases>
+      <WorkToMake>3900</WorkToMake>
+      <Mass>1</Mass>
+    </statBases>
+    <recipeMaker>
+      <researchPrerequisite>Rimshi_SkeletonFabrication</researchPrerequisite>
+    </recipeMaker>
+  </ThingDef>
+  <ThingDef ParentName="Rimshi_SkeletonPartBase">
+    <defName>Rimshi_OilFilter</defName>
+    <label>oil filter</label>
+    <description>A skeleton's oil filter: a pleated cartridge that catches grit and metal shavings before the ancient oil reaches the joints. Only fits a skeleton.</description>
+    <descriptionHyperlinks>
+      <HediffDef>Rimshi_OilFilter</HediffDef>
+    </descriptionHyperlinks>
+    <costList>
+      <Rimshi_Motor>2</Rimshi_Motor>
+      <Rimshi_RoboticComponent>1</Rimshi_RoboticComponent>
+      <Rimshi_SkeletonMuscle>1</Rimshi_SkeletonMuscle>
+      <Steel>40</Steel>
+    </costList>
+    <statBases>
+      <WorkToMake>3900</WorkToMake>
+      <Mass>1</Mass>
+    </statBases>
+    <recipeMaker>
+      <researchPrerequisite>Rimshi_SkeletonFabrication</researchPrerequisite>
+    </recipeMaker>
+  </ThingDef>
+  <ThingDef ParentName="Rimshi_SkeletonPartBase">
+    <defName>Rimshi_FluidPump</defName>
+    <label>fluid pump</label>
+    <description>A skeleton's fluid pump: the steady piston that drives ancient oil through every line of the frame. Only fits a skeleton.</description>
+    <descriptionHyperlinks>
+      <HediffDef>Rimshi_FluidPump</HediffDef>
+    </descriptionHyperlinks>
+    <costList>
+      <Rimshi_Motor>2</Rimshi_Motor>
+      <Rimshi_RoboticComponent>1</Rimshi_RoboticComponent>
+      <Rimshi_SkeletonMuscle>1</Rimshi_SkeletonMuscle>
+      <Steel>40</Steel>
+    </costList>
+    <statBases>
+      <WorkToMake>3900</WorkToMake>
+      <Mass>1</Mass>
+    </statBases>
+    <recipeMaker>
+      <researchPrerequisite>Rimshi_SkeletonFabrication</researchPrerequisite>
+    </recipeMaker>
+  </ThingDef>
+  <ThingDef ParentName="Rimshi_SkeletonPartBase">
+    <defName>Rimshi_OpticalSensor</defName>
+    <label>optical sensor</label>
+    <description>A skeleton's eye: a lens array and image processor that sees as well as the original. Only fits a skeleton.</description>
+    <descriptionHyperlinks>
+      <HediffDef>Rimshi_OpticalSensor</HediffDef>
+    </descriptionHyperlinks>
+    <costList>
+      <Rimshi_Motor>2</Rimshi_Motor>
+      <Rimshi_RoboticComponent>1</Rimshi_RoboticComponent>
+      <Rimshi_SkeletonMuscle>1</Rimshi_SkeletonMuscle>
+      <Steel>40</Steel>
+    </costList>
+    <statBases>
+      <WorkToMake>3900</WorkToMake>
+      <Mass>0.3</Mass>
+    </statBases>
+    <recipeMaker>
+      <researchPrerequisite>Rimshi_SkeletonFabrication</researchPrerequisite>
+    </recipeMaker>
+  </ThingDef>
+  <ThingDef ParentName="Rimshi_SkeletonPartBase">
+    <defName>Rimshi_AudioReceiver</defName>
+    <label>auditory array</label>
+    <description>A skeleton's ear: a ring of membrane pickups and signal filters that hears as well as the original. Only fits a skeleton.</description>
+    <descriptionHyperlinks>
+      <HediffDef>Rimshi_AudioReceiver</HediffDef>
+    </descriptionHyperlinks>
+    <costList>
+      <Rimshi_Motor>2</Rimshi_Motor>
+      <Rimshi_RoboticComponent>1</Rimshi_RoboticComponent>
+      <Rimshi_SkeletonMuscle>1</Rimshi_SkeletonMuscle>
+      <Steel>40</Steel>
+    </costList>
+    <statBases>
+      <WorkToMake>3900</WorkToMake>
+      <Mass>0.3</Mass>
+    </statBases>
+    <recipeMaker>
+      <researchPrerequisite>Rimshi_SkeletonFabrication</researchPrerequisite>
+    </recipeMaker>
+  </ThingDef>
+  <ThingDef ParentName="Rimshi_SkeletonPartBase">
+    <defName>Rimshi_IRCamera</defName>
+    <label>IR camera</label>
+    <description>A skeleton's IR camera: a heat-sensing lens set in the face that reads the air around it in infrared. Only fits a skeleton.</description>
+    <descriptionHyperlinks>
+      <HediffDef>Rimshi_IRCamera</HediffDef>
+    </descriptionHyperlinks>
+    <costList>
+      <Rimshi_Motor>2</Rimshi_Motor>
+      <Rimshi_RoboticComponent>1</Rimshi_RoboticComponent>
+      <Rimshi_SkeletonMuscle>1</Rimshi_SkeletonMuscle>
+      <Steel>40</Steel>
+    </costList>
+    <statBases>
+      <WorkToMake>3900</WorkToMake>
+      <Mass>0.3</Mass>
+    </statBases>
+    <recipeMaker>
+      <researchPrerequisite>Rimshi_SkeletonFabrication</researchPrerequisite>
+    </recipeMaker>
+  </ThingDef>
+
+</Defs>

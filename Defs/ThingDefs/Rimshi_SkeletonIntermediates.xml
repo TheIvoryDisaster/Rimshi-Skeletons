@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!-- Skeleton intermediates (docs/design/skeleton-parts.md), from Kenshi's robotics components: made at the skeleton
+       workbench and used up making skeleton parts and repair kits. Art: Matthew's picks from the ComfyUI proposals
+       (docs/art/proposals/intermediates/: motor A, robotic component A, skeleton muscle C); the base keeps the black and
+       yellow placeholder for any new intermediate. While being made they show as vanilla's unfinished component. Work amounts are in ticks: the game shows them divided by 60 (6000 shows as 100). -->
+  <ThingDef Name="Rimshi_SkeletonIntermediateBase" ParentName="ResourceBase" Abstract="True">
+    <stackLimit>25</stackLimit>
+    <healthAffectsPrice>false</healthAffectsPrice>
+    <soundInteract>Metal_Drop</soundInteract>
+    <soundDrop>Metal_Drop</soundDrop>
+    <thingCategories>
+      <li>Rimshi_SkeletonComponents</li>
+    </thingCategories>
+    <graphicData>
+      <texPath>Rimshi/Items/Placeholder_Intermediate</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+    </graphicData>
+    <techLevel>Industrial</techLevel>
+    <tradeTags>
+      <li>ExoticMisc</li>
+    </tradeTags>
+    <intricate>true</intricate>
+  </ThingDef>
+
+  <ThingDef ParentName="Rimshi_SkeletonIntermediateBase">
+    <defName>Rimshi_Motor</defName>
+    <graphicData>
+      <texPath>Rimshi/Items/Motor</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+    </graphicData>
+    <label>skeleton motor</label>
+    <description>A compact electric motor of the old empire's pattern, the kind that drives a skeleton's joints. Used to make skeleton parts.</description>
+    <statBases>
+      <MaxHitPoints>70</MaxHitPoints>
+      <MarketValue>85</MarketValue>
+      <Mass>1</Mass>
+      <Flammability>0</Flammability>
+      <DeteriorationRate>1</DeteriorationRate>
+    </statBases>
+  </ThingDef>
+
+  <ThingDef ParentName="Rimshi_SkeletonIntermediateBase">
+    <defName>Rimshi_RoboticComponent</defName>
+    <graphicData>
+      <texPath>Rimshi/Items/RoboticComponent</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+    </graphicData>
+    <label>robotic component</label>
+    <description>A sealed bundle of servo controllers, sensors and silver-traced circuitry: the nerves of a skeleton part. Used to make skeleton parts and repair kits.</description>
+    <statBases>
+      <MaxHitPoints>70</MaxHitPoints>
+      <MarketValue>170</MarketValue>
+      <Mass>0.8</Mass>
+      <Flammability>0</Flammability>
+      <DeteriorationRate>1</DeteriorationRate>
+    </statBases>
+  </ThingDef>
+
+  <ThingDef ParentName="Rimshi_SkeletonIntermediateBase">
+    <defName>Rimshi_SkeletonMuscle</defName>
+    <graphicData>
+      <texPath>Rimshi/Items/SkeletonMuscle</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+    </graphicData>
+    <label>skeleton muscle</label>
+    <description>A bundle of plasteel-sheathed actuator cables that pulls a skeleton's limbs the way muscle pulls bone. Used to make skeleton limbs.</description>
+    <statBases>
+      <MaxHitPoints>90</MaxHitPoints>
+      <MarketValue>260</MarketValue>
+      <Mass>1.5</Mass>
+      <Flammability>0</Flammability>
+      <DeteriorationRate>1</DeteriorationRate>
+    </statBases>
+  </ThingDef>
+
+  <!-- Recipes are their own RecipeDefs, like vanilla's Make_ComponentIndustrial, so the unfinished thing and the work
+       amount are set directly. -->
+  <RecipeDef Name="Rimshi_MakeIntermediateBase" Abstract="True">
+    <workSpeedStat>GeneralLaborSpeed</workSpeedStat>
+    <workSkill>Crafting</workSkill>
+    <effectWorking>Smith</effectWorking>
+    <soundWorking>Recipe_Machining</soundWorking>
+    <unfinishedThingDef>UnfinishedComponent</unfinishedThingDef>
+    <recipeUsers>
+      <li>Rimshi_SkeletonWorkbench</li>
+    </recipeUsers>
+    <researchPrerequisite>Rimshi_SkeletonFabrication</researchPrerequisite>
+  </RecipeDef>
+
+  <RecipeDef ParentName="Rimshi_MakeIntermediateBase">
+    <defName>Rimshi_Make_Motor</defName>
+    <label>make skeleton motor</label>
+    <description>Make a skeleton motor from a component and steel.</description>
+    <jobString>Making skeleton motor.</jobString>
+    <workAmount>6000</workAmount>
+    <ingredients>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>ComponentIndustrial</li>
+          </thingDefs>
+        </filter>
+        <count>1</count>
+      </li>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>Steel</li>
+          </thingDefs>
+        </filter>
+        <count>20</count>
+      </li>
+    </ingredients>
+    <fixedIngredientFilter>
+      <thingDefs>
+        <li>ComponentIndustrial</li>
+        <li>Steel</li>
+      </thingDefs>
+    </fixedIngredientFilter>
+    <products>
+      <Rimshi_Motor>1</Rimshi_Motor>
+    </products>
+    <skillRequirements>
+      <Crafting>6</Crafting>
+    </skillRequirements>
+    <displayPriority>100</displayPriority>
+  </RecipeDef>
+
+  <RecipeDef ParentName="Rimshi_MakeIntermediateBase">
+    <defName>Rimshi_Make_RoboticComponent</defName>
+    <label>make robotic component</label>
+    <description>Make a robotic component from components, steel and silver.</description>
+    <jobString>Making robotic component.</jobString>
+    <workAmount>9000</workAmount>
+    <ingredients>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>ComponentIndustrial</li>
+          </thingDefs>
+        </filter>
+        <count>2</count>
+      </li>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>Steel</li>
+          </thingDefs>
+        </filter>
+        <count>30</count>
+      </li>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>Silver</li>
+          </thingDefs>
+        </filter>
+        <count>10</count>
+      </li>
+    </ingredients>
+    <fixedIngredientFilter>
+      <thingDefs>
+        <li>ComponentIndustrial</li>
+        <li>Steel</li>
+        <li>Silver</li>
+      </thingDefs>
+    </fixedIngredientFilter>
+    <products>
+      <Rimshi_RoboticComponent>1</Rimshi_RoboticComponent>
+    </products>
+    <skillRequirements>
+      <Crafting>8</Crafting>
+    </skillRequirements>
+    <displayPriority>101</displayPriority>
+  </RecipeDef>
+
+  <RecipeDef ParentName="Rimshi_MakeIntermediateBase">
+    <defName>Rimshi_Make_SkeletonMuscle</defName>
+    <label>make skeleton muscle</label>
+    <description>Make skeleton muscle from components, steel and plasteel.</description>
+    <jobString>Making skeleton muscle.</jobString>
+    <workAmount>12000</workAmount>
+    <ingredients>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>ComponentIndustrial</li>
+          </thingDefs>
+        </filter>
+        <count>2</count>
+      </li>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>Steel</li>
+          </thingDefs>
+        </filter>
+        <count>30</count>
+      </li>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>Plasteel</li>
+          </thingDefs>
+        </filter>
+        <count>10</count>
+      </li>
+    </ingredients>
+    <fixedIngredientFilter>
+      <thingDefs>
+        <li>ComponentIndustrial</li>
+        <li>Steel</li>
+        <li>Plasteel</li>
+      </thingDefs>
+    </fixedIngredientFilter>
+    <products>
+      <Rimshi_SkeletonMuscle>1</Rimshi_SkeletonMuscle>
+    </products>
+    <skillRequirements>
+      <Crafting>8</Crafting>
+    </skillRequirements>
+    <displayPriority>102</displayPriority>
+  </RecipeDef>
+
+</Defs>

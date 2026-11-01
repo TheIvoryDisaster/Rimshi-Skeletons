@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!-- Skeleton organs (docs/design/skeleton-organs.md): the machine parts every skeleton has in place of the human
+       organs. Rimshi_MechanicalNature lists them (SkeletonAnatomyExtension) and fits them on every skeleton; each part is
+       then named after its machine part. They work exactly like the organ they replace. Not a prosthetic for
+       transhumanist or body purist thoughts, and no extra pawn value: they are the skeleton's own anatomy. Hidden in the
+       health tab like natural organs (Hediff_Rimshi_SkeletonOrgan). defName Rimshi_AudioReceiver is kept for saves;
+       it is the auditory array. -->
+  <HediffDef Name="Rimshi_SkeletonOrganHediffBase" ParentName="Rimshi_SkeletonPartHediffBase" Abstract="True">
+    <hediffClass>RimshiSkeletons.Hediff_Rimshi_SkeletonOrgan</hediffClass>
+    <countsAsAddedPartOrImplant>false</countsAsAddedPartOrImplant>
+    <priceImpact>false</priceImpact>
+    <addedPartProps>
+      <solid>true</solid>
+      <partEfficiency>1.0</partEfficiency>
+    </addedPartProps>
+  </HediffDef>
+
+  <HediffDef ParentName="Rimshi_SkeletonOrganHediffBase">
+    <defName>Rimshi_CoolingFan</defName>
+    <label>cooling fan</label>
+    <labelNoun>a cooling fan</labelNoun>
+    <description>A skeleton's cooling fan: a shrouded impeller that draws air across its circuits to keep them from cooking. Only fits a skeleton.</description>
+    <descriptionHyperlinks>
+      <ThingDef>Rimshi_CoolingFan</ThingDef>
+    </descriptionHyperlinks>
+    <spawnThingOnRemoved>Rimshi_CoolingFan</spawnThingOnRemoved>
+  </HediffDef>
+  <HediffDef ParentName="Rimshi_SkeletonOrganHediffBase">
+    <defName>Rimshi_FluidReprocessor</defName>
+    <label>fluid reprocessor</label>
+    <labelNoun>a fluid reprocessor</labelNoun>
+    <description>A skeleton's fluid reprocessor: a sealed unit that strips the spent coolant circulating through the frame and sends it round again. Only fits a skeleton.</description>
+    <descriptionHyperlinks>
+      <ThingDef>Rimshi_FluidReprocessor</ThingDef>
+    </descriptionHyperlinks>
+    <spawnThingOnRemoved>Rimshi_FluidReprocessor</spawnThingOnRemoved>
+  </HediffDef>
+  <HediffDef ParentName="Rimshi_SkeletonOrganHediffBase">
+    <defName>Rimshi_Capacitor</defName>
+    <label>capacitor</label>
+    <labelNoun>a capacitor</labelNoun>
+    <description>A skeleton's capacitor: a heavy cell that holds the charge stripped from salvaged parts and feeds it to the frame. Only fits a skeleton.</description>
+    <descriptionHyperlinks>
+      <ThingDef>Rimshi_Capacitor</ThingDef>
+    </descriptionHyperlinks>
+    <spawnThingOnRemoved>Rimshi_Capacitor</spawnThingOnRemoved>
+  </HediffDef>
+  <HediffDef ParentName="Rimshi_SkeletonOrganHediffBase">
+    <defName>Rimshi_OilFilter</defName>
+    <label>oil filter</label>
+    <labelNoun>an oil filter</labelNoun>
+    <description>A skeleton's oil filter: a pleated cartridge that catches grit and metal shavings before the ancient oil reaches the joints. Only fits a skeleton.</description>
+    <descriptionHyperlinks>
+      <ThingDef>Rimshi_OilFilter</ThingDef>
+    </descriptionHyperlinks>
+    <spawnThingOnRemoved>Rimshi_OilFilter</spawnThingOnRemoved>
+  </HediffDef>
+  <HediffDef ParentName="Rimshi_SkeletonOrganHediffBase">
+    <defName>Rimshi_FluidPump</defName>
+    <label>fluid pump</label>
+    <labelNoun>a fluid pump</labelNoun>
+    <description>A skeleton's fluid pump: the steady piston that drives ancient oil through every line of the frame. Only fits a skeleton.</description>
+    <descriptionHyperlinks>
+      <ThingDef>Rimshi_FluidPump</ThingDef>
+    </descriptionHyperlinks>
+    <spawnThingOnRemoved>Rimshi_FluidPump</spawnThingOnRemoved>
+  </HediffDef>
+  <HediffDef ParentName="Rimshi_SkeletonOrganHediffBase">
+    <defName>Rimshi_OpticalSensor</defName>
+    <label>optical sensor</label>
+    <labelNoun>an optical sensor</labelNoun>
+    <description>A skeleton's eye: a lens array and image processor that sees as well as the original. Only fits a skeleton.</description>
+    <descriptionHyperlinks>
+      <ThingDef>Rimshi_OpticalSensor</ThingDef>
+    </descriptionHyperlinks>
+    <spawnThingOnRemoved>Rimshi_OpticalSensor</spawnThingOnRemoved>
+  </HediffDef>
+  <HediffDef ParentName="Rimshi_SkeletonOrganHediffBase">
+    <defName>Rimshi_AudioReceiver</defName>
+    <label>auditory array</label>
+    <labelNoun>an auditory array</labelNoun>
+    <description>A skeleton's ear: a ring of membrane pickups and signal filters that hears as well as the original. Only fits a skeleton.</description>
+    <descriptionHyperlinks>
+      <ThingDef>Rimshi_AudioReceiver</ThingDef>
+    </descriptionHyperlinks>
+    <spawnThingOnRemoved>Rimshi_AudioReceiver</spawnThingOnRemoved>
+  </HediffDef>
+  <HediffDef ParentName="Rimshi_SkeletonOrganHediffBase">
+    <defName>Rimshi_IRCamera</defName>
+    <label>IR camera</label>
+    <labelNoun>an IR camera</labelNoun>
+    <description>A skeleton's IR camera: a heat-sensing lens set in the face that reads the air around it in infrared. Only fits a skeleton.</description>
+    <descriptionHyperlinks>
+      <ThingDef>Rimshi_IRCamera</ThingDef>
+    </descriptionHyperlinks>
+    <spawnThingOnRemoved>Rimshi_IRCamera</spawnThingOnRemoved>
+  </HediffDef>
+
+</Defs>

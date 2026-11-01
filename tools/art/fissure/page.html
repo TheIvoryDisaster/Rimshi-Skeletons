@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html><head><script type="importmap">{"imports":{"three":"./three.module.js"}}</script></head>
+<body style="margin:0;background:transparent">
+<script type="module">
+import * as THREE from 'three';
+import { buildModel, makeCamera, makeLights, ROTATIONS } from './scene.js';
+
+const SIZE = Number(new URLSearchParams(location.search).get('size') || 1280);
+const renderer = new THREE.WebGLRenderer({ antialias: false, alpha: true, preserveDrawingBuffer: true });
+renderer.setSize(SIZE, SIZE);
+renderer.setClearColor(0x000000, 0);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+document.body.appendChild(renderer.domElement);
+const camera = makeCamera();
+
+function pass(rotation, mode) {
+  const scene = new THREE.Scene();
+  makeLights(scene);
+  const model = buildModel();
+  model.rotation.y = rotation;
+  model.traverse(o => {
+    if (!o.isMesh) return;
+    if (mode === 'mask') {
+      const c = o.material.userData.brick ? 0xffffff : 0x000000;
+      o.material = new THREE.MeshBasicMaterial({ color: c, side: THREE.DoubleSide });
+    } else if (mode === 'id') {
+      const id = o.material.userData.id * 37 + 11;
+      o.material = new THREE.MeshBasicMaterial({ color: new THREE.Color(`rgb(${id % 256},${(id * 7) % 256},${(id * 13) % 256})`), side: THREE.DoubleSide });
+    } else if (mode === 'normal') {
+      o.material = new THREE.MeshNormalMaterial({ side: THREE.DoubleSide });
+    } else if (mode === 'depth') {
+      o.material = new THREE.MeshDepthMaterial({ side: THREE.DoubleSide, depthPacking: THREE.RGBADepthPacking });
+    }
+  });
+  scene.add(model);
+  renderer.render(scene, camera);
+  return renderer.domElement.toDataURL('image/png');
+}
+
+window.renderAll = () => {
+  const out = {};
+  for (const [name, rot] of Object.entries(ROTATIONS)) {
+    for (const mode of ['color', 'id', 'normal', 'mask']) out[`${name}_${mode}`] = pass(rot, mode);
+  }
+  return out;
+};
+window.ready = true;
+</script></body></html>

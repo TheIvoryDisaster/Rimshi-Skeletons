@@ -6,7 +6,7 @@ from helpers import ROOT, SOURCE, concrete, defs, def_names, patch_names, source
 
 VANILLA = {
     "GeneDef": {"Neversleep", "Ageless", "Hair_BaldOnly", "Beard_NoBeardOnly"},
-    "parents": {"ResourceBase", "BedWithQualityBase", "BuildingBase", "GeneSkinColorOverride", "AverageBase", "FactionBase", "PlayerFactionBase", "BasePlayerPawnKind", "ScenarioBase"},
+    "parents": {"BaseFilth", "ResourceBase", "BedWithQualityBase", "BuildingBase", "GeneSkinColorOverride", "AverageBase", "FactionBase", "PlayerFactionBase", "BasePlayerPawnKind", "ScenarioBase", "BenchBase", "BodyPartBase", "AddedBodyPartBase", "SurgeryFlesh", "UnfinishedBase"},
     "PawnKindDef": {"Villager", "Town_Guard", "Miner", "Farmer"},
 }
 DIRECTIONS = ("south", "north", "east")
@@ -109,11 +109,14 @@ class DefTests(unittest.TestCase):
             with self.subTest(defName=name):
                 self.assertIn(name, {el.findtext("defName") for _, el in concrete()})
 
-    def test_fuel_thought_has_seven_stages(self):
-        """ThoughtWorker_NeedFood indexes stages 0 to 6 (hungry, urgently hungry, five malnutrition stages)."""
-        for _, t in concrete("ThoughtDef"):
-            if t.findtext("workerClass") == "ThoughtWorker_NeedFood":
-                self.assertEqual(len(t.find("stages")), 7, t.findtext("defName"))
+    def test_maintenance_thought_stages(self):
+        """ThoughtWorker_Maintenance indexes stages 0 to MaxStage."""
+        code = source_text()["Source/RimshiSkeletons/Skeleton/SkeletonNeeds.cs"]
+        max_stage = int(re.search(r"MaxStage = (\d+);", code).group(1))
+        found = [t for _, t in concrete("ThoughtDef") if t.findtext("workerClass") == "RimshiSkeletons.ThoughtWorker_Maintenance"]
+        self.assertTrue(found)
+        for t in found:
+            self.assertEqual(len(t.find("stages")), max_stage + 1, t.findtext("defName"))
 
     def test_faction_pawn_kinds_exist(self):
         kinds = def_names("PawnKindDef") | VANILLA["PawnKindDef"]
@@ -166,8 +169,80 @@ class DefTests(unittest.TestCase):
             with self.subTest(research=name):
                 self.assertIn("BasicMechtech", [li.text for li in research[name].find("prerequisites")])
         things = {el.findtext("defName"): el for _, el in concrete("ThingDef")}
-        self.assertEqual(things["Rimshi_RepairKit"].findtext("recipeMaker/researchPrerequisite"), "Rimshi_SkeletonRepairKits")
+        self.assertIn("Rimshi_SkeletonRepairKits", [li.text for li in things["Rimshi_RepairKit"].find("recipeMaker/researchPrerequisites")])
+
+    def test_facility_placeworker_has_facility_comp(self):
+        """PlaceWorker_ShowFacilitiesConnections (given to every bed by vanilla BedBase) throws in the build menu on a def
+        with neither CompProperties_AffectedByFacilities nor CompProperties_Facility."""
+        for _, el in concrete("ThingDef"):
+            workers = [li.text for li in (el.find("placeWorkers") if el.find("placeWorkers") is not None else [])]
+            if el.get("ParentName") in ("BedWithQualityBase", "BedBase") or "PlaceWorker_ShowFacilitiesConnections" in workers:
+                comps = [li.get("Class") for li in (el.find("comps") if el.find("comps") is not None else [])]
+                with self.subTest(thing=el.findtext("defName")):
+                    self.assertTrue({"CompProperties_AffectedByFacilities", "CompProperties_Facility"} & set(comps))
+
+    def test_skeleton_parts(self):
+        """Every skeleton part has a hediff of the same name, an install recipe, a workbench recipe and Crafting 11."""
+        things = {el.findtext("defName"): el for _, el in concrete("ThingDef")}
+        hediffs = def_names("HediffDef")
+        installs = {el.findtext("addsHediff") for _, el in concrete("RecipeDef") if el.findtext("addsHediff")}
+        parts = [n for n, el in things.items() if el.get("ParentName") == "Rimshi_SkeletonPartBase"]
+        self.assertEqual(len(parts), 19)
+        for name in parts:
+            with self.subTest(part=name):
+                self.assertIn(name, hediffs)
+                self.assertIn(name, installs)
+                self.assertEqual(things[name].findtext("recipeMaker/researchPrerequisite") is not None, True)
         self.assertIn("Rimshi_SkeletonRepairBeds", [li.text for li in things["Rimshi_SkeletonRepairBed"].find("researchPrerequisites")])
+
+
+    def test_skeleton_item_categories(self):
+        """Skeleton parts are stored under Skeleton Parts (inside prosthetics) and crafting components under Skeleton
+        Components (inside manufactured), through the bases, so a new part or component lands there by inheriting."""
+        cats = {el.findtext("defName"): el.findtext("parent") for _, el in concrete("ThingCategoryDef")}
+        self.assertEqual(cats.get("Rimshi_SkeletonParts"), "BodyPartsProsthetic")
+        self.assertEqual(cats.get("Rimshi_SkeletonComponents"), "Manufactured")
+        named = {el.get("Name"): el for _, el in defs() if el.tag == "ThingDef" and el.get("Name")}
+
+        def categories(el):
+            while el is not None:
+                own = el.find("thingCategories")
+                if own is not None:
+                    return [li.text for li in own]
+                el = named.get(el.get("ParentName"))
+            return []
+
+        def reaches(el, base):
+            while el is not None:
+                if el.get("ParentName") == base:
+                    return True
+                el = named.get(el.get("ParentName"))
+            return False
+
+        for _, el in concrete("ThingDef"):
+            name = el.findtext("defName")
+            for base, cat in (("BodyPartBase", "Rimshi_SkeletonParts"), ("Rimshi_SkeletonIntermediateBase", "Rimshi_SkeletonComponents")):
+                if reaches(el, base):
+                    with self.subTest(thing=name):
+                        self.assertEqual(categories(el), [cat])
+        for base, cat in (("Rimshi_SkeletonPartBase", "Rimshi_SkeletonParts"), ("Rimshi_SkeletonIntermediateBase", "Rimshi_SkeletonComponents")):
+            self.assertEqual(categories(named[base]), [cat])
+
+    def test_skeleton_organs(self):
+        """Each machine organ on the mechanical nature gene is a hidden organ hediff with an install recipe for that organ."""
+        genes = {el.findtext("defName"): el for _, el in concrete("GeneDef")}
+        hediffs = {el.findtext("defName"): el for _, el in concrete("HediffDef")}
+        recipes = {el.findtext("addsHediff"): el for _, el in concrete("RecipeDef") if el.findtext("addsHediff")}
+        nature = genes["Rimshi_MechanicalNature"]
+        self.assertEqual(nature.findtext("geneClass"), "RimshiSkeletons.Gene_MechanicalNature")
+        organs = nature.findall("modExtensions/li[@Class='RimshiSkeletons.SkeletonAnatomyExtension']/organs/li")
+        self.assertEqual(sorted(li.findtext("part") for li in organs), sorted(["Lung", "Kidney", "Stomach", "Liver", "Heart", "Eye", "Ear", "Nose"]))
+        for li in organs:
+            hediff = li.findtext("hediff")
+            with self.subTest(organ=hediff):
+                self.assertEqual(hediffs[hediff].get("ParentName"), "Rimshi_SkeletonOrganHediffBase")
+                self.assertEqual(hediffs[hediff].findtext("spawnThingOnRemoved"), hediff)
+                self.assertEqual([p.text for p in recipes[hediff].find("appliedOnFixedBodyParts")], [li.findtext("part")])
 
 
 if __name__ == "__main__":

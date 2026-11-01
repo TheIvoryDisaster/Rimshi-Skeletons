@@ -15,6 +15,12 @@
     <iconColor>(0.75, 0.75, 0.75)</iconColor>
     <!-- Never rolled into genepacks (traders, quests); see GeneProofing.cs for the rest of the gene lock. -->
     <canGenerateInGeneSet>false</canGenerateInGeneSet>
+    <!-- Core skeleton gene: fixed, never a chip. Chips use Rimshi_SkeletonChipBase (Rimshi_ChipGenes.xml). -->
+    <modExtensions>
+      <li Class="RimshiSkeletons.SkeletonGeneExtension">
+        <kind>Core</kind>
+      </li>
+    </modExtensions>
   </GeneDef>
 
   <!-- Looks: skeleton body (drawn by the body render patch), the six skeleton heads, no tattoos. -->
@@ -22,7 +28,7 @@
     <defName>Rimshi_SkeletonFrame</defName>
     <label>skeleton frame</label>
     <labelShortAdj>skeletal</labelShortAdj>
-    <description>Carriers of this gene are housed in an ancient proto-mechanical frame instead of a body of flesh. Their plated torso and limbs take a male, thin or hulking build, and their heads are one of a handful of old manufacturing patterns.</description>
+    <description>Carriers of this core are housed in an ancient proto-mechanical frame instead of a body of flesh. Their plated torso and limbs take a male, thin or hulking build, and their heads are one of a handful of old manufacturing patterns.</description>
     <geneClass>RimshiSkeletons.Gene_SkeletonFrame</geneClass>
     <iconPath>Rimshi/Head/Mki_south</iconPath>
     <displayOrderInCategory>0</displayOrderInCategory>
@@ -54,7 +60,7 @@
     <defName>Rimshi_MetalChassis</defName>
     <label>metal chassis</label>
     <labelShortAdj>plated</labelShortAdj>
-    <description>Carriers of this gene have a plated metal chassis. It shrugs off blades and heat, never burns, works in any temperature and carries more than a human, but it is a little slower and a hard enough knock shuts it down sooner.</description>
+    <description>Carriers of this core have a plated metal chassis. It shrugs off blades and heat, never burns, works in any temperature and carries more than a human, but it is a little slower and a hard enough knock shuts it down sooner.</description>
     <iconPath>UI/Icons/Genes/Gene_Tough</iconPath>
     <displayOrderInCategory>10</displayOrderInCategory>
     <statOffsets>
@@ -76,14 +82,16 @@
     <biostatMet>-3</biostatMet>
   </GeneDef>
 
-  <!-- Marker gene: disease and chemical immunity, toxins, darkness, dulled psychic sense. The blocked thoughts and the
+  <!-- Marker gene: disease and chemical immunity, toxins, darkness, psychic deafness, no blood (SkeletonBlood.cs). The blocked thoughts and the
        immunity list are filled in at startup by SkeletonDefs, so defs from DLCs and mods that are not loaded are
        skipped instead of erroring. -->
   <GeneDef ParentName="Rimshi_SkeletonGeneBase">
     <defName>Rimshi_MechanicalNature</defName>
     <label>mechanical nature</label>
+    <!-- Fits the machine organs below on every skeleton (SkeletonAnatomy.cs). -->
+    <geneClass>RimshiSkeletons.Gene_MechanicalNature</geneClass>
     <labelShortAdj>mechanical</labelShortAdj>
-    <description>Carriers of this gene are machines. They never fall ill, cannot be poisoned, do not mind the dark, the wet or going without clothes, and feel psychic effects only faintly.</description>
+    <description>Carriers of this core are machines. They never fall ill, cannot be poisoned, do not mind the dark, the wet or going without clothes, have no blood to lose, cannot take drugs, and are psychically deaf: psychic drones, soothes, psycasts and other psychic effects do not touch them.</description>
     <iconPath>UI/Icons/Genes/Gene_TotalToxicityResistance</iconPath>
     <displayOrderInCategory>20</displayOrderInCategory>
     <immuneToToxGasExposure>true</immuneToToxGasExposure>
@@ -91,12 +99,79 @@
     <statOffsets>
       <ToxicResistance>1</ToxicResistance>
       <ToxicEnvironmentResistance>1</ToxicEnvironmentResistance>
-      <PsychicSensitivity>-0.5</PsychicSensitivity>
     </statOffsets>
+    <!-- A factor, not an offset, like vanilla PsychicAbility_Deaf: factors apply after offsets, so implants, psylinks
+         and other sources cannot raise it above 0. -->
+    <statFactors>
+      <PsychicSensitivity>0</PsychicSensitivity>
+    </statFactors>
     <customEffectDescriptions>
       <li>Immune to disease, infection, food poisoning, overdose and chemical damage</li>
       <li>Does not mind darkness, nakedness, wet clothes or pain</li>
+      <li>Cannot take prosthetics, bionics, implants, organs or psylinks (skeleton parts and a mechlink still fit)</li>
+      <li>Has no blood and never bleeds; leaks black ancient oil when hit</li>
+      <li>Cannot take drugs of any kind, medical or recreational; drug policies do nothing</li>
+      <li>Machine parts in place of organs: cooling fans, fluid reprocessors, a capacitor, an oil filter, a fluid pump, optical sensors, auditory arrays and an IR camera</li>
     </customEffectDescriptions>
+    <!-- Dubs Bad Hygiene (optional): no thirst or bladder, and hygiene becomes self-cleaning at half the fall rate. Names
+         are looked up at startup (SkeletonDefs, SkeletonNeeds.cs), so nothing here errors without the mod. -->
+    <modExtensions>
+      <li Class="RimshiSkeletons.SkeletonAnatomyExtension">
+        <organs>
+          <li>
+            <part>Lung</part>
+            <hediff>Rimshi_CoolingFan</hediff>
+          </li>
+          <li>
+            <part>Kidney</part>
+            <hediff>Rimshi_FluidReprocessor</hediff>
+          </li>
+          <li>
+            <part>Stomach</part>
+            <hediff>Rimshi_Capacitor</hediff>
+          </li>
+          <li>
+            <part>Liver</part>
+            <hediff>Rimshi_OilFilter</hediff>
+          </li>
+          <li>
+            <part>Heart</part>
+            <hediff>Rimshi_FluidPump</hediff>
+          </li>
+          <li>
+            <part>Eye</part>
+            <hediff>Rimshi_OpticalSensor</hediff>
+          </li>
+          <li>
+            <part>Ear</part>
+            <hediff>Rimshi_AudioReceiver</hediff>
+          </li>
+          <li>
+            <part>Nose</part>
+            <hediff>Rimshi_IRCamera</hediff>
+          </li>
+        </organs>
+      </li>
+      <li Class="RimshiSkeletons.NeedRelabelExtension">
+        <removedNeeds>
+          <li>DBHThirst</li>
+          <li>Bladder</li>
+        </removedNeeds>
+        <relabels>
+          <li>
+            <need>Hygiene</need>
+            <label>self-cleaning</label>
+            <description>A skeleton's motors and joints slowly gather dust, grit and debris. Its self-cleaning cycle clears most of it away on its own, so this falls at half the rate of a human's hygiene, but now and then the build-up needs a proper wash to flush it out of the motors.</description>
+          </li>
+        </relabels>
+        <statFactorsIfLoaded>
+          <li>
+            <stat>HygieneRateMultiplier</stat>
+            <value>0.5</value>
+          </li>
+        </statFactorsIfLoaded>
+      </li>
+    </modExtensions>
     <biostatCpx>4</biostatCpx>
     <biostatMet>-4</biostatMet>
   </GeneDef>
@@ -106,7 +181,7 @@
     <defName>Rimshi_ArchaicMind</defName>
     <label>archaic persona</label>
     <labelShortAdj>archaic</labelShortAdj>
-    <description>Carriers of this gene run an ancient persona. It rarely breaks under stress and learns quickly, but it is awkward with people and clumsy with living things like plants.</description>
+    <description>Carriers of this core run an ancient persona. It rarely breaks under stress and learns quickly, but it is clumsy with living things like plants.</description>
     <iconPath>UI/Icons/Genes/Gene_DeadCalm</iconPath>
     <displayOrderInCategory>30</displayOrderInCategory>
     <statOffsets>
@@ -114,7 +189,6 @@
     </statOffsets>
     <statFactors>
       <ResearchSpeed>1.3</ResearchSpeed>
-      <SocialImpact>0.5</SocialImpact>
       <PlantWorkSpeed>0.5</PlantWorkSpeed>
       <PlantHarvestYield>0.7</PlantHarvestYield>
       <MiningSpeed>0.9</MiningSpeed>
@@ -122,34 +196,126 @@
     <biostatCpx>2</biostatCpx>
   </GeneDef>
 
-  <!-- Diet: eats only fuel (things with RimshiSkeletons.FuelExtension: chemfuel and uranium), very slowly. -->
+  <!-- Modules: core genes every skeleton carries that later systems are meant to change. The chip system
+       (docs/design/skeleton-chips.md) and soft cycle facilities (docs/design/soft-cycle-facilities.md) will suppress,
+       swap or soften them; until then they behave like any other core. Marked modifiable on SkeletonGeneExtension.
+       Inherit="False" so the parent's plain core extension is replaced, not doubled. See docs/design/skeleton-modules.md. -->
+  <GeneDef Name="Rimshi_SkeletonModuleBase" ParentName="Rimshi_SkeletonGeneBase" Abstract="True">
+    <modExtensions Inherit="False">
+      <li Class="RimshiSkeletons.SkeletonGeneExtension">
+        <kind>Core</kind>
+        <modifiable>true</modifiable>
+      </li>
+    </modExtensions>
+  </GeneDef>
+
+  <!-- EMP stuns and adapts the way it does mechanoids (SkeletonModules.cs). No metabolism cost, so the xenotype's
+       metabolism, and with it the maintenance rate, stays where it was. -->
+  <GeneDef ParentName="Rimshi_SkeletonModuleBase">
+    <defName>Rimshi_UnshieldedCircuits</defName>
+    <label>unshielded circuits</label>
+    <labelShortAdj>unshielded</labelShortAdj>
+    <description>Carriers of this core run on circuitry built long before anyone thought to shield it. An electromagnetic pulse overwhelms it the way it overwhelms a mechanoid, and the frame locks up until the charge bleeds away.</description>
+    <iconPath>UI/Icons/Genes/Gene_Delicate</iconPath>
+    <displayOrderInCategory>32</displayOrderInCategory>
+    <customEffectDescriptions>
+      <li>Stunned by EMP, like a mechanoid</li>
+    </customEffectDescriptions>
+    <biostatCpx>1</biostatCpx>
+  </GeneDef>
+
+  <!-- Social penalty: trading, negotiation (recruiting, gifts, peace talks), social impact (moved here from the archaic
+       persona so it can be changed on its own) and, with Ideology, conversion. Factors, so they scale the Social skill. -->
+  <GeneDef ParentName="Rimshi_SkeletonModuleBase">
+    <defName>Rimshi_ArchaicSpeech</defName>
+    <label>archaic speech</label>
+    <labelShortAdj>stilted</labelShortAdj>
+    <description>Carriers of this core speak through an old voice synthesizer, with the manners of an empire nobody remembers. People find them stiff and hard to read: they drive a poor bargain, struggle to win anyone over and leave little impression in conversation.</description>
+    <iconPath>UI/Icons/Genes/Gene_Ugly</iconPath>
+    <displayOrderInCategory>34</displayOrderInCategory>
+    <statFactors>
+      <TradePriceImprovement>0.5</TradePriceImprovement>
+      <NegotiationAbility>0.8</NegotiationAbility>
+      <SocialImpact>0.5</SocialImpact>
+      <ConversionPower MayRequire="Ludeon.RimWorld.Ideology">0.8</ConversionPower>
+    </statFactors>
+    <biostatCpx>1</biostatCpx>
+  </GeneDef>
+
+  <!-- Diet: the food need becomes "maintenance", met by consuming one component about every two days (things with
+       RimshiSkeletons.MaintenanceItemExtension, see Patches/Rimshi_ComponentMaintenance.xml). No malnutrition; the
+       Rimshi_MaintenanceNeed thought is the only cost of going without. defName and geneClass keep their old fuel
+       reactor names so saves with skeletons still load. See SkeletonNeeds.cs. -->
   <GeneDef ParentName="Rimshi_SkeletonGeneBase">
     <defName>Rimshi_FuelReactor</defName>
-    <label>fuel reactor</label>
-    <labelShortAdj>reactor</labelShortAdj>
-    <description>Carriers of this gene run on an internal reactor instead of a stomach. They burn through fuel very slowly and can eat nothing but chemfuel and uranium. Nobody else can eat those.</description>
+    <label>component maintenance</label>
+    <labelShortAdj>maintained</labelShortAdj>
+    <description>Carriers of this core have no stomach. Instead they strip industrial components for parts to patch their worn joints, seals and circuits, about one component every two days. They consume nothing else, and nobody else can make use of components this way. Going without hurts their mood but never starves them.</description>
     <geneClass>RimshiSkeletons.Gene_FuelReactor</geneClass>
     <iconPath>UI/Icons/Genes/Gene_RobustDigestion</iconPath>
     <displayOrderInCategory>40</displayOrderInCategory>
     <customEffectDescriptions>
-      <li>Eats only chemfuel and uranium</li>
-      <li>Hunger rate: x10%</li>
+      <li>Consumes one component about every 2 days, and nothing else</li>
+      <li>Never suffers malnutrition</li>
     </customEffectDescriptions>
     <modExtensions>
-      <li Class="RimshiSkeletons.FuelReactorExtension">
-        <hungerRateFactor>0.1</hungerRateFactor>
+      <li Class="RimshiSkeletons.MaintenanceExtension">
+        <daysPerItem>2</daysPerItem>
+      </li>
+      <li Class="RimshiSkeletons.NeedRelabelExtension">
+        <relabels>
+          <li>
+            <need>Food</need>
+            <label>maintenance</label>
+            <description>Since the fall of the Second Empire, skeletons have had to find ways to sustain themselves without the technology that was lost in the collapse. With no factories left to service them, they strip industrial components for parts to patch their worn joints, seals and circuits. A skeleton needs about one component every two days. Going without never starves it, but grinding on with worn-out parts is miserable.</description>
+          </li>
+        </relabels>
       </li>
     </modExtensions>
     <biostatCpx>2</biostatCpx>
     <biostatMet>3</biostatMet>
   </GeneDef>
 
-  <!-- Genderless, asexual, sterile: the "null chromosome pattern" approach from Rim-Hivers! - Biotech (VexedTrees). -->
+  <!-- The CPU soft cycle (docs/design/cpu-soft-cycle.md): vanilla Biotech deathrest underneath (Gene_Deathrest and the
+       Deathrest need, shown as CPU integrity). SoftCycle.cs, StandingReset.cs, CpuOverload.cs and RibCage.cs change what
+       the need and deathrest do for skeletons. defName kept for saves. -->
+  <GeneDef ParentName="Rimshi_SkeletonGeneBase">
+    <defName>Rimshi_Deathrest</defName>
+    <label>CPU soft cycle</label>
+    <labelShortAdj>soft-cycling</labelShortAdj>
+    <description>Carriers of this core carry centuries of memory and feeling with no way to express them. Unless they periodically flush their short-term memory buffer with a CPU soft cycle, the weight of their experiences overloads the CPU.</description>
+    <geneClass>Gene_Deathrest</geneClass>
+    <iconPath>UI/Icons/Genes/Gene_Deathrest</iconPath>
+    <displayOrderInCategory>45</displayOrderInCategory>
+    <enablesNeeds>
+      <li>Deathrest</li>
+    </enablesNeeds>
+    <customEffectDescriptions>
+      <li>Memories and feelings slowly build up in the CPU</li>
+      <li>Needs a periodic CPU soft cycle, best run in a powered skeleton repair bed</li>
+      <li>A soft cycle flushes short-term memories</li>
+    </customEffectDescriptions>
+    <modExtensions>
+      <li Class="RimshiSkeletons.NeedRelabelExtension">
+        <relabels>
+          <li>
+            <need>Deathrest</need>
+            <label>CPU integrity</label>
+            <description>A skeleton's mind runs on a CPU and a memory buffer that were never built to carry centuries. Everything it lives through leaves something behind in the buffer, and nothing there fades on its own. A soft cycle is how a skeleton clears it: it goes still, the CPU and buffer reset, and it wakes with its programming and long-term memory intact, though what was recent may not survive. Skeletons would rather cycle in a powered repair bed. Famous skeletons like Cat-Lon, the Elder and Tinfist went centuries without a reset to keep what they had learned, and many suspect that is what drives some skeletons mad with paranoia.</description>
+          </li>
+        </relabels>
+      </li>
+    </modExtensions>
+    <biostatCpx>1</biostatCpx>
+  </GeneDef>
+
+  <!-- Genderless, asexual, sterile: the "null chromosome pattern" approach from Rim-Hivers! - Biotech (VexedTrees). Shown
+       as "ancient" (Matthew: skeletons have no chromosomes); defName and class kept for saves. -->
   <GeneDef ParentName="Rimshi_SkeletonGeneBase">
     <defName>Rimshi_NullChromosome</defName>
-    <label>null chromosome pattern</label>
-    <labelShortAdj>genderless</labelShortAdj>
-    <description>Carriers of this gene have no sex at all. They are always asexual, cannot have children, and are never generated with family.</description>
+    <label>ancient</label>
+    <labelShortAdj>ancient</labelShortAdj>
+    <description>Carriers of this core are so old that they predate the very constructs of gender. They have no sex at all, feel no attraction, cannot have children, and have no family left.</description>
     <geneClass>RimshiSkeletons.Gene_NullChromosome</geneClass>
     <iconPath>UI/Icons/Genes/Gene_Sterile</iconPath>
     <displayOrderInCategory>50</displayOrderInCategory>
@@ -174,13 +340,18 @@
     <displayCategory>Rimshi_Skeleton</displayCategory>
     <iconPath>UI/Icons/Genes/Gene_SkinColorOverride</iconPath>
     <canGenerateInGeneSet>false</canGenerateInGeneSet>
+    <modExtensions>
+      <li Class="RimshiSkeletons.SkeletonGeneExtension">
+        <kind>Core</kind>
+      </li>
+    </modExtensions>
   </GeneDef>
 
   <GeneDef ParentName="Rimshi_PlatingBase">
     <defName>Rimshi_Plating_Steel</defName>
     <label>steel plating</label>
     <labelShortAdj>steel</labelShortAdj>
-    <description>Carriers of this gene have bare steel plating, from fresh white steel to a dull grey.</description>
+    <description>Carriers of this core have bare steel plating, from fresh white steel to a dull grey.</description>
     <skinColorOverride>(110, 110, 110)</skinColorOverride>
     <randomBrightnessFactor>0.12</randomBrightnessFactor>
     <displayOrderInCategory>60</displayOrderInCategory>
@@ -190,7 +361,7 @@
     <defName>Rimshi_Plating_AgedSteel</defName>
     <label>aged steel plating</label>
     <labelShortAdj>aged</labelShortAdj>
-    <description>Carriers of this gene have old, darkened steel plating.</description>
+    <description>Carriers of this core have old, darkened steel plating.</description>
     <skinColorOverride>(75, 75, 75)</skinColorOverride>
     <randomBrightnessFactor>0.12</randomBrightnessFactor>
     <displayOrderInCategory>61</displayOrderInCategory>
@@ -200,7 +371,7 @@
     <defName>Rimshi_Plating_Rust</defName>
     <label>rusted plating</label>
     <labelShortAdj>rusted</labelShortAdj>
-    <description>Carriers of this gene have plating that has rusted over the centuries.</description>
+    <description>Carriers of this core have plating that has rusted over the centuries.</description>
     <skinColorOverride>(105, 87, 84)</skinColorOverride>
     <randomBrightnessFactor>0.18</randomBrightnessFactor>
     <displayOrderInCategory>62</displayOrderInCategory>
@@ -210,7 +381,7 @@
     <defName>Rimshi_Plating_Plasteel</defName>
     <label>plasteel plating</label>
     <labelShortAdj>plasteel</labelShortAdj>
-    <description>Carriers of this gene have rare, pale blue plasteel plating.</description>
+    <description>Carriers of this core have rare, pale blue plasteel plating.</description>
     <skinColorOverride>(160, 178, 181)</skinColorOverride>
     <randomBrightnessFactor>0</randomBrightnessFactor>
     <displayOrderInCategory>63</displayOrderInCategory>
@@ -220,7 +391,7 @@
     <defName>Rimshi_Plating_MechBlack</defName>
     <label>mech black plating</label>
     <labelShortAdj>black</labelShortAdj>
-    <description>Carriers of this gene have the near-black plating of a mechanoid.</description>
+    <description>Carriers of this core have the near-black plating of a mechanoid.</description>
     <skinColorOverride>(54, 56, 51)</skinColorOverride>
     <randomBrightnessFactor>0</randomBrightnessFactor>
     <displayOrderInCategory>64</displayOrderInCategory>

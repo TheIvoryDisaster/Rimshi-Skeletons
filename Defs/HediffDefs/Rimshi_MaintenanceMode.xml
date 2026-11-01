@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!-- A skeleton's anaesthetic (SkeletonPowerDown.cs, docs/design/power-down.md): same severity, duration and stages as
+       vanilla's Anesthetic, without the vomiting, confusion or metabolism (machines). Not based on Anesthetic, so a mod
+       changing it cannot break this one. Player text follows the no-spoiler rule: each stage says only what it is. -->
+  <HediffDef>
+    <defName>Rimshi_MaintenanceMode</defName>
+    <label>maintenance mode</label>
+    <description>This unit has been put into maintenance mode for hardware modifications. Its systems are shut down, so its frame and parts can be opened up and worked on safely.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <defaultLabelColor>(0.9, 1.0, 0.35)</defaultLabelColor>
+    <isBad>false</isBad>
+    <initialSeverity>1</initialSeverity>
+    <maxSeverity>1</maxSeverity>
+    <everCurableByItem>false</everCurableByItem>
+    <comps>
+      <li Class="HediffCompProperties_Disappears">
+        <disappearsAfterTicks>45000~120000</disappearsAfterTicks>
+        <showRemainingTime>true</showRemainingTime>
+      </li>
+      <li Class="HediffCompProperties_SeverityPerDay">
+        <severityPerDay>-0.8</severityPerDay>
+      </li>
+    </comps>
+    <stages>
+      <li>
+        <label>reinitializing</label>
+        <painFactor>0.95</painFactor>
+        <capMods>
+          <li>
+            <capacity>Consciousness</capacity>
+            <setMax>0.9</setMax>
+          </li>
+          <li>
+            <capacity>Manipulation</capacity>
+            <offset>-0.1</offset>
+          </li>
+          <li>
+            <capacity>Moving</capacity>
+            <offset>-0.05</offset>
+          </li>
+        </capMods>
+      </li>
+      <li>
+        <minSeverity>0.6</minSeverity>
+        <label>booting</label>
+        <painFactor>0.8</painFactor>
+        <capMods>
+          <li>
+            <capacity>Consciousness</capacity>
+            <setMax>0.7</setMax>
+          </li>
+          <li>
+            <capacity>Moving</capacity>
+            <offset>-0.2</offset>
+          </li>
+          <li>
+            <capacity>Manipulation</capacity>
+            <offset>-0.2</offset>
+          </li>
+          <li>
+            <capacity>Talking</capacity>
+            <offset>-0.2</offset>
+          </li>
+          <li>
+            <capacity>Sight</capacity>
+            <offset>-0.15</offset>
+          </li>
+        </capMods>
+      </li>
+      <li>
+        <minSeverity>0.8</minSeverity>
+        <label>powered down</label>
+        <painFactor>0</painFactor>
+        <capMods>
+          <li>
+            <capacity>Consciousness</capacity>
+            <setMax>0.01</setMax>
+          </li>
+        </capMods>
+      </li>
+    </stages>
+  </HediffDef>
+
+</Defs>

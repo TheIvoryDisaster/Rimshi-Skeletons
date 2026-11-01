@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!-- What a skeleton leaks when it is hit, in place of blood (SkeletonBlood.cs). Vanilla blood with a near-black oil
+       colour; it never comes from bleeding, because skeletons cannot bleed. -->
+  <ThingDef ParentName="BaseFilth">
+    <defName>Rimshi_Filth_AncientOil</defName>
+    <label>ancient oil</label>
+    <description>Thick black oil leaked from a damaged skeleton frame. Nobody has made oil like it in a very long time.</description>
+    <statBases>
+      <Beauty>-20</Beauty>
+      <Cleanliness>-10</Cleanliness>
+    </statBases>
+    <graphicData>
+      <texPath>Things/Filth/Spatter</texPath>
+      <color>(20, 18, 16, 200)</color>
+    </graphicData>
+    <filth>
+      <ignoreFilthMultiplierStat>true</ignoreFilthMultiplierStat>
+      <disappearsInDays>35~40</disappearsInDays>
+      <rainWashes>true</rainWashes>
+      <cleaningWorkToReduceThickness>70</cleaningWorkToReduceThickness>
+      <canFilthAttach>true</canFilthAttach>
+      <cleaningSound>Interact_CleanFilth_Fluid</cleaningSound>
+    </filth>
+  </ThingDef>
+
+</Defs>

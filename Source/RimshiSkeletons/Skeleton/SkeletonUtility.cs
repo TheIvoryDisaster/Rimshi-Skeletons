@@ -13,6 +13,7 @@ namespace RimshiSkeletons
         public static GeneDef Rimshi_MechanicalNature;
         public static GeneDef Rimshi_FuelReactor;
         public static GeneDef Rimshi_NullChromosome;
+        public static GeneDef Rimshi_Deathrest;
 
         public static FactionDef Rimshi_SkeletalImperium;
         public static FactionDef Rimshi_PlayerSkeletons;
@@ -28,6 +29,25 @@ namespace RimshiSkeletons
         public static HediffDef Rimshi_FailsafeCore;
         public static PrisonerInteractionModeDef Rimshi_Reprogram;
         public static JobDef Rimshi_ReprogramSkeleton;
+        public static ThingDef Rimshi_Filth_AncientOil;
+        public static EffecterDef Rimshi_Damage_HitAncientOil;
+        public static ThingDef Rimshi_SkeletonWorkbench;
+        public static ResearchProjectDef Rimshi_SkeletonFabrication;
+        public static ResearchProjectDef Rimshi_AdvancedSkeletonParts;
+        public static HediffDef Rimshi_CpuOverload;
+        public static HediffDef Rimshi_MaintenanceMode;
+        public static RecipeDef Rimshi_PowerDown;
+        public static HediffDef Rimshi_SoftResetting;
+        public static JobDef Rimshi_SoftReset;
+        public static JobDef Rimshi_HangInRibCage;
+        public static ThingDef Rimshi_RibCage;
+        public static ThingDef Rimshi_TuningFork;
+        public static ThingDef Rimshi_ChemicalSpire;
+        public static ThingDef Rimshi_CableFissure;
+        public static RecipeDef Rimshi_TuneCableFissure;
+        public static ThoughtDef Rimshi_SoftCycleHoned;
+        public static ThoughtDef Rimshi_SoftResetForeign;
+        public static RecipeDef Rimshi_ScrapSkeletonRemains;
 
         static RimshiDefOf()
         {
@@ -50,15 +70,23 @@ namespace RimshiSkeletons
 
         public static bool HasFrame(Pawn pawn) => HasActiveGene(pawn, RimshiDefOf.Rimshi_SkeletonFrame);
 
+        /// <summary>The component maintenance gene (defName kept from when it was the fuel reactor).</summary>
         public static bool HasFuelReactor(Pawn pawn) => HasActiveGene(pawn, RimshiDefOf.Rimshi_FuelReactor);
+
+        /// <summary>The gene carrying every rule that holds for all skeletons (immunities, psychic sense, no prosthetics).</summary>
+        public static bool HasMechanicalNature(Pawn pawn) => HasActiveGene(pawn, RimshiDefOf.Rimshi_MechanicalNature);
 
         public static bool HasNullChromosome(Pawn pawn) => HasActiveGene(pawn, RimshiDefOf.Rimshi_NullChromosome);
 
         /// <summary>Gene display category of every skeleton gene (Defs/GeneDefs/Rimshi_Genes.xml).</summary>
         public const string GeneCategory = "Rimshi_Skeleton";
 
-        /// <summary>True for our genes: everything in the skeleton gene category, plating colours included.</summary>
-        public static bool IsSkeletonGene(GeneDef gene) => gene?.displayCategory?.defName == GeneCategory;
+        /// <summary>
+        /// True for our genes: core genes (plating colours included) and chips, marked by SkeletonGeneExtension. The
+        /// category check catches a gene another mod puts in our category without inheriting from our bases.
+        /// </summary>
+        public static bool IsSkeletonGene(GeneDef gene) =>
+            gene != null && (gene.HasModExtension<SkeletonGeneExtension>() || gene.displayCategory?.defName == GeneCategory);
 
         /// <summary>True if the pawn has any skeleton gene, active or not, or the skeleton xenotype.</summary>
         public static bool CarriesSkeletonGenes(Pawn pawn)

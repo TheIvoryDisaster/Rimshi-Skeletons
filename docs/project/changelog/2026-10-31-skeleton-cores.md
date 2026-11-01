@@ -1,0 +1,1 @@
+A skeleton's genetics screen now calls its genes cores, subsets of the ancient AI core that runs it, and its xenogenes chips. The section headings, their tooltips, the View genes window and the character card tooltip all use the new words for skeletons only; everyone else's genetics screen is unchanged. Skeleton gene descriptions say "this core" too.
