@@ -203,13 +203,19 @@ namespace RimshiSkeletons
 
             // The old race lived to 2500; keep the same share of a human life so a 1200-year-old skeleton is not 1200 as a human.
             float humanLifeExpectancy = pawn.RaceProps.lifeExpectancy;
+            long startBio = pawn.ageTracker.AgeBiologicalTicks;
             if (oldLifeExpectancy > humanLifeExpectancy)
             {
                 long before = pawn.ageTracker.AgeBiologicalTicks;
                 long after = (long)(before * (double)(humanLifeExpectancy / oldLifeExpectancy));
                 long adult = pawn.ageTracker.AdultMinAgeTicks;
                 pawn.ageTracker.AgeBiologicalTicks = Math.Max(after, Math.Min(before, adult));
-                changes.Add("biological age " + before / GenDate.TicksPerYear + " to " + pawn.ageTracker.AgeBiologicalYears);
+            }
+            // Every skeleton is at least 120 biologically (SkeletonAge); the old chronological age is kept.
+            SkeletonAge.RaiseBiologicalAge(pawn);
+            if (pawn.ageTracker.AgeBiologicalTicks != startBio)
+            {
+                changes.Add("biological age " + startBio / GenDate.TicksPerYear + " to " + pawn.ageTracker.AgeBiologicalYears);
             }
             if (map != null)
             {
