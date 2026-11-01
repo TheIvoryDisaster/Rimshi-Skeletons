@@ -30,7 +30,7 @@
       <texPath>Rimshi/Items/Motor</texPath>
       <graphicClass>Graphic_Single</graphicClass>
     </graphicData>
-    <label>motor</label>
+    <label>skeleton motor</label>
     <description>A compact electric motor of the old empire's pattern, the kind that drives a skeleton's joints. Used to make skeleton parts.</description>
     <statBases>
       <MaxHitPoints>70</MaxHitPoints>
@@ -91,9 +91,9 @@
 
   <RecipeDef ParentName="Rimshi_MakeIntermediateBase">
     <defName>Rimshi_Make_Motor</defName>
-    <label>make motor</label>
-    <description>Make a motor from a component and steel.</description>
-    <jobString>Making motor.</jobString>
+    <label>make skeleton motor</label>
+    <description>Make a skeleton motor from a component and steel.</description>
+    <jobString>Making skeleton motor.</jobString>
     <workAmount>6000</workAmount>
     <ingredients>
       <li>

@@ -53,7 +53,7 @@
   <ResearchProjectDef>
     <defName>Rimshi_SkeletonFabrication</defName>
     <label>skeleton fabrication</label>
-    <description>Reverse-engineer the old empire's skeleton parts. Unlocks the skeleton workbench, where crafters make motors, robotic components and skeleton muscle, and assemble them into replacement limbs, optical sensors and audio receivers for skeletons.</description>
+    <description>Reverse-engineer the old empire's skeleton parts. Unlocks the skeleton workbench, where crafters make skeleton motors, robotic components and skeleton muscle, and assemble them into replacement limbs, optical sensors and audio receivers for skeletons.</description>
     <baseCost>800</baseCost>
     <techLevel>Industrial</techLevel>
     <prerequisites>
