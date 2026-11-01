@@ -11,7 +11,7 @@
     <soundInteract>Metal_Drop</soundInteract>
     <soundDrop>Metal_Drop</soundDrop>
     <thingCategories>
-      <li>Manufactured</li>
+      <li>Rimshi_SkeletonComponents</li>
     </thingCategories>
     <graphicData>
       <texPath>Rimshi/Items/Placeholder_Intermediate</texPath>

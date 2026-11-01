@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!-- Storage categories for skeleton items. Every skeleton part (limbs, senses, organs, AI core) inherits
+       Rimshi_SkeletonParts from Rimshi_SkeletonPartBase; every crafting component (motor, robotic component, skeleton
+       muscle) inherits Rimshi_SkeletonComponents from Rimshi_SkeletonIntermediateBase. New parts and components should use
+       those bases so they land here too (test_skeleton_item_categories). -->
+  <ThingCategoryDef>
+    <defName>Rimshi_SkeletonParts</defName>
+    <label>skeleton parts</label>
+    <parent>BodyPartsProsthetic</parent>
+  </ThingCategoryDef>
+
+  <ThingCategoryDef>
+    <defName>Rimshi_SkeletonComponents</defName>
+    <label>skeleton components</label>
+    <parent>Manufactured</parent>
+  </ThingCategoryDef>
+
+</Defs>

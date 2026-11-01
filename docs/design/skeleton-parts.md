@@ -49,6 +49,10 @@ Notes:
 - AI core: an added part on the brain. Destroying it still kills, as vanilla does for the brain. Permanent brain damage for skeletons is planned for later. The repair already removes every injury, scar and other harmful condition on the core, and the old core stays in place.
 - Skeletons are already 0% flammable (Flammability factor 0 on the metal chassis gene). The workbench, intermediates, parts and repair kits are now 0% too.
 
+## Storage categories
+
+Matthew, 2026-11-01. Skeleton parts (limbs, senses, organs, AI core) sit in their own storage category, **skeleton parts**, inside vanilla's prosthetics category (Rimshi_SkeletonParts under BodyPartsProsthetic). The crafting components (motor, robotic component, skeleton muscle) sit in **skeleton components** inside manufactured (Rimshi_SkeletonComponents under Manufactured). Both come from the bases (Rimshi_SkeletonPartBase, Rimshi_SkeletonIntermediateBase), so every future part or component should inherit from one of them; test_skeleton_item_categories fails if one of our body parts or components ends up anywhere else. Repair kits are a consumable, not a crafting component, so they stay in manufactured. Defs: Defs/ThingCategoryDefs/Rimshi_ThingCategories.xml.
+
 ## Open
 
 - The repair kit's new cost (1 robotic component, 5 steel, Proposed:) raises its price. It used 1 component.

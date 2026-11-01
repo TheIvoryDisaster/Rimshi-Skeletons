@@ -196,6 +196,38 @@ class DefTests(unittest.TestCase):
         self.assertIn("Rimshi_SkeletonRepairBeds", [li.text for li in things["Rimshi_SkeletonRepairBed"].find("researchPrerequisites")])
 
 
+    def test_skeleton_item_categories(self):
+        """Skeleton parts are stored under Skeleton Parts (inside prosthetics) and crafting components under Skeleton
+        Components (inside manufactured), through the bases, so a new part or component lands there by inheriting."""
+        cats = {el.findtext("defName"): el.findtext("parent") for _, el in concrete("ThingCategoryDef")}
+        self.assertEqual(cats.get("Rimshi_SkeletonParts"), "BodyPartsProsthetic")
+        self.assertEqual(cats.get("Rimshi_SkeletonComponents"), "Manufactured")
+        named = {el.get("Name"): el for _, el in defs() if el.tag == "ThingDef" and el.get("Name")}
+
+        def categories(el):
+            while el is not None:
+                own = el.find("thingCategories")
+                if own is not None:
+                    return [li.text for li in own]
+                el = named.get(el.get("ParentName"))
+            return []
+
+        def reaches(el, base):
+            while el is not None:
+                if el.get("ParentName") == base:
+                    return True
+                el = named.get(el.get("ParentName"))
+            return False
+
+        for _, el in concrete("ThingDef"):
+            name = el.findtext("defName")
+            for base, cat in (("BodyPartBase", "Rimshi_SkeletonParts"), ("Rimshi_SkeletonIntermediateBase", "Rimshi_SkeletonComponents")):
+                if reaches(el, base):
+                    with self.subTest(thing=name):
+                        self.assertEqual(categories(el), [cat])
+        for base, cat in (("Rimshi_SkeletonPartBase", "Rimshi_SkeletonParts"), ("Rimshi_SkeletonIntermediateBase", "Rimshi_SkeletonComponents")):
+            self.assertEqual(categories(named[base]), [cat])
+
     def test_skeleton_organs(self):
         """Each machine organ on the mechanical nature gene is a hidden organ hediff with an install recipe for that organ."""
         genes = {el.findtext("defName"): el for _, el in concrete("GeneDef")}

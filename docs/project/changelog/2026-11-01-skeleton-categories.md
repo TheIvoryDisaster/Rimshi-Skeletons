@@ -1,0 +1,1 @@
+Storage: skeleton parts now have their own "skeleton parts" category inside prosthetics, and motors, robotic components and skeleton muscle have their own "skeleton components" category inside manufactured. Stockpiles that already allowed them keep allowing them.
