@@ -8,7 +8,7 @@
   <ThingDef Name="Rimshi_SkeletonPartBase" ParentName="BodyPartBase" Abstract="True">
     <techLevel>Industrial</techLevel>
     <thingCategories>
-      <li>BodyPartsProsthetic</li>
+      <li>Rimshi_SkeletonParts</li>
     </thingCategories>
     <graphicData>
       <texPath>Rimshi/Items/Placeholder_Part</texPath>
