@@ -33,6 +33,9 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | gene | Skeletons generated without family | passed | 7 | Acid: relation generation skipped |
 | gene | Removing the null chromosome gives a gender back | passed | 7 | Acid: now Male |
 | gene | Relations a new genderless pawn got another way were removed (names them) | not seen |  |  |
+| gene | A skeleton got back core genes its xenotype lists but it had lost (names them) | not seen |  |  |
+| gene | Skeletons in a save that had lost core genes got them back on load | not seen |  |  |
+| gene | A core gene was removed from a skeleton, and by what (diagnostic; the gene removal self-test causes one) | not seen |  |  |
 | faction | Mod setting on: old Rim-Skeletons faction replaced by ours on load | not seen |  |  |
 | faction | Mod setting on: save had no old Rim-Skeletons factions | not seen |  |  |
 | faction | Debug action added the skeletal imperium to the world | not seen |  |  |
@@ -113,6 +116,8 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | parts | A second AI core repaired a damaged one (names what it removed) | not seen |  |  |
 | anatomy | A skeleton got its machine organs (generation, gene added or older save; names the organs) | not seen |  |  |
 | anatomy | Skeletons in an older save were given machine organs on load | not seen |  |  |
+| powerdown | A temporarily power down operation finished on a skeleton (says if it is in maintenance mode) | not seen |  |  |
+| powerdown | A skeleton got maintenance mode where it would have got anesthetic (first time each session) | not seen |  |  |
 | blood | A hit skeleton leaked ancient oil (black filth) instead of blood | not seen |  |  |
 | module | An EMP hit stunned a skeleton the way it stuns a mechanoid (unshielded circuits) | not seen |  |  |
 | module | Skeletons from an older save got the module genes their xenotype now lists | not seen |  |  |
@@ -230,6 +235,7 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | selftest | Self-test: machine organs are hidden in the health tab like natural organs | not seen |  |  |
 | selftest | Self-test: the health tab, surgery menu, medical bills and combat log name parts through the machine names | not seen |  |  |
 | selftest | Self-test: a cooling fan install is offered only once the lung is gone, and puts the cooling fan back | not seen |  |  |
+| selftest | Self-test: a fitted lung can be removed (as its cooling fan), a bare one cannot, and a restored one gets its cooling fan | not seen |  |  |
 | selftest | Self-test: a KLR arm installs on a skeleton's shoulder | not seen |  |  |
 | selftest | Self-test: a KLR arm takes 20% off the damage that reaches it | not seen |  |  |
 | selftest | Self-test: an AI core installs, and a second one repairs a damaged core | not seen |  |  |
@@ -255,6 +261,8 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | selftest | Self-test: the scrap skeleton remains bill takes only skeleton corpses, at the crafting spot and machining bench | not seen |  |  |
 | selftest | Self-test: a skeleton corpse yields 1-5 each of steel, plasteel and uranium and at most one component | not seen |  |  |
 | selftest | Self-test: the remains patches are applied | not seen |  |  |
+| selftest | Self-test: a skeleton that lost mechanical nature gets it back from its xenotype | not seen |  |  |
+| selftest | Self-test: temporarily power down is offered on skeletons only, Anesthetize on baseliners only, and anesthetic becomes maintenance mode | not seen |  |  |
 
 ## Manual checks
 

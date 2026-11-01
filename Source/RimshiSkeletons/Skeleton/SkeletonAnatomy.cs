@@ -143,6 +143,33 @@ namespace RimshiSkeletons
 
         public static string LabelShortCap(BodyPartRecord part) => Relabels(part) ? LabelsFor(part)[3] : part.LabelShortCap;
 
+        /// <summary>
+        /// Another mod already swapped a label getter for its own (Vanilla Races Expanded - Android names android parts
+        /// this way). Its text stands unless the part is a skeleton's machine organ; which label form it was is read off
+        /// the text, since a skeleton is not an android and gets the human label back from that mod.
+        /// </summary>
+        public static string AfterOtherLabel(BodyPartRecord part, string other)
+        {
+            if (!Relabels(part))
+            {
+                return other;
+            }
+            string[] set = LabelsFor(part);
+            if (other == part.LabelCap)
+            {
+                return set[1];
+            }
+            if (other == part.LabelShortCap && other != part.Label)
+            {
+                return set[3];
+            }
+            if (other == part.LabelShort && other != part.Label)
+            {
+                return set[2];
+            }
+            return set[0];
+        }
+
         /// <summary>A part's label as it reads for a pawn, for the self-tests.</summary>
         public static string LabelFor(Pawn pawn, BodyPartRecord part)
         {
@@ -175,9 +202,12 @@ namespace RimshiSkeletons
     /// <summary>
     /// Swaps every BodyPartRecord label call in the call sites below for SkeletonAnatomy's, which name a skeleton's organs
     /// by their machine part. A transpiler, because getters this small can be inlined past a patch. The sites count their
-    /// swaps for the self-test.
+    /// swaps for the self-test. Runs last: Vanilla Races Expanded - Android replaces the same getters at the health tab,
+    /// surgery menu and medical bills with its own static string Method(BodyPartRecord), so a call like that is wrapped
+    /// instead (its result goes through SkeletonAnatomy.AfterOtherLabel).
     /// </summary>
     [HarmonyPatch]
+    [HarmonyPriority(Priority.Last)]
     public static class Patch_OrganLabels
     {
         public static readonly Dictionary<string, int> swaps = new Dictionary<string, int>();
@@ -189,6 +219,24 @@ namespace RimshiSkeletons
             { AccessTools.PropertyGetter(typeof(BodyPartRecord), nameof(BodyPartRecord.LabelShort)), AccessTools.Method(typeof(SkeletonAnatomy), nameof(SkeletonAnatomy.LabelShort)) },
             { AccessTools.PropertyGetter(typeof(BodyPartRecord), nameof(BodyPartRecord.LabelShortCap)), AccessTools.Method(typeof(SkeletonAnatomy), nameof(SkeletonAnatomy.LabelShortCap)) },
         };
+
+        private static readonly MethodInfo afterOther = AccessTools.Method(typeof(SkeletonAnatomy), nameof(SkeletonAnatomy.AfterOtherLabel));
+
+        /// <summary>A static string Method(BodyPartRecord) from another mod: what a MethodReplacer on a label getter leaves.</summary>
+        private static bool IsOtherModLabel(CodeInstruction code)
+        {
+            if (code.opcode != System.Reflection.Emit.OpCodes.Call || !(code.operand is MethodInfo method) || !method.IsStatic || method.ReturnType != typeof(string))
+            {
+                return false;
+            }
+            System.Reflection.Assembly assembly = method.DeclaringType?.Assembly;
+            if (assembly == null || assembly == typeof(BodyPartRecord).Assembly || assembly == typeof(SkeletonAnatomy).Assembly)
+            {
+                return false;
+            }
+            ParameterInfo[] parameters = method.GetParameters();
+            return parameters.Length == 1 && parameters[0].ParameterType == typeof(BodyPartRecord);
+        }
 
         /// <summary>Site names, as the self-test and swaps use them.</summary>
         public static string SiteName(MethodBase method) => method.DeclaringType?.Name + "." + method.Name;
@@ -214,6 +262,17 @@ namespace RimshiSkeletons
                     code.opcode = System.Reflection.Emit.OpCodes.Call;
                     code.operand = ours;
                     swapped++;
+                }
+                else if (IsOtherModLabel(code))
+                {
+                    // part on the stack: keep a copy for AfterOtherLabel(part, theirLabel).
+                    var dup = new CodeInstruction(System.Reflection.Emit.OpCodes.Dup);
+                    code.MoveLabelsTo(dup);
+                    yield return dup;
+                    yield return code;
+                    yield return new CodeInstruction(System.Reflection.Emit.OpCodes.Call, afterOther);
+                    swapped++;
+                    continue;
                 }
                 yield return code;
             }
@@ -274,6 +333,52 @@ namespace RimshiSkeletons
         public static void Finalizer(Pawn __state)
         {
             SkeletonAnatomy.context = __state;
+        }
+    }
+
+    /// <summary>
+    /// No human organ comes out of a skeleton. Its organs carry machine parts, which the removal surgery takes out as the
+    /// item; an organ that is bare anyway (regrown by a healer serum, or a skeleton whose parts were never fitted) is not
+    /// offered for removal at all, so it can never be harvested.
+    /// </summary>
+    [HarmonyPatch(typeof(Recipe_RemoveBodyPart), nameof(Recipe_RemoveBodyPart.GetPartsToApplyOn))]
+    public static class Patch_NoOrganHarvest
+    {
+        public static void Postfix(Pawn pawn, ref IEnumerable<BodyPartRecord> __result)
+        {
+            if (__result == null || !SkeletonUtility.HasMechanicalNature(pawn))
+            {
+                return;
+            }
+            __result = __result.Where(part => !SkeletonAnatomy.Organs.ContainsKey(part.def) || pawn.health.hediffSet.HasDirectlyAddedPartFor(part)).ToList();
+        }
+    }
+
+    /// <summary>
+    /// A missing organ brought back without our install (healer mech serum, biosculpter, another mod's regrowth) comes
+    /// back as a machine part on a skeleton, not a bare human organ.
+    /// </summary>
+    [HarmonyPatch(typeof(Pawn_HealthTracker), nameof(Pawn_HealthTracker.RestorePart))]
+    public static class Patch_RefitRestoredOrgan
+    {
+        private static bool fitting;
+
+        public static void Postfix(Pawn ___pawn)
+        {
+            // Fitting a part restores its organ too (Hediff_AddedPart.PostAdd), so this re-enters once per part.
+            if (fitting || ___pawn?.health?.hediffSet == null || !SkeletonUtility.HasMechanicalNature(___pawn))
+            {
+                return;
+            }
+            fitting = true;
+            try
+            {
+                SkeletonAnatomy.FitOrgans(___pawn, "part restored");
+            }
+            finally
+            {
+                fitting = false;
+            }
         }
     }
 }

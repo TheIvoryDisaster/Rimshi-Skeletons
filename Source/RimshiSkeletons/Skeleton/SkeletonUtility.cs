@@ -35,6 +35,8 @@ namespace RimshiSkeletons
         public static ResearchProjectDef Rimshi_SkeletonFabrication;
         public static ResearchProjectDef Rimshi_AdvancedSkeletonParts;
         public static HediffDef Rimshi_CpuOverload;
+        public static HediffDef Rimshi_MaintenanceMode;
+        public static RecipeDef Rimshi_PowerDown;
         public static HediffDef Rimshi_SoftResetting;
         public static JobDef Rimshi_SoftReset;
         public static JobDef Rimshi_HangInRibCage;
