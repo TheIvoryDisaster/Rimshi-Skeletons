@@ -757,6 +757,13 @@ namespace RimshiSkeletons
 
         public static bool Prefix(Need __instance, ref string __result) => Swap(__instance, ref __result);
 
+        /// <summary>
+        /// Runs after every other mod's prefix and postfix: one that rebuilds the tooltip after ours (the 2026-11-01
+        /// self-test still read vanilla's deathrest text) would otherwise put the deathrest text back.
+        /// </summary>
+        [HarmonyPriority(Priority.Last)]
+        public static void Postfix(Need __instance, ref string __result) => Swap(__instance, ref __result);
+
         internal static bool Swap(Need need, ref string result)
         {
             Pawn pawn = NeedPawn(need);
@@ -777,6 +784,9 @@ namespace RimshiSkeletons
     public static class Patch_CpuIntegrityTipBase
     {
         public static bool Prefix(Need __instance, ref string __result) => Patch_CpuIntegrityTip.Swap(__instance, ref __result);
+
+        [HarmonyPriority(Priority.Last)]
+        public static void Postfix(Need __instance, ref string __result) => Patch_CpuIntegrityTip.Swap(__instance, ref __result);
     }
 
     /// <summary>

@@ -22,9 +22,6 @@
       <shaderType>CutoutComplex</shaderType>
       <drawSize>(4,4)</drawSize>
       <drawOffset>(0,0,0.5)</drawOffset>
-      <shadowData>
-        <volume>(1.8, 0.5, 2.8)</volume>
-      </shadowData>
       <damageData>
         <rect>(0.1,0.1,1.8,2.8)</rect>
       </damageData>
@@ -36,6 +33,7 @@
     <size>(2,3)</size>
     <defaultPlacingRot>South</defaultPlacingRot>
     <passability>Impassable</passability>
+    <disableImpassableShotOverConfigError>true</disableImpassableShotOverConfigError>
     <fillPercent>0.6</fillPercent>
     <canOverlapZones>false</canOverlapZones>
     <drawerType>MapMeshAndRealTime</drawerType>
