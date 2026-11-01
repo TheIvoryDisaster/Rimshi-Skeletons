@@ -54,6 +54,7 @@ namespace RimshiSkeletons
                 pawns.Add(skeleton);
                 pawns.Add(human);
                 SkeletonChecks(skeleton, human);
+                AgeChecks(skeleton, human);
                 HumanChecks(human);
                 RepairChecks(skeleton, human);
                 GeneProofChecks(skeleton, human);
@@ -498,7 +499,42 @@ namespace RimshiSkeletons
             Check("convert health", !old.health.hediffSet.hediffs.Any(h => h.def.defName == OldSkeletonConversion.OldHediffName)
                 && old.health.hediffSet.hediffs.All(h => h.Part == null || h.Part.body == human) && lost.Count == 0,
                 old.health.hediffSet.hediffs.Count + " health conditions, lost " + lost.Count);
+            Check("convert age", old.ageTracker.AgeBiologicalYears >= SkeletonAge.MinBiologicalYears,
+                "biological " + old.ageTracker.AgeBiologicalYears + ", chronological " + old.ageTracker.AgeChronologicalYears);
             Check("convert again", !OldSkeletonConversion.IsOldSkeleton(old, oldRace), "converted pawn no longer matches");
+        }
+
+        private static void AgeChecks(Pawn s, Pawn h)
+        {
+            Pawn_AgeTracker age = s.ageTracker;
+            Check("ancient age", age.AgeBiologicalYearsFloat >= SkeletonAge.MinBiologicalYears
+                && age.AgeChronologicalYearsFloat >= SkeletonAge.MinChronologicalYears && age.AgeChronologicalYearsFloat <= SkeletonAge.MaxChronologicalYears + 1f
+                && age.AgeChronologicalTicks >= age.AgeBiologicalTicks && age.Adult,
+                "biological " + age.AgeBiologicalYears + ", chronological " + age.AgeChronologicalYears + ", life stage " + age.CurLifeStage?.defName);
+            Check("human age unchanged", h.ageTracker.AgeBiologicalYearsFloat < SkeletonAge.MinBiologicalYears,
+                "baseliner biological " + h.ageTracker.AgeBiologicalYears + ", chronological " + h.ageTracker.AgeChronologicalYears);
+
+            // The birthday conditions humans can get (frail, bad back, cataract, dementia...), from the race's giver sets.
+            var birthdayDefs = new HashSet<HediffDef>();
+            foreach (HediffGiverSetDef set in ThingDefOf.Human.race.hediffGiverSets ?? new List<HediffGiverSetDef>())
+            {
+                foreach (HediffGiver giver in set.hediffGivers)
+                {
+                    if (giver is HediffGiver_Birthday && giver.hediff != null)
+                    {
+                        birthdayDefs.Add(giver.hediff);
+                    }
+                }
+            }
+            var rolled = new List<string>();
+            for (int year = 100; year <= 1200; year += 100)
+            {
+                rolled.AddRange(AgeInjuryUtility.RandomHediffsToGainOnBirthday(s, year).Select(g => g.hediff?.defName + " at " + year));
+            }
+            var has = s.health.hediffSet.hediffs.Where(x => birthdayDefs.Contains(x.def)).Select(x => x.def.defName).ToList();
+            Check("no old age", birthdayDefs.Count > 0 && rolled.Count == 0 && has.Count == 0,
+                birthdayDefs.Count + " birthday conditions checked; rolled: " + (rolled.Count == 0 ? "none" : string.Join(", ", rolled))
+                + "; has: " + (has.Count == 0 ? "none" : string.Join(", ", has)));
         }
 
         private static void HumanChecks(Pawn h)

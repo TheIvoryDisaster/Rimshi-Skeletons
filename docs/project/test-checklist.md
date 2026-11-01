@@ -31,6 +31,8 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | gene | Skeleton frame gives a male, thin or hulk body and a skeleton head | passed | 43 | Jae-Sung: body Male, head Rimshi_Head_Mki |
 | cores | A skeleton's genetics screen opened, reading cores and chips | passed | 39 | Beom's genetics screen reads cores / chips |
 | gene | Skeletons generated without family | passed | 43 | Blanka: relation generation skipped |
+| age | New skeleton made ancient (biological 120 or more, chronological 400 to 1200) | not seen |  |  |
+| age | Skeleton skipped the human old age conditions (frail, bad back, cataract, dementia) | not seen |  |  |
 | gene | Removing the null chromosome gives a gender back | passed | 43 | Arhaan: now Male |
 | gene | Relations a new genderless pawn got another way were removed (names them) | passed | 43 | Blanka: Parent Pesnosdos, Parent Fenix |
 | gene | A skeleton got back core genes its xenotype lists but it had lost (names them) | not seen |  |  |
@@ -135,6 +137,9 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | selftest | Self-test: no exceptions while testing | not seen |  |  |
 | selftest | Self-test: skeleton has the Skeleton xenotype | passed | 43 | xenotype skeleton |
 | selftest | Self-test: skeleton is genderless | passed | 43 | gender None |
+| selftest | Self-test: skeleton is biologically 120 or more and chronologically 400 to 1200 | not seen |  |  |
+| selftest | Self-test: baseliner age left alone | not seen |  |  |
+| selftest | Self-test: skeleton gets no human old age conditions | not seen |  |  |
 | selftest | Self-test: skeleton is Asexual | passed | 43 | traits Psychopath, DislikesMen, VTE_Technophobe, RT_TalentNoTalent, Asexual |
 | selftest | Self-test: skeleton body is male, thin or hulk | passed | 43 | body Thin |
 | selftest | Self-test: skeleton has a skeleton head | passed | 43 | head Rimshi_Head_Mki |
@@ -256,6 +261,7 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | selftest | Self-test: converted old skeleton has our pawn kind | passed | 43 | kind Rimshi_Colonist |
 | selftest | Self-test: converted old skeleton has no old hediff and only human body parts | passed | 43 | 12 health conditions, lost 0 |
 | selftest | Self-test: a converted skeleton is not converted again | passed | 43 | converted pawn no longer matches |
+| selftest | Self-test: a converted skeleton is biologically 120 or more | not seen |  |  |
 | selftest | Self-test: a skeleton corpse cannot be eaten, a baseliner corpse can | passed | 43 | ingestible: skeleton corpse False, baseliner corpse True |
 | selftest | Self-test: a butchery bill refuses a skeleton corpse and takes a baseliner corpse | passed | 43 | butcher bill takes: skeleton corpse False, baseliner corpse True |
 | selftest | Self-test: the scrap skeleton remains bill takes only skeleton corpses, at the crafting spot and machining bench | passed | 43 | scrap bill takes: skeleton corpse True, baseliner corpse False; benches CraftingSpot, TableMachining, VFE_TableMachiningLarge, VGE_CompactMachiningTable |
