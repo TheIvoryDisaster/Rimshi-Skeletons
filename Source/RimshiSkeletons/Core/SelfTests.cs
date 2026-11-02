@@ -1208,6 +1208,15 @@ namespace RimshiSkeletons
 
         private static void PartsChecks(Pawn s, Pawn human)
         {
+            // A bench whose bills no work giver offers just collects bills nobody takes (the skeleton workbench shipped like that).
+            List<ThingDef> benches = DefDatabase<ThingDef>.AllDefsListForReading.Where(d => d.defName.StartsWith("Rimshi_")
+                && (typeof(Building_WorkTable).IsAssignableFrom(d.thingClass) || (d.inspectorTabs?.Contains(typeof(ITab_Bills)) ?? false))).ToList();
+            List<string> orphanBenches = benches.Where(b => !DefDatabase<WorkGiverDef>.AllDefsListForReading.Any(g =>
+                typeof(WorkGiver_DoBill).IsAssignableFrom(g.giverClass) && g.workType != null && (g.fixedBillGiverDefs?.Contains(b) ?? false)))
+                .Select(b => b.defName).ToList();
+            Check("bench work givers", benches.Count >= 2 && orphanBenches.Count == 0, benches.Count + " Rimshi benches with bills"
+                + (orphanBenches.Count > 0 ? "; no work giver takes bills at: " + string.Join(", ", orphanBenches) : ", every one has a bill work giver"));
+
             List<RecipeDef> installs = DefDatabase<RecipeDef>.AllDefsListForReading.Where(r => r.Worker is Recipe_Rimshi_InstallSkeletonPart).ToList();
             // Organ installs are only offered once the organ is gone (OrganChecks); the rest have a part to go on now.
             List<string> wrong = installs.Where(r => !r.Worker.AvailableOnNow(s) || r.Worker.AvailableOnNow(human)

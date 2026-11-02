@@ -234,6 +234,7 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | selftest | Self-test: mechlink allowed and psylink neuroformer refused for skeletons | passed | 43 | mechlink allowed, psylink neuroformer refused |
 | selftest | Self-test: giving a skeleton a psylink adds none and no psycast, a baseliner gets one (Royalty only) | passed | 43 | skeleton psylink False, new abilities 0; baseliner psylink True |
 | selftest | Self-test: the prosthetics lock patches are applied | passed | 43 | 8 prosthetics lock patches applied |
+| selftest | Self-test: every Rimshi bench with bills (skeleton workbench, cable fissure) has a work giver that takes its bills | not seen |  |  |
 | selftest | Self-test: every skeleton part install is offered on a skeleton and not on a baseliner | passed | 43 | 19 skeleton part installs, skeleton only |
 | selftest | Self-test: a new skeleton has a machine part on all 8 organ types | passed | 43 | 8 machine organs on every organ |
 | selftest | Self-test: a skeleton's organs are named after their machine parts (left lung reads left cooling fan), a baseliner's are not | passed | 43 | left lung reads left cooling fan on the skeleton, left lung on the baseliner |

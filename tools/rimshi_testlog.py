@@ -235,6 +235,7 @@ CHECKLIST = [
     ("selftest", "self implants", "Self-test: mechlink allowed and psylink neuroformer refused for skeletons"),
     ("selftest", "no psylink", "Self-test: giving a skeleton a psylink adds none and no psycast, a baseliner gets one (Royalty only)"),
     ("selftest", "prosthetics patched", "Self-test: the prosthetics lock patches are applied"),
+    ("selftest", "bench work givers", "Self-test: every Rimshi bench with bills (skeleton workbench, cable fissure) has a work giver that takes its bills"),
     ("selftest", "part bills", "Self-test: every skeleton part install is offered on a skeleton and not on a baseliner"),
     ("selftest", "organs fitted", "Self-test: a new skeleton has a machine part on all 8 organ types"),
     ("selftest", "organ labels", "Self-test: a skeleton's organs are named after their machine parts (left lung reads left cooling fan), a baseliner's are not"),

@@ -196,6 +196,16 @@ class DefTests(unittest.TestCase):
         self.assertIn("Rimshi_SkeletonRepairBeds", [li.text for li in things["Rimshi_SkeletonRepairBed"].find("researchPrerequisites")])
 
 
+    def test_benches_have_bill_work_givers(self):
+        """Every bench of ours that takes bills is named by a work giver's fixedBillGiverDefs, or pawns never work at it."""
+        givers = {li.text for _, g in concrete("WorkGiverDef") for li in (g.find("fixedBillGiverDefs") or [])}
+        benches = [el.findtext("defName") for _, el in concrete("ThingDef")
+                   if el.findtext("thingClass") == "Building_WorkTable" or "ITab_Bills" in [li.text for li in (el.find("inspectorTabs") or [])]]
+        self.assertIn("Rimshi_SkeletonWorkbench", benches)
+        for name in benches:
+            with self.subTest(bench=name):
+                self.assertIn(name, givers, "add a WorkGiverDef (WorkGiver_DoBill) with this bench in fixedBillGiverDefs")
+
     def test_skeleton_item_categories(self):
         """Skeleton parts are stored under Skeleton Parts (inside prosthetics) and crafting components under Skeleton
         Components (inside manufactured), through the bases, so a new part or component lands there by inheriting."""
