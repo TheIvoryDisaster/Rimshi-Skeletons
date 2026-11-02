@@ -38,7 +38,7 @@
       <Cleanliness>-2</Cleanliness>
     </statBases>
     <size>(2,1)</size>
-    <designationCategory>Production</designationCategory>
+    <designationCategory>Biotech</designationCategory>
     <uiOrder>2525</uiOrder>
     <passability>PassThroughOnly</passability>
     <pathCost>50</pathCost>

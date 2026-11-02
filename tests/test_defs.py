@@ -206,6 +206,14 @@ class DefTests(unittest.TestCase):
             with self.subTest(bench=name):
                 self.assertIn(name, givers, "add a WorkGiverDef (WorkGiver_DoBill) with this bench in fixedBillGiverDefs")
 
+    def test_buildings_in_biotech_tab(self):
+        """Every skeleton building we add is built from the Biotech architect tab, so the Furniture and Production
+        tabs stay uncluttered (Matthew, 2026-11-02). Each def names it itself, since vanilla building bases set others."""
+        bases = {"BuildingBase", "BenchBase", "BedWithQualityBase", "FurnitureBase", "FurnitureWithQualityBase", "ArtableFurnitureBase"}
+        for _, el in concrete("ThingDef"):
+            if el.get("ParentName") in bases or el.find("designationCategory") is not None:
+                self.assertEqual(el.findtext("designationCategory"), "Biotech", el.findtext("defName"))
+
     def test_skeleton_item_categories(self):
         """Skeleton parts are stored under Skeleton Parts (inside prosthetics) and crafting components under Skeleton
         Components (inside manufactured), through the bases, so a new part or component lands there by inheriting."""

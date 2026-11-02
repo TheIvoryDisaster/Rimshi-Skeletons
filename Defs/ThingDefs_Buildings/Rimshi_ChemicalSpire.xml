@@ -37,7 +37,7 @@
     <blockWind>true</blockWind>
     <canOverlapZones>false</canOverlapZones>
     <drawerType>MapMeshAndRealTime</drawerType>
-    <designationCategory>Furniture</designationCategory>
+    <designationCategory>Biotech</designationCategory>
     <uiOrder>2026</uiOrder>
     <statBases>
       <MaxHitPoints>400</MaxHitPoints>
