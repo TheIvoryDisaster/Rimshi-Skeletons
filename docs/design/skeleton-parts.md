@@ -16,7 +16,7 @@ Matthew's spec, 2026-10-25. Skeletons replace lost or worn parts with skeleton p
 
 ## Intermediates
 
-Made at the workbench with Crafting. While being made, they show as vanilla's unfinished component. The work shown in game is ticks / 60.
+Made at the workbench with Crafting. Bills at the workbench are Smithing work (Rimshi_DoBillsSkeletonWorkbench, priority 60, between vanilla's fabrication bench at 50 and machining table at 75). While being made, they show as vanilla's unfinished component. The work shown in game is ticks / 60.
 
 | Item | Cost | Work | Crafting |
 | --- | --- | --- | --- |

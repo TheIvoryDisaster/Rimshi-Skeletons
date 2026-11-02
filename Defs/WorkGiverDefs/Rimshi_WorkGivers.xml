@@ -47,4 +47,23 @@
     <prioritizeSustains>true</prioritizeSustains>
   </WorkGiverDef>
 
+  <!-- Bills at the skeleton workbench. Without a work giver for the bench nobody ever takes its bills, so it sits in
+       Smithing with vanilla's machining table (75) and fabrication bench (50), which make the same kind of thing. -->
+  <WorkGiverDef>
+    <defName>Rimshi_DoBillsSkeletonWorkbench</defName>
+    <label>make skeleton parts</label>
+    <giverClass>WorkGiver_DoBill</giverClass>
+    <workType>Smithing</workType>
+    <priorityInType>60</priorityInType>
+    <fixedBillGiverDefs>
+      <li>Rimshi_SkeletonWorkbench</li>
+    </fixedBillGiverDefs>
+    <verb>work at</verb>
+    <gerund>working at</gerund>
+    <requiredCapacities>
+      <li>Manipulation</li>
+    </requiredCapacities>
+    <prioritizeSustains>true</prioritizeSustains>
+  </WorkGiverDef>
+
 </Defs>
