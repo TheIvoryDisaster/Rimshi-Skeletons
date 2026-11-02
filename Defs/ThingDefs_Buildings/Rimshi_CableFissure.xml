@@ -39,7 +39,7 @@
     <drawerType>MapMeshAndRealTime</drawerType>
     <hasInteractionCell>true</hasInteractionCell>
     <interactionCellOffset>(0,0,-2)</interactionCellOffset>
-    <designationCategory>Furniture</designationCategory>
+    <designationCategory>Biotech</designationCategory>
     <uiOrder>2027</uiOrder>
     <stuffCategories>
       <li>Stony</li>

@@ -307,7 +307,8 @@ Things the log cannot show; tick them off by hand after looking in game.
 - [ ] While repairing, the repairer shows the mechanitor repair sparks and sound over the skeleton, and the skeleton's wounds close.
 - [ ] Repair bed heal rate: a skeleton in a powered repair bed heals about twice as fast as before (80 severity a day, scaled by body size).
 - [ ] A hurt skeleton keeps working unless downed or a powered repair bed is free, then goes to it; with only scars it goes during its sleep hours.
-- [ ] After the bed research, the skeleton repair bed is in Furniture and costs an AI persona core; deconstructing it gives the core back.
+- [ ] After the bed research, the skeleton repair bed is in the Biotech tab and costs an AI persona core; deconstructing it gives the core back.
+- [ ] The Biotech architect tab holds every skeleton building (repair bed, tuning fork, tempest reliquary, cable fissure, rib cage, skeleton workbench, recall array); none of them show in Furniture or Production.
 - [ ] The repair bed shows the repair machine art, facing the right way in all four rotations (west mirrors east), and the skeleton lies on the deck.
 - [ ] The repair bed is medical by default and a hurt skeleton picks it over a hospital bed. A human cannot be assigned to or rest in it; a hurt skeleton resting in a powered one is repaired, scars included, and gets a "fully repaired" message. Unpowered, the bed says so and does nothing.
 - [ ] A gene extractor will not take a skeleton (the menu option is greyed out with "Skeletons have no genes to extract").

@@ -37,7 +37,7 @@
     <thingCategories>
       <li>BuildingsMisc</li>
     </thingCategories>
-    <designationCategory>Furniture</designationCategory>
+    <designationCategory>Biotech</designationCategory>
     <uiOrder>2025</uiOrder>
     <statBases>
       <MaxHitPoints>220</MaxHitPoints>
