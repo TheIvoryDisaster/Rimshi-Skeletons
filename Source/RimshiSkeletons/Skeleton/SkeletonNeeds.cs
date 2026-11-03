@@ -18,6 +18,10 @@ namespace RimshiSkeletons
     public class MaintenanceExtension : DefModExtension
     {
         public float daysPerItem = 2f;
+
+        /// <summary>Damage dealt to one random non-brain part for each wearIntervalDays spent out of maintenance (SkeletonWear).</summary>
+        public float wearDamage = 2f;
+        public float wearIntervalDays = 1f;
     }
 
     /// <summary>

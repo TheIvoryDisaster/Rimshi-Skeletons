@@ -243,14 +243,15 @@
   </GeneDef>
 
   <!-- Diet: the food need becomes "maintenance", met by consuming one component about every two days (things with
-       RimshiSkeletons.MaintenanceItemExtension, see Patches/Rimshi_ComponentMaintenance.xml). No malnutrition; the
-       Rimshi_MaintenanceNeed thought is the only cost of going without. defName and geneClass keep their old fuel
+       RimshiSkeletons.MaintenanceItemExtension, see Patches/Rimshi_ComponentMaintenance.xml). No malnutrition; going
+       without costs the Rimshi_MaintenanceNeed thought and, each full day out, wearDamage to a random non-brain part
+       (SkeletonWear.cs). defName and geneClass keep their old fuel
        reactor names so saves with skeletons still load. See SkeletonNeeds.cs. -->
   <GeneDef ParentName="Rimshi_SkeletonGeneBase">
     <defName>Rimshi_FuelReactor</defName>
     <label>component maintenance</label>
     <labelShortAdj>maintained</labelShortAdj>
-    <description>Carriers of this core have no stomach. Instead they strip industrial components for parts to patch their worn joints, seals and circuits, about one component every two days. They consume nothing else, and nobody else can make use of components this way. Going without hurts their mood but never starves them.</description>
+    <description>Carriers of this core have no stomach. Instead they strip industrial components for parts to patch their worn joints, seals and circuits, about one component every two days. They consume nothing else, and nobody else can make use of components this way. Going without never starves them, but neglected parts grind and crack.</description>
     <geneClass>RimshiSkeletons.Gene_FuelReactor</geneClass>
     <iconPath>UI/Icons/Genes/Gene_RobustDigestion</iconPath>
     <displayOrderInCategory>40</displayOrderInCategory>
@@ -261,6 +262,8 @@
     <modExtensions>
       <li Class="RimshiSkeletons.MaintenanceExtension">
         <daysPerItem>2</daysPerItem>
+        <wearDamage>2</wearDamage>
+        <wearIntervalDays>1</wearIntervalDays>
       </li>
       <li Class="RimshiSkeletons.NeedRelabelExtension">
         <relabels>

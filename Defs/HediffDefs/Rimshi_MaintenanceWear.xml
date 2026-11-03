@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!-- The injury a skeleton takes from going without maintenance (SkeletonWear.cs, docs/design/maintenance-needs.md):
+       one Rimshi_MaintenanceWear hit a day to a random part that is not the brain. A plain injury, so repair kits and the
+       repair bed fix it like any other; skeleton injuries never heal on their own. Not based on InjuryBase, so a mod
+       changing that cannot break this one. Player text follows the no-spoiler rule. -->
+  <HediffDef>
+    <defName>Rimshi_WornPart</defName>
+    <label>worn</label>
+    <labelNoun>a worn part</labelNoun>
+    <labelNounPretty>{0} in the {1}</labelNounPretty>
+    <description>Joints, seals and plating left too long without maintenance, grinding and cracking against each other.</description>
+    <hediffClass>Hediff_Injury</hediffClass>
+    <tendable>true</tendable>
+    <displayWound>true</displayWound>
+    <comps>
+      <li Class="HediffCompProperties_TendDuration">
+        <labelTendedWell>patched</labelTendedWell>
+        <labelTendedWellInner>patched</labelTendedWellInner>
+        <labelSolidTendedWell>patched</labelSolidTendedWell>
+      </li>
+    </comps>
+    <injuryProps>
+      <painPerSeverity>0.0125</painPerSeverity>
+      <averagePainPerSeverityPermanent>0.00625</averagePainPerSeverityPermanent>
+      <canMerge>true</canMerge>
+      <destroyedLabel>Worn away</destroyedLabel>
+      <destroyedOutLabel>Worn away</destroyedOutLabel>
+    </injuryProps>
+  </HediffDef>
+
+</Defs>
