@@ -37,6 +37,7 @@ namespace RimshiSkeletons
         {
             base.PostAdd();
             SkeletonAnatomy.FitOrgans(pawn, "gene added");
+            AddictionLock.Clear(pawn, "gene added");
         }
     }
 

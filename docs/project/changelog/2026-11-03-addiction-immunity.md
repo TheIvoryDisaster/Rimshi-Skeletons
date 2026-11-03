@@ -1,0 +1,1 @@
+Skeletons are now immune to addiction and chemical dependency from any source, including a chemical dependency gene in a custom xenotype. Skeletons that already have an addiction lose it when the save loads.

@@ -129,6 +129,9 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | blood | A sanguophage bit a skeleton and got no hemogen (bloodfeed ability or another mod) | not seen |  |  |
 | wounds | A wounded skeleton on the map showed grey and black wound marks instead of red ones | not seen |  |  |
 | drugs | A skeleton was refused a drug (ingest menu, drug policy, recreation, AI job, binge or generation; one line per route) | passed | 43 | generation GiveCombatEnhancingDrugs: the Doubtful refused |
+| addiction | An addiction or chemical dependency was refused on a skeleton (one line per hediff) | not seen |  |  |
+| addiction | A skeleton lost an addiction it already had (older save or gene added) | not seen |  |  |
+| addiction | Loading a save removed addictions from skeletons (only appears when there were some) | not seen |  |  |
 | drugs | No drug reached a skeleton past the checks (this line only appears when one did; the drug did nothing) | not seen |  |  |
 | remains | A skeleton corpse was scrapped for steel, plasteel, uranium and at most one component (names the yield) | passed | 43 | Arhaan yielded 3 Steel, 5 Plasteel, 2 Uranium |
 | remains | A butchery bill skipped a skeleton corpse (butcher spot, butcher table or another mod's) | passed | 43 | ButcherCorpseFlesh skipped the corpse of Arhaan |
@@ -262,6 +265,10 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | selftest | Self-test: no administer drug bill is offered on a skeleton, some are on a baseliner | passed | 43 | 103 administer drug bills, 0 offered on the skeleton, 103 on the baseliner |
 | selftest | Self-test: no drug binge mental state can start on a skeleton | passed | 43 | 2 drug binge states, possible on the skeleton: none |
 | selftest | Self-test: the drug lock patches are applied | passed | 43 | 16 drug lock patches applied |
+| selftest | Self-test: an addiction cannot be added to a skeleton, it can to a baseliner | not seen |  |  |
+| selftest | Self-test: a chemical dependency gene on a skeleton adds no dependency hediff | not seen |  |  |
+| selftest | Self-test: an addiction already on a skeleton is removed | not seen |  |  |
+| selftest | Self-test: the addiction lock patches are applied | not seen |  |  |
 | selftest | Self-test: every old skeleton body part maps to its own human part (old mod loaded) | passed | 43 | 30 old parts, unmapped: none, shared targets 0 |
 | selftest | Self-test: converted old skeleton is race Human with the human body | passed | 43 | race Human, body Human |
 | selftest | Self-test: converted old skeleton has the Skeleton xenotype and no gender | passed | 43 | xenotype skeleton, gender None |
