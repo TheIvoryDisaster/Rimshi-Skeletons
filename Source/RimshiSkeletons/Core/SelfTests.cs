@@ -784,11 +784,19 @@ namespace RimshiSkeletons
 
                 RecipeDef scrap = RimshiDefOf.Rimshi_ScrapSkeletonRemains;
                 Bill scrapBill = scrap.MakeNewBill();
-                bool scrapSkeleton = scrapBill.IsFixedOrAllowedIngredient(skeletonCorpse);
-                bool scrapHuman = scrapBill.IsFixedOrAllowedIngredient(humanCorpse);
+                // As the bill search does (WorkGiver_DoBill.IsUsableIngredient): the bill and an ingredient filter must both allow it.
+                bool scrapSkeleton = scrapBill.IsFixedOrAllowedIngredient(skeletonCorpse) && scrap.ingredients.Any(i => i.filter.Allows(skeletonCorpse));
+                bool scrapHuman = scrapBill.IsFixedOrAllowedIngredient(humanCorpse) && scrap.ingredients.Any(i => i.filter.Allows(humanCorpse));
                 List<string> users = scrap.AllRecipeUsers.Select(u => u.defName).ToList();
                 Check("scrap recipe", scrapSkeleton && !scrapHuman && users.Contains("CraftingSpot") && users.Contains("TableMachining"),
                     "scrap bill takes: skeleton corpse " + scrapSkeleton + ", baseliner corpse " + scrapHuman + "; benches " + string.Join(", ", users));
+
+                CompRottable skeletonRot = skeletonCorpse.GetComp<CompRottable>();
+                CompRottable humanRot = humanCorpse.GetComp<CompRottable>();
+                skeletonRot?.RotImmediately(RotStage.Dessicated);
+                Check("corpse no rot", skeletonRot != null && !skeletonRot.Active && skeletonRot.Stage == RotStage.Fresh && skeletonRot.RotProgress == 0f
+                        && humanRot != null && humanRot.Active,
+                    "rot active: skeleton corpse " + skeletonRot?.Active + " (stage " + skeletonRot?.Stage + " after a desiccate attempt), baseliner corpse " + humanRot?.Active);
 
                 List<Thing> products = skeletonCorpse.ButcherProducts(null, 1f).ToList();
                 var wanted = new[] { ThingDefOf.Steel, ThingDefOf.Plasteel, ThingDefOf.Uranium };
@@ -831,6 +839,11 @@ namespace RimshiSkeletons
             AccessTools.PropertyGetter(typeof(Corpse), nameof(Corpse.IngestibleNow)),
             AccessTools.Method(typeof(Toils_Ingest), nameof(Toils_Ingest.ChewIngestible), new[] { typeof(Pawn), typeof(float), typeof(TargetIndex), typeof(TargetIndex) }),
             AccessTools.Method(typeof(Thing), nameof(Thing.Ingested)),
+            AccessTools.PropertyGetter(typeof(CompRottable), nameof(CompRottable.Active)),
+            AccessTools.PropertySetter(typeof(CompRottable), nameof(CompRottable.RotProgress)),
+            AccessTools.Method(typeof(CompRottable), nameof(CompRottable.PostExposeData)),
+            AccessTools.Method(typeof(Corpse), nameof(Corpse.SpawnSetup), new[] { typeof(Map), typeof(bool) }),
+            AccessTools.Method(typeof(WorkGiver_DoBill), "TryFindBestBillIngredients"),
         };
 
         private static void DrugChecks(Pawn s, Pawn h)
