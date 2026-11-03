@@ -63,6 +63,7 @@ namespace RimshiSkeletons
                 PartsChecks(skeleton, human);
                 BloodChecks(skeleton, human);
                 DrugChecks(skeleton, human);
+                AddictionChecks(skeleton, human);
                 CoreTermsChecks(skeleton, human);
                 ModuleChecks(skeleton, human);
                 FactionChecks(pawns);
@@ -888,6 +889,74 @@ namespace RimshiSkeletons
             Check("drugs patched", unpatched.Count == 0, unpatched.Count == 0 ? DrugTargets.Length + " drug lock patches applied" : "not patched: " + string.Join(", ", unpatched));
         }
 
+        private static void AddictionChecks(Pawn s, Pawn h)
+        {
+            HediffDef addiction = DefDatabase<HediffDef>.AllDefsListForReading.FirstOrDefault(d => d.hediffClass != null
+                && typeof(Hediff_Addiction).IsAssignableFrom(d.hediffClass) && d.chemicalNeed != null && !d.defName.StartsWith("Rimshi_", StringComparison.Ordinal));
+            if (addiction == null)
+            {
+                Check("addiction refused", false, "no addiction hediff def found");
+                return;
+            }
+            s.health.AddHediff(addiction);
+            h.health.AddHediff(addiction);
+            bool skeletonHas = s.health.hediffSet.HasHediff(addiction);
+            bool humanHas = h.health.hediffSet.HasHediff(addiction);
+            Check("addiction refused", !skeletonHas && humanHas, addiction.defName + ": skeleton " + skeletonHas + ", baseliner " + humanHas);
+            Hediff humanAddiction = h.health.hediffSet.GetFirstHediffOfDef(addiction);
+            if (humanAddiction != null)
+            {
+                h.health.RemoveHediff(humanAddiction);
+            }
+
+            // A chemical dependency gene added to a skeleton (custom xenotype): the gene stays, its deficiency hediff never appears.
+            GeneDef dependency = DefDatabase<GeneDef>.AllDefsListForReading.FirstOrDefault(g => g.geneClass != null && typeof(Gene_ChemicalDependency).IsAssignableFrom(g.geneClass));
+            if (dependency != null)
+            {
+                Gene gene = s.genes.AddGene(dependency, true);
+                bool hediff = s.health.hediffSet.hediffs.Any(x => x is Hediff_ChemicalDependency);
+                Check("dependency refused", gene != null && !hediff, dependency.defName + ": gene added " + (gene != null) + ", dependency hediff " + hediff);
+                if (gene != null)
+                {
+                    s.genes.RemoveGene(gene);
+                }
+            }
+            else
+            {
+                Check("dependency refused", true, "no chemical dependency gene loaded, nothing to test");
+            }
+
+            // An addiction already on a skeleton (older save): slipped in past the patch, then cleared the way loading does.
+            Hediff old = HediffMaker.MakeHediff(addiction, s);
+            s.health.hediffSet.hediffs.Add(old);
+            int removed = AddictionLock.Clear(s, "self-test");
+            bool left = s.health.hediffSet.hediffs.Contains(old);
+            if (left)
+            {
+                s.health.hediffSet.hediffs.Remove(old);
+            }
+            Check("addiction cleared", removed == 1 && !left, "removed " + removed + ", still there " + left);
+
+            var unpatched = new List<string>();
+            foreach (MethodBase method in AddictionTargets)
+            {
+                Patches info = method == null ? null : Harmony.GetPatchInfo(method);
+                bool ours = info != null && info.Owners.Contains(RimshiMod.HarmonyId);
+                if (!ours)
+                {
+                    unpatched.Add(method == null ? "missing method" : method.DeclaringType.Name + "." + method.Name);
+                }
+            }
+            Check("addiction patched", unpatched.Count == 0, unpatched.Count == 0 ? AddictionTargets.Length + " addiction lock patches applied" : "not patched: " + string.Join(", ", unpatched));
+        }
+
+        private static readonly MethodBase[] AddictionTargets =
+        {
+            AccessTools.Method(typeof(PawnAddictionHediffsGenerator), nameof(PawnAddictionHediffsGenerator.GenerateAddictionsAndTolerancesFor)),
+            AccessTools.Method(typeof(Gene_ChemicalDependency), nameof(Gene_ChemicalDependency.Reset)),
+            AccessTools.Method(typeof(Gene_ChemicalDependency), nameof(Gene_ChemicalDependency.Notify_IngestedThing)),
+        };
+
         private static readonly MethodBase[] DrugTargets =
         {
             AccessTools.Method(typeof(PawnUtility), nameof(PawnUtility.CanTakeDrug)),
@@ -1458,6 +1527,7 @@ namespace RimshiSkeletons
             LongEventHandler.ExecuteWhenFinished(SkeletonGeneRestore.MigrateSave);
             LongEventHandler.ExecuteWhenFinished(SkeletonAnatomy.MigrateSave);
             LongEventHandler.ExecuteWhenFinished(SkeletonModules.MigrateSave);
+            LongEventHandler.ExecuteWhenFinished(AddictionLock.MigrateSave);
             LongEventHandler.ExecuteWhenFinished(SetFoodPoliciesOnce);
             LongEventHandler.ExecuteWhenFinished(SelfTests.RunIfDevMode);
         }
