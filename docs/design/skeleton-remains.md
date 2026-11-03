@@ -13,6 +13,20 @@ Skeleton corpses are `Corpse_Human` like every other human (the xenotype sits on
 | Yield | The scrap recipe is a `Butchery` recipe, so vanilla asks `Corpse.ButcherProducts`. A postfix replaces the result for a skeleton corpse: 1-5 each of steel, plasteel and uranium (uniform, independently) and a 50% chance of one industrial component (`SkeletonRemains.MinScrap`, `MaxScrap`, `ComponentChance`). Skill and efficiency stats do not change it. Apparel, weapons and inventory are stripped onto the floor first. Any other mod that butchers a skeleton gets the same scrap. |
 | Side effects skipped | The vanilla products enumerator never runs, so there is no meat, leather, blood filth, or butchered humanlike thought and history event, for the scrap bill as well. |
 
+## No rot
+
+Asked for by Matthew on 2026-11-03: skeleton corpses must not rot or desiccate into organic skeletons, but may still deteriorate (outdoors, rain, fire, damage).
+
+| Part | How |
+| --- | --- |
+| No rot | `CompRottable.Active` postfix returns false for a skeleton corpse: no rot progress, no rot damage, no rot stink, no rot line on the inspect pane, and the "time until rot" readings say never. Deterioration is a separate system (`SteadyEnvironmentEffects`) and still runs. |
+| Held at zero | `CompRottable.RotProgress` setter prefix keeps a skeleton corpse's rot progress at 0, so `RotImmediately` (scenarios, ruins, other mods) cannot rot it either. |
+| Old saves | A skeleton corpse saved while rotting or desiccated is made fresh in `CompRottable.PostExposeData` (post-load, graves and caravans too) and again on `Corpse.SpawnSetup`, which also refreshes its graphics. Logged once per corpse as `remains | rot cleared`. |
+
+## Why the scrap bill seemed to ignore corpses (2026-11-03)
+
+Matthew reported the scrap bill not taking skeleton corpses lying on the map. The 1.7 bill code (`WorkGiver_DoBill`, `ThingFilter`, `Bill.IsFixedOrAllowedIngredient`) checks out: the recipe's ingredient filter re-allows the colonist and stranger corpse special filters under Humanlike corpses, and our postfix keeps only skeleton corpses. In his save of that evening the only skeleton corpse was in a grave; the organic skeletons on the map were desiccated human corpses (Shek, hivers, baseliners and so on), which the bill rightly refuses. Two things that do stop it, both vanilla: hostile corpses outside the home area start forbidden (`Pawn.Kill` calls `SetForbiddenIfOutsideHomeArea`), and the bill's search radius. A diagnostic `WorkGiver_DoBill.TryFindBestBillIngredients` postfix now logs `remains | scrap skipped` with the reason, once per corpse, whenever a scrap bill finds nothing while a skeleton corpse lies on the map. The self-test now checks the ingredient filter as well as the bill (what the bill search really asks).
+
 ## Eating
 
 | Part | How |
@@ -24,4 +38,3 @@ Skeleton corpses are `Corpse_Human` like every other human (the xenotype sits on
 ## Not covered
 
 - The corpse's info card still lists vanilla meat and leather amounts (display only).
-- Skeleton corpses still rot like human ones; out of scope here.
