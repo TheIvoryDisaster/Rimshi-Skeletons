@@ -3,7 +3,7 @@
 
   <!-- Skeleton parts (docs/design/skeleton-parts.md): limbs from Kenshi's robot limbs in five tiers, plus senses and the
        AI core. Made at the skeleton workbench from the skeleton intermediates, Crafting 11. Installed only on skeletons
-       (Recipe_Rimshi_InstallSkeletonPart). Placeholder art: vanilla's body part item recoloured brown with grey trim. Never burns.
+       (Recipe_Rimshi_InstallSkeletonPart); limbs also by the skeleton itself (Rimshi_SkeletonLimbBase). Placeholder art: vanilla's body part item recoloured brown with grey trim. Never burns.
        Work amounts are in ticks: the game shows them divided by 60 (3000 shows as 50). -->
   <ThingDef Name="Rimshi_SkeletonPartBase" ParentName="BodyPartBase" Abstract="True">
     <techLevel>Industrial</techLevel>
@@ -35,7 +35,25 @@
     </recipeMaker>
   </ThingDef>
 
-  <ThingDef ParentName="Rimshi_SkeletonPartBase">
+  <!-- Limbs (arms and legs) fit themselves like a mechlink: a skeleton colonist right-clicks one and installs it on
+       itself, no surgery (Parts/SkeletonLimbSelfInstall.cs). The install surgery stays as the other route. Organs and the
+       AI core stay on Rimshi_SkeletonPartBase and need surgery. -->
+  <ThingDef Name="Rimshi_SkeletonLimbBase" ParentName="Rimshi_SkeletonPartBase" Abstract="True">
+    <comps>
+      <li Class="CompProperties_Usable">
+        <useJob>UseItem</useJob>
+        <useLabel>Install {0_label}</useLabel>
+        <useDuration>600</useDuration>
+      </li>
+      <li Class="RimshiSkeletons.CompProperties_UseEffectInstallSkeletonLimb" />
+      <li Class="CompProperties_UseEffectPlaySound">
+        <soundOnUsed>MechlinkInstalled</soundOnUsed>
+      </li>
+      <li Class="CompProperties_UseEffectDestroySelf" />
+    </comps>
+  </ThingDef>
+
+  <ThingDef ParentName="Rimshi_SkeletonLimbBase">
     <defName>Rimshi_EconomyArm</defName>
     <label>economy skeleton arm</label>
     <description>A replacement arm for a skeleton. A cheap, light-duty replacement built from the fewest parts that will do. It is weaker and clumsier than the original. Only fits a skeleton.</description>
@@ -55,7 +73,7 @@
       <researchPrerequisite>Rimshi_SkeletonFabrication</researchPrerequisite>
     </recipeMaker>
   </ThingDef>
-  <ThingDef ParentName="Rimshi_SkeletonPartBase">
+  <ThingDef ParentName="Rimshi_SkeletonLimbBase">
     <defName>Rimshi_EconomyLeg</defName>
     <label>economy skeleton leg</label>
     <description>A replacement leg for a skeleton. A cheap, light-duty replacement built from the fewest parts that will do. It is weaker and clumsier than the original. Only fits a skeleton.</description>
@@ -75,7 +93,7 @@
       <researchPrerequisite>Rimshi_SkeletonFabrication</researchPrerequisite>
     </recipeMaker>
   </ThingDef>
-  <ThingDef ParentName="Rimshi_SkeletonPartBase">
+  <ThingDef ParentName="Rimshi_SkeletonLimbBase">
     <defName>Rimshi_StandardArm</defName>
     <label>skeleton arm</label>
     <description>A replacement arm for a skeleton. The standard pattern, built to the old empire's specifications. It works exactly as well as the original. Only fits a skeleton.</description>
@@ -96,7 +114,7 @@
       <researchPrerequisite>Rimshi_SkeletonFabrication</researchPrerequisite>
     </recipeMaker>
   </ThingDef>
-  <ThingDef ParentName="Rimshi_SkeletonPartBase">
+  <ThingDef ParentName="Rimshi_SkeletonLimbBase">
     <defName>Rimshi_StandardLeg</defName>
     <label>skeleton leg</label>
     <description>A replacement leg for a skeleton. The standard pattern, built to the old empire's specifications. It works exactly as well as the original. Only fits a skeleton.</description>
@@ -117,7 +135,7 @@
       <researchPrerequisite>Rimshi_SkeletonFabrication</researchPrerequisite>
     </recipeMaker>
   </ThingDef>
-  <ThingDef ParentName="Rimshi_SkeletonPartBase">
+  <ThingDef ParentName="Rimshi_SkeletonLimbBase">
     <defName>Rimshi_KLRArm</defName>
     <label>KLR skeleton arm</label>
     <description>A replacement arm for a skeleton. A KLR pattern part with a heavy uranium-weighted frame. It works as well as the original and is much harder to damage: it takes 20% less damage. Only fits a skeleton.</description>
@@ -139,7 +157,7 @@
       <researchPrerequisite>Rimshi_AdvancedSkeletonParts</researchPrerequisite>
     </recipeMaker>
   </ThingDef>
-  <ThingDef ParentName="Rimshi_SkeletonPartBase">
+  <ThingDef ParentName="Rimshi_SkeletonLimbBase">
     <defName>Rimshi_KLRLeg</defName>
     <label>KLR skeleton leg</label>
     <description>A replacement leg for a skeleton. A KLR pattern part with a heavy uranium-weighted frame. It works as well as the original and is much harder to damage: it takes 20% less damage. Only fits a skeleton.</description>
@@ -161,7 +179,7 @@
       <researchPrerequisite>Rimshi_AdvancedSkeletonParts</researchPrerequisite>
     </recipeMaker>
   </ThingDef>
-  <ThingDef ParentName="Rimshi_SkeletonPartBase">
+  <ThingDef ParentName="Rimshi_SkeletonLimbBase">
     <defName>Rimshi_IndustrialArm</defName>
     <label>industrial skeleton arm</label>
     <description>A replacement arm for a skeleton. A heavy industrial pattern part with oversized motors and doubled muscle. It takes 8% less damage. It is stronger than the original, and its wearer hits 10% harder in melee per arm. Only fits a skeleton.</description>
@@ -182,7 +200,7 @@
       <researchPrerequisite>Rimshi_AdvancedSkeletonParts</researchPrerequisite>
     </recipeMaker>
   </ThingDef>
-  <ThingDef ParentName="Rimshi_SkeletonPartBase">
+  <ThingDef ParentName="Rimshi_SkeletonLimbBase">
     <defName>Rimshi_IndustrialLeg</defName>
     <label>industrial skeleton leg</label>
     <description>A replacement leg for a skeleton. A heavy industrial pattern part with oversized motors and doubled muscle. It takes 8% less damage. It is faster than the original. Only fits a skeleton.</description>
@@ -203,7 +221,7 @@
       <researchPrerequisite>Rimshi_AdvancedSkeletonParts</researchPrerequisite>
     </recipeMaker>
   </ThingDef>
-  <ThingDef ParentName="Rimshi_SkeletonPartBase">
+  <ThingDef ParentName="Rimshi_SkeletonLimbBase">
     <defName>Rimshi_SteadyArm</defName>
     <label>steady skeleton arm</label>
     <description>A replacement arm for a skeleton. A precision pattern part with fine motor control and dense sensor wiring. It is more dexterous than the original, and its grip can tear the weapon out of an enemy's hand in melee. Only fits a skeleton.</description>
@@ -224,7 +242,7 @@
       <researchPrerequisite>Rimshi_AdvancedSkeletonParts</researchPrerequisite>
     </recipeMaker>
   </ThingDef>
-  <ThingDef ParentName="Rimshi_SkeletonPartBase">
+  <ThingDef ParentName="Rimshi_SkeletonLimbBase">
     <defName>Rimshi_SteadyLeg</defName>
     <label>steady skeleton leg</label>
     <description>A replacement leg for a skeleton. A precision pattern part with fine motor control and dense sensor wiring. Its quick footwork makes its wearer much harder to hit in melee. Only fits a skeleton.</description>

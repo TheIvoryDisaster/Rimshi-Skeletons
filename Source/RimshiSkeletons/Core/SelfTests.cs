@@ -1275,6 +1275,8 @@ namespace RimshiSkeletons
                 || (!(r.addsHediff?.hediffClass == typeof(Hediff_Rimshi_SkeletonOrgan)) && !r.Worker.GetPartsToApplyOn(s, r).Any())).Select(r => r.defName).ToList();
             Check("part bills", installs.Count >= 19 && wrong.Count == 0, installs.Count + " skeleton part installs, skeleton only" + (wrong.Count > 0 ? "; wrong: " + string.Join(", ", wrong) : ""));
 
+            SelfInstallChecks(s, human);
+
             RecipeDef klr = DefDatabase<RecipeDef>.GetNamed("Rimshi_Install_KLRArm");
             BodyPartRecord shoulder = klr.Worker.GetPartsToApplyOn(s, klr).FirstOrDefault();
             if (shoulder == null)
@@ -1318,6 +1320,47 @@ namespace RimshiSkeletons
             }
             string list(IEnumerable<Patch> patches) => string.Join(", ", patches.Select(p => p.owner + " " + p.PatchMethod.DeclaringType?.Name + " (" + p.priority + ")"));
             return "prefixes [" + list(info.Prefixes) + "], postfixes [" + list(info.Postfixes) + "], transpilers [" + list(info.Transpilers) + "]";
+        }
+
+        /// <summary>
+        /// Limbs install themselves (Parts/SkeletonLimbSelfInstall.cs): every limb has the use comps and an install recipe,
+        /// organs and the AI core have none; a skeleton leg is refused for a baseliner, goes on the missing leg first, and
+        /// takes. The colonist check is not tested: the throwaway skeleton is not a colonist.
+        /// </summary>
+        private static void SelfInstallChecks(Pawn s, Pawn human)
+        {
+            ThingCategoryDef category = DefDatabase<ThingCategoryDef>.GetNamed("Rimshi_SkeletonParts");
+            List<ThingDef> parts = DefDatabase<ThingDef>.AllDefsListForReading.Where(d => d.defName.StartsWith("Rimshi_", System.StringComparison.Ordinal)
+                && d.thingCategories != null && d.thingCategories.Contains(category)).ToList();
+            List<ThingDef> limbs = parts.Where(d => d.HasComp(typeof(CompUseEffect_InstallSkeletonLimb))).ToList();
+            List<string> broken = limbs.Where(d => !d.HasComp(typeof(CompUsable)) || !d.HasComp(typeof(CompUseEffect_DestroySelf))
+                || CompUseEffect_InstallSkeletonLimb.RecipeFor(DefDatabase<HediffDef>.GetNamedSilentFail(d.defName)) == null).Select(d => d.defName).ToList();
+            List<string> surgeryOnly = parts.Where(d => !limbs.Contains(d)).Select(d => d.defName).ToList();
+            Check("limb self install comps", limbs.Count == 10 && broken.Count == 0 && surgeryOnly.Contains("Rimshi_AICore") && surgeryOnly.Contains("Rimshi_CoolingFan"),
+                limbs.Count + " self-installed limbs, surgery only: " + string.Join(", ", surgeryOnly) + (broken.Count > 0 ? "; broken: " + string.Join(", ", broken) : ""));
+
+            ThingWithComps leg = ThingMaker.MakeThing(DefDatabase<ThingDef>.GetNamed("Rimshi_StandardLeg")) as ThingWithComps;
+            CompUseEffect_InstallSkeletonLimb comp = leg?.GetComp<CompUseEffect_InstallSkeletonLimb>();
+            if (comp == null)
+            {
+                Check("limb self install", false, "skeleton leg has no install comp");
+                return;
+            }
+            AcceptanceReport onHuman = comp.CanBeUsedBy(human);
+            List<BodyPartRecord> legs = s.RaceProps.body.GetPartsWithDef(BodyPartDefOf.Leg).ToList();
+            BodyPartRecord gone = legs.LastOrDefault();
+            if (gone == null)
+            {
+                Check("limb self install", false, "no leg on the skeleton");
+                return;
+            }
+            s.health.AddHediff(HediffMaker.MakeHediff(HediffDefOf.MissingBodyPart, s, gone), gone);
+            List<BodyPartRecord> offered = comp.PartsFor(s);
+            comp.DoEffect(s);
+            bool installed = s.health.hediffSet.hediffs.Any(h => h.def == comp.Hediff && h.Part == gone) && !s.health.hediffSet.PartIsMissing(gone);
+            Check("limb self install", !onHuman.Accepted && offered.FirstOrDefault() == gone && installed && !s.Dead,
+                "baseliner refused " + !onHuman.Accepted + " (" + onHuman.Reason + "), offered " + string.Join(", ", offered.Select(p => p.Label))
+                + ", missing " + gone.Label + " first " + (offered.FirstOrDefault() == gone) + ", installed there " + installed);
         }
 
         private static void Check(string name, bool ok, string detail)
