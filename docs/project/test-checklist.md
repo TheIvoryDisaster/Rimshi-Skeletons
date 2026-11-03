@@ -8,7 +8,7 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 
 **How to use it:** play with Development mode on, then tell Claude to check the logs. Claude pulls Player.log and Player-prev.log from `C:\Users\Matthew\AppData\LocalLow\Ludeon Studios\RimWorld by Ludeon Studios`, runs `tools/rimshi_testlog.py` over them and updates this table. Results add up across sessions; any exception that mentions the mod is reported too. A PR that only updates this file is merged by Claude without asking, and its description lists every test that ran and its outcome.
 
-**Self-tests:** with Development mode on, loading or starting a game runs the in-game self-tests once per session (also on demand: Debug actions > Rimshi Skeletons > Run self-tests). They generate a skeleton, a baseliner and a skeletal imperium town guard off the map, check genes, looks, diet, thoughts, immunity, the gene lock, the prosthetics lock, skeleton parts (install bills, KLR arm armour, AI core repair), machine organs (fitted, named, hidden, replaceable), blood and ancient oil, grey wound overlays, the drug lock, skeleton remains (inedible, no rot, no butchering, the scrap recipe and its yield), backstory, faction, reproduction, the recall array and horde skeletons (gear, protocol, failsafe core, one reprogramming session), discard the pawns, and log one `selftest` line per check plus a summary.
+**Self-tests:** with Development mode on, loading or starting a game runs the in-game self-tests once per session (also on demand: Debug actions > Rimshi Skeletons > Run self-tests). They generate a skeleton, a baseliner and a skeletal imperium town guard off the map, check genes, looks, diet, thoughts, immunity, the gene lock, the prosthetics lock, skeleton parts (install bills, self-installed limbs, KLR arm armour, AI core repair), machine organs (fitted, named, hidden, replaceable), blood and ancient oil, grey wound overlays, the drug lock, skeleton remains (inedible, no rot, no butchering, the scrap recipe and its yield), backstory, faction, reproduction, the recall array and horde skeletons (gear, protocol, failsafe core, one reprogramming session), discard the pawns, and log one `selftest` line per check plus a summary.
 
 **Unit tests:** `python3 -m unittest discover -s tests` runs the offline tests (def cross-references, textures, checklist coverage, the log reader, house style). CI runs them on every push.
 
@@ -117,6 +117,7 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | parts | A KLR or industrial part took reduced damage (first hit each session) | passed | 43 | Arhaan: Shoulder hit for 10, Rimshi_KLRArm made it 8 |
 | parts | A steady arm knocked a weapon out of an enemy's hands in melee | not seen |  |  |
 | parts | A second AI core repaired a damaged one (names what it removed) | passed | 43 | Arhaan: removed Gunshot |
+| parts | A skeleton fitted a limb to itself from the item, no surgery (names the limb, the part and whether the side was picked) | not seen |  |  |
 | anatomy | A skeleton got its machine organs (generation, gene added or older save; names the organs) | passed | 43 | Jae-Sung (gene added): Stomach, Heart, Lung, Lung, Kidney, Kidney, Liver, Eye, Eye, Ear, Ear, Nose |
 | anatomy | Skeletons in an older save were given machine organs on load | not seen |  |  |
 | powerdown | A temporarily power down operation finished on a skeleton (says if it is in maintenance mode) | not seen |  |  |
@@ -247,6 +248,8 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | selftest | Self-test: a cooling fan install is offered only once the lung is gone, and puts the cooling fan back | passed | 43 | offered on a fitted lung False, on a missing lung True, cooling fan back True, alive True |
 | selftest | Self-test: a fitted lung can be removed (as its cooling fan), a bare one cannot, and a restored one gets its cooling fan | not seen |  |  |
 | selftest | Self-test: a KLR arm installs on a skeleton's shoulder | passed | 43 | KLR arm on left shoulder: True |
+| selftest | Self-test: all 10 skeleton limbs install themselves from the item, organs and the AI core do not | not seen |  |  |
+| selftest | Self-test: a skeleton leg is refused for a baseliner, goes on the skeleton's missing leg first, and takes | not seen |  |  |
 | selftest | Self-test: a KLR arm takes 20% off the damage that reaches it | passed | 43 | 10 bullet damage on the KLR arm arrived as 10, reduced to 8 (expected 8), injury 8 |
 | selftest | Self-test: an AI core installs, and a second one repairs a damaged core | passed | 43 | core installed True, repair offered when damaged True, injuries left 0, alive True |
 | selftest | Self-test: skeleton cannot bleed, baseliner can | passed | 43 | skeleton can bleed False, baseliner True |
@@ -321,6 +324,8 @@ Things the log cannot show; tick them off by hand after looking in game.
 - [ ] The Biotech architect tab holds every skeleton building (repair bed, tuning fork, tempest reliquary, cable fissure, rib cage, skeleton workbench, recall array); none of them show in Furniture or Production.
 - [ ] The repair bed shows the repair machine art, facing the right way in all four rotations (west mirrors east), and the skeleton lies on the deck.
 - [ ] The repair bed is medical by default and a hurt skeleton picks it over a hospital bed. A human cannot be assigned to or rest in it; a hurt skeleton resting in a powered one is repaired, scars included, and gets a "fully repaired" message. Unpowered, the bed says so and does nothing.
+- [ ] Right-clicking a skeleton limb with a skeleton colonist selected offers "Install ..."; with two places to fit it, a second menu names the sides. The skeleton walks to the limb, works on it for about 10 seconds, the mechlink sound plays, the limb is on the chosen side and the item is gone (an old skeleton part it replaced drops). No bill, doctor or repair kit.
+- [ ] The same option is greyed out for a baseliner ("only fits a skeleton") and when every limb already has that part ("nowhere to fit it"). Machine organs and the AI core have no install option and still need the surgery bill.
 - [ ] A gene extractor will not take a skeleton (the menu option is greyed out with "Skeletons have no genes to extract").
 - [ ] A xenogerm's "Implant" gizmo will not target a skeleton, and the skeleton's health tab has no "Implant xenogerm" bill.
 - [ ] A sanguophage's xenogerm reimplant ability will not target a skeleton.

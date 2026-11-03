@@ -186,7 +186,7 @@ class DefTests(unittest.TestCase):
         things = {el.findtext("defName"): el for _, el in concrete("ThingDef")}
         hediffs = def_names("HediffDef")
         installs = {el.findtext("addsHediff") for _, el in concrete("RecipeDef") if el.findtext("addsHediff")}
-        parts = [n for n, el in things.items() if el.get("ParentName") == "Rimshi_SkeletonPartBase"]
+        parts = [n for n, el in things.items() if el.get("ParentName") in ("Rimshi_SkeletonPartBase", "Rimshi_SkeletonLimbBase")]
         self.assertEqual(len(parts), 19)
         for name in parts:
             with self.subTest(part=name):
@@ -213,6 +213,26 @@ class DefTests(unittest.TestCase):
         for _, el in concrete("ThingDef"):
             if el.get("ParentName") in bases or el.find("designationCategory") is not None:
                 self.assertEqual(el.findtext("designationCategory"), "Biotech", el.findtext("defName"))
+
+    def test_skeleton_limbs_self_install(self):
+        """Arms and legs install themselves (use comps on Rimshi_SkeletonLimbBase); organs and the AI core keep surgery only."""
+        named = {el.get("Name"): el for _, el in defs() if el.tag == "ThingDef" and el.get("Name")}
+        base = named["Rimshi_SkeletonLimbBase"]
+        comps = [li.get("Class") for li in base.find("comps")]
+        for cls in ("CompProperties_Usable", "RimshiSkeletons.CompProperties_UseEffectInstallSkeletonLimb", "CompProperties_UseEffectDestroySelf"):
+            self.assertIn(cls, comps)
+        self.assertEqual(base.findtext("comps/li/useJob"), "UseItem")
+        things = {el.findtext("defName"): el for _, el in concrete("ThingDef")}
+        limbs = sorted(n for n, el in things.items() if el.get("ParentName") == "Rimshi_SkeletonLimbBase")
+        self.assertEqual(len(limbs), 10)
+        for name in limbs:
+            with self.subTest(limb=name):
+                self.assertRegex(name, r"(Arm|Leg)$")
+        for name, el in things.items():
+            if el.get("ParentName") == "Rimshi_SkeletonPartBase":
+                with self.subTest(part=name):
+                    self.assertNotRegex(name, r"(Arm|Leg)$", "limbs belong on Rimshi_SkeletonLimbBase")
+                    self.assertIsNone(el.find("comps"), "organs and the AI core install by surgery only")
 
     def test_skeleton_item_categories(self):
         """Skeleton parts are stored under Skeleton Parts (inside prosthetics) and crafting components under Skeleton
