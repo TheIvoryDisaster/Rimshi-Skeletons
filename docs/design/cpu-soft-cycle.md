@@ -112,3 +112,17 @@ Log lines `softcycle | start, cycling, held, no bed, complete bed, cancelled bed
 ## Wake only
 
 Matthew, 2026-10-26: once a standing soft cycle has begun (the skeleton is in place), nothing the player does by accident may end it. `Patch_SoftResetRefusesOrders` refuses `TryTakeOrderedJob` for any other job (with a reject message, so nothing is queued either), `Patch_SoftResetNoDraft` ignores drafting from any source, `Patch_SoftResetDraftGizmo` disables the draft button, and the job driver reports itself not player-interruptible. The only player route out is the "Wake up" button (both bed and standing cycles), whose tooltip warns that waking early has a price without naming it, followed by a confirmation. Downing and mental breaks still cancel it. The walk to the spot can still be redirected, since nothing has started.
+
+## Soft cycle mending
+
+Matthew, 2026-11-03: for balance, a soft cycle mends a skeleton only as far as it needs to get up when the cycle ends. Code: `Source/RimshiSkeletons/Repair/SoftCycleMending.cs`.
+
+- **Goal.** "Get up" means out of pain shock and able to move (vanilla's `InPainShock` and `CapableOf(Moving)`, the two downing checks injuries drive). States the cycle causes or ends (deathrest, the soft reset hediff, CPU overload, anaesthetic and maintenance mode) are left out of the check, so they never count against it.
+- **Order.** Injuries on the legs (any part under a moving limb) first, then the pelvis and spine, then the rest; fresh before scars; most painful first.
+- **Amount.** Found by trial every 250 ticks of cycle progress: injury severities are lowered in place (the raw field, nothing notified), the health caches dirtied, pain and moving read, then everything put back; a binary search gives the least severity, in that order, that lets the skeleton get up. Each step mends that amount times 250 over the ticks the cycle has left, so the last of it lands as the cycle finishes; `SoftCycle.Complete` mends whatever is still needed.
+- **Skipped** when the skeleton has no legs left (every `MovingLimbCore` part missing; prosthetic or skeleton limbs count as legs), and when even mending everything would not let it up (a ruined spine or CPU).
+- Runs in both cycles: the bed cycle (`Patch_SoftCycleTick`) and the standing reset (`Hediff_Rimshi_SoftReset`). In a powered repair bed the bed's own repair is faster, so it rarely has anything left to do there.
+- **Downed skeletons** (Claude's reading, on a decision card to Matthew): a downed skeleton's "Soft cycle" button starts a soft reset where it lies, on the ground, in a rib cage or in any bed it was carried to (`StandingReset.BeginLying`, no job; the hediff's `lying` flag is saved). Disabled in a powered repair bed. While carried it is held. If it gets up before the end, it carries on as an ordinary standing reset (`StandingReset.Rise` gives it the reset job on its cell or rib cage), and from then on being downed cancels it as before. A reset begun on its feet is still cancelled by being downed.
+- Player text says nothing about mending (no-spoiler rule): the button reads "reset its CPU and memory buffer where it lies".
+
+Tests: self-tests `soft cycle mending` (paced: half the time left mends half; the finish leaves it able to get up), `mending legs first`, `mending no legs`. Play lines: `softcycle | mending`, `mended`, `mend skipped`, `rose`.

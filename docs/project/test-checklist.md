@@ -72,6 +72,10 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | softcycle | Soft reset cancelled: woken, downed or a mental break (integrity 0%) | passed | 43 | Arhaan: self-test, integrity 0% |
 | softcycle | A skeleton in a standing soft cycle refused a player order (names the job) | not seen |  |  |
 | softcycle | A skeleton in a standing soft cycle was not drafted | not seen |  |  |
+| softcycle | Soft cycle mending its injuries toward getting up, legs first (gives the amount needed and time left) | not seen |  |  |
+| softcycle | Soft cycle finished and mended just enough to get up | not seen |  |  |
+| softcycle | Soft cycle mends nothing: no legs left, or could not get up even fully mended | not seen |  |  |
+| softcycle | Skeleton that began a soft reset downed got up and carries on with it standing | not seen |  |  |
 | softcycle | Skeletons with deathrest exhaustion from an older save got CPU overload instead | not seen |  |  |
 | facility | A soft cycle facility joined a soft cycle in a linked repair bed (a tuning fork burnt an advanced component, gives the cycle length factor) | not seen |  |  |
 | facility | A soft cycle facility let go of a skeleton when its soft cycle ended (finished or cut short) | not seen |  |  |
@@ -281,6 +285,9 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | selftest | Self-test: the maintenance wear patch is applied | not seen |  |  |
 | selftest | Self-test: the wear clock holds while frozen, resets once maintained, and waits a full day | not seen |  |  |
 | selftest | Self-test: a full day out of maintenance wears one random part that is not the brain | not seen |  |  |
+| selftest | Self-test: soft cycle mending is paced over the time left and leaves the skeleton able to get up | not seen |  |  |
+| selftest | Self-test: soft cycle mending starts with the legs and leaves the torso when the legs are enough | not seen |  |  |
+| selftest | Self-test: soft cycle mending does nothing for a skeleton with no legs | not seen |  |  |
 
 ## Manual checks
 

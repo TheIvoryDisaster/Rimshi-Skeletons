@@ -212,6 +212,8 @@ namespace RimshiSkeletons
         /// <summary>A finished cycle: full integrity, overload cleared, short-term memories gone, some skill lost, and the cycle's thought.</summary>
         public static void Complete(Pawn pawn, SoftCycleKind kind)
         {
+            // Whatever is still needed to get up mends now (SoftCycleMending.cs).
+            SoftCycleMending.Finish(pawn);
             Need_Deathrest need = Integrity(pawn);
             if (need != null)
             {
@@ -250,6 +252,7 @@ namespace RimshiSkeletons
         /// </summary>
         public static void Cancel(Pawn pawn, SoftCycleKind kind, string reason)
         {
+            SoftCycleMending.Forget(pawn);
             Need_Deathrest need = Integrity(pawn);
             if (kind == SoftCycleKind.RepairBed)
             {
@@ -402,7 +405,8 @@ namespace RimshiSkeletons
                     yield return new Command_Action
                     {
                         defaultLabel = "Wake up",
-                        defaultDesc = WakeWarning + " Nothing else will disturb " + pawn.LabelShort + " while it stands here: it ignores orders and cannot be drafted until it wakes.",
+                        defaultDesc = WakeWarning + (StandingReset.Of(pawn)?.lying == true ? ""
+                            : " Nothing else will disturb " + pawn.LabelShort + " while it stands here: it ignores orders and cannot be drafted until it wakes."),
                         icon = StopTex.Texture,
                         action = delegate
                         {
@@ -413,7 +417,7 @@ namespace RimshiSkeletons
             }
             else if (pawn.IsColonistPlayerControlled && pawn.Spawned)
             {
-                yield return CycleGizmo(pawn);
+                yield return pawn.Downed ? LyingCycleGizmo(pawn) : CycleGizmo(pawn);
             }
             if (DebugSettings.ShowDevGizmos)
             {
@@ -466,6 +470,31 @@ namespace RimshiSkeletons
                 action = target => OrderCycle(pawn, target)
             };
             if (pawn.Downed || pawn.InMentalState)
+            {
+                command.Disable(pawn.LabelShort + " cannot start a soft cycle now.");
+            }
+            return command;
+        }
+
+        /// <summary>
+        /// The "Soft cycle" button on a downed skeleton: it soft resets where it lies, on the ground, in a rib cage or in any
+        /// bed it was carried to (StandingReset.BeginLying). Not in a powered repair bed, which is already seeing to it.
+        /// </summary>
+        public static Command LyingCycleGizmo(Pawn pawn)
+        {
+            var command = new Command_Action
+            {
+                defaultLabel = "Soft cycle",
+                defaultDesc = "Have " + pawn.LabelShort + " reset its CPU and memory buffer where it lies. Without a repair bed, a soft reset is slow and rough. It is best not interrupted.",
+                icon = CycleTex.Texture,
+                action = delegate { StandingReset.BeginLying(pawn); }
+            };
+            CompRimshi_RepairBed bed = RepairBedOf(pawn.CurrentBed());
+            if (bed != null && bed.Powered)
+            {
+                command.Disable(pawn.LabelShort + " is lying in a powered repair bed.");
+            }
+            else if (pawn.InMentalState)
             {
                 command.Disable(pawn.LabelShort + " cannot start a soft cycle now.");
             }
@@ -671,6 +700,10 @@ namespace RimshiSkeletons
             __instance.deathrestTicks += extra;
             float after = Mathf.Clamp01((float)(__instance.deathrestTicks + delta) / total);
             SoftCycle.Raise(pawn, before, after);
+            if (pawn.IsHashIntervalTick(SoftCycleMending.Interval, delta))
+            {
+                SoftCycleMending.Step(pawn, SoftCycle.BedTicksLeft(__instance));
+            }
             if (loggedCycle.Add(pawn.thingIDNumber))
             {
                 RimshiLog.Test("softcycle", "cycling", pawn.LabelShort + " soft cycling in " + bed.parent.LabelShort + ", " + SoftCycle.BedTicksTotal(__instance).ToStringTicksToPeriod() + ", drawing "

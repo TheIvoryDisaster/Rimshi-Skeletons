@@ -76,6 +76,7 @@ namespace RimshiSkeletons
                 GeneRestoreCheck(skeleton);
                 PowerDownChecks(skeleton, human);
                 WearChecks(skeleton);
+                MendingChecks(pawns);
                 // Last: it takes the null chromosome off the skeleton, and every check above needs it.
                 GeneRemovalCheck(skeleton);
             }
@@ -1129,6 +1130,78 @@ namespace RimshiSkeletons
             Check("maintenance wear", worn && part != brain && brainExcluded && gene.wearTicks == 0 && !s.Dead, "a full day out wore " + (part?.Label ?? "nothing")
                 + " (worn " + severity.ToString("0.##") + ", dealt " + SkeletonWear.WearDamage + "), brain never chosen " + brainExcluded + ", clock restarted " + (gene.wearTicks == 0)
                 + ", alive " + !s.Dead);
+        }
+
+        /// <summary>
+        /// Soft cycle mending on a fresh skeleton: two badly cut legs and a cut torso. Half the time left mends about half
+        /// of what is needed, the finish leaves it able to get up, legs mend before the torso, and with no legs nothing mends.
+        /// </summary>
+        private static void MendingChecks(List<Pawn> pawns)
+        {
+            Pawn m = Generate(RimshiDefOf.Rimshi_Skeleton);
+            if (m == null)
+            {
+                Check("soft cycle mending", false, "could not generate a skeleton");
+                return;
+            }
+            pawns.Add(m);
+            List<BodyPartRecord> legs = m.RaceProps.body.GetPartsWithTag(BodyPartTagDefOf.MovingLimbCore);
+            BodyPartRecord torso = m.RaceProps.body.corePart;
+            if (legs.Count < 2)
+            {
+                Check("soft cycle mending", false, "body has " + legs.Count + " legs");
+                return;
+            }
+            foreach (BodyPartRecord leg in legs.Take(2))
+            {
+                Hediff cut = HediffMaker.MakeHediff(HediffDefOf.Cut, m, leg);
+                cut.Severity = leg.def.GetMaxHealth(m) * 0.85f;
+                m.health.AddHediff(cut, leg);
+            }
+            Hediff torsoCut = HediffMaker.MakeHediff(HediffDefOf.Cut, m, torso);
+            torsoCut.Severity = 8f;
+            m.health.AddHediff(torsoCut, torso);
+            // Make sure it cannot get up yet: more cuts on the legs' lower parts until it is stuck (a modlist's pain factors vary).
+            List<Hediff_Injury> order = SoftCycleMending.Order(m);
+            float needed = SoftCycleMending.Needed(m, order);
+            for (int extra = 0; needed == 0f && extra < 4; extra++)
+            {
+                BodyPartRecord lower = legs[extra % 2].GetDirectChildParts().FirstOrDefault() ?? legs[extra % 2];
+                Hediff more = HediffMaker.MakeHediff(HediffDefOf.Cut, m, lower);
+                more.Severity = lower.def.GetMaxHealth(m) * 0.6f;
+                m.health.AddHediff(more, lower);
+                order = SoftCycleMending.Order(m);
+                needed = SoftCycleMending.Needed(m, order);
+            }
+            float Total() => SoftCycleMending.Order(m).Sum(i => i.Severity);
+            bool legFirst = order.Count > 0 && SoftCycleMending.Group(order[0].Part) == 0;
+            float before = Total();
+            float step = SoftCycleMending.Step(m, 2 * SoftCycleMending.Interval);
+            float half = before - Total();
+            SoftCycleMending.Finish(m);
+            float after = SoftCycleMending.Needed(m, SoftCycleMending.Order(m));
+            float torsoLeft = m.health.hediffSet.hediffs.Contains(torsoCut) ? torsoCut.Severity : 0f;
+            Check("soft cycle mending", needed > 0f && Mathf.Abs(half - needed / 2f) < 0.05f + needed * 0.02f && Mathf.Approximately(step, half) && after == 0f && !m.Dead,
+                "needed " + needed.ToString("0.##") + " to get up, half the time left mended " + half.ToString("0.##") + ", after the finish still needed " + after.ToString("0.##")
+                + ", injuries " + before.ToString("0.#") + " -> " + Total().ToString("0.#"));
+            bool legsCovered = needed <= before - 8f;
+            Check("mending legs first", legFirst && (!legsCovered || Mathf.Approximately(torsoLeft, 8f)),
+                "first mended " + (order.Count > 0 ? order[0].Part?.Label : "nothing") + ", torso cut " + torsoLeft.ToString("0.##") + " of 8 left");
+
+            foreach (BodyPartRecord leg in legs)
+            {
+                if (!m.health.hediffSet.PartIsMissing(leg))
+                {
+                    m.health.AddHediff(HediffMaker.MakeHediff(HediffDefOf.MissingBodyPart, m, leg), leg);
+                }
+            }
+            Hediff neck = HediffMaker.MakeHediff(HediffDefOf.Cut, m, torso);
+            neck.Severity = 10f;
+            m.health.AddHediff(neck, torso);
+            float legless = Total();
+            float mended = m.Dead ? -1f : SoftCycleMending.Step(m, 0);
+            Check("mending no legs", SoftCycleMending.HasNoLegs(m) && mended == 0f && Mathf.Approximately(Total(), legless),
+                "no legs " + SoftCycleMending.HasNoLegs(m) + ", mended " + mended.ToString("0.##") + (m.Dead ? " (died)" : ""));
         }
 
         private static Pawn Generate(XenotypeDef xenotype)
