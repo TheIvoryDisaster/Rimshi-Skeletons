@@ -202,6 +202,7 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | selftest | Self-test: skeleton repair is a Smith job using Crafting | passed | 43 | work giver in Smithing |
 | selftest | Self-test: a cut skeleton needs repair, a cut human does not | passed | 43 | cut skeleton needs repair True (1 kit), cut human False |
 | selftest | Self-test: nothing on a skeleton is tendable with medicine; a human cut still is | passed | 43 | skeleton cut tendable False, skeleton needs tending False, human cut tendable True |
+| selftest | Self-test: a cut skeleton does not count as healing on its own (no fully healed message spam); a cut human does | not seen |  |  |
 | selftest | Self-test: only skeletons can use a repair bed; skeletons can still use hospital beds | passed | 43 | skeleton True, human False, skeleton in hospital bed True |
 | selftest | Self-test: removing the null chromosome restores a gender | passed | 43 | gender after removing null chromosome Male |
 | selftest | Self-test: no skeleton gene can roll in gene sets | passed | 43 | 14 skeleton genes, none can roll in gene sets |

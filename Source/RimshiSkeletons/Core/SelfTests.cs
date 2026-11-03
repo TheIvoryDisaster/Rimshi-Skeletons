@@ -579,6 +579,9 @@ namespace RimshiSkeletons
                 "cut skeleton needs repair " + SkeletonRepair.NeedsRepair(s) + " (" + SkeletonRepair.KitsFor(s) + " kit), cut human " + SkeletonRepair.NeedsRepair(h));
             Check("no tending", !cut.TendableNow() && !s.health.HasHediffsNeedingTend() && humanCut.TendableNow(),
                 "skeleton cut tendable " + cut.TendableNow() + ", skeleton needs tending " + s.health.HasHediffsNeedingTend() + ", human cut tendable " + humanCut.TendableNow());
+            Check("no self healing", !s.health.hediffSet.HasNaturallyHealingInjury() && h.health.hediffSet.HasNaturallyHealingInjury(),
+                "skeleton cut heals naturally " + s.health.hediffSet.HasNaturallyHealingInjury() + ", human cut " + h.health.hediffSet.HasNaturallyHealingInjury()
+                + " (a skeleton that counts as healing gets a \"fully healed\" message every 10 s)");
             FleshTypeDef.ResolvedWound skeletonWound = s.RaceProps.FleshType.ChooseWoundOverlay(cut);
             FleshTypeDef.ResolvedWound humanWound = h.RaceProps.FleshType.ChooseWoundOverlay(humanCut);
             bool mechTextures = SkeletonWounds.MechWoundTextures.All(t => ContentFinder<Texture2D>.Get(t, false) != null);

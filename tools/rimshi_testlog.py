@@ -203,6 +203,7 @@ CHECKLIST = [
     ("selftest", "repair work", "Self-test: skeleton repair is a Smith job using Crafting"),
     ("selftest", "needs repair", "Self-test: a cut skeleton needs repair, a cut human does not"),
     ("selftest", "no tending", "Self-test: nothing on a skeleton is tendable with medicine; a human cut still is"),
+    ("selftest", "no self healing", "Self-test: a cut skeleton does not count as healing on its own (no fully healed message spam); a cut human does"),
     ("selftest", "bed users", "Self-test: only skeletons can use a repair bed; skeletons can still use hospital beds"),
     ("selftest", "gene removal", "Self-test: removing the null chromosome restores a gender"),
     ("selftest", "gene set flag", "Self-test: no skeleton gene can roll in gene sets"),
