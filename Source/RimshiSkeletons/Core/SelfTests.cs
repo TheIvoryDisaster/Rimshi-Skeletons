@@ -990,10 +990,9 @@ namespace RimshiSkeletons
 
             string skeletonTip = "ViewGenesDesc".Translate(s.Named("PAWN"));
             string humanTip = "ViewGenesDesc".Translate(human.Named("PAWN"));
-            MethodBase translate = AccessTools.Method(typeof(Translator), nameof(Translator.TryTranslate));
             MethodBase info = AccessTools.Method(typeof(GeneUIUtility), nameof(GeneUIUtility.DrawGenesInfo));
             MethodBase dialog = AccessTools.Method(typeof(Dialog_ViewGenes), nameof(Dialog_ViewGenes.DoWindowContents), new[] { typeof(Rect) });
-            bool patched = new[] { translate, info, dialog }.All(m => m != null && (Harmony.GetPatchInfo(m)?.Owners.Contains(RimshiMod.HarmonyId) ?? false));
+            bool patched = new[] { info, dialog }.All(m => m != null && (Harmony.GetPatchInfo(m)?.Owners.Contains(RimshiMod.HarmonyId) ?? false));
             Check("core terms tip", patched && skeletonTip.Contains("cores") && !humanTip.Contains("cores"),
                 "skeleton: " + skeletonTip + " | baseliner: " + humanTip + (patched ? "" : " | a core terms patch is missing"));
         }

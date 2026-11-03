@@ -7,11 +7,13 @@ namespace RimshiSkeletons
 {
     /// <summary>
     /// A skeleton's genetics screen calls its genes cores (subsets of the Kenshi AI core) and its xenogenes chips. While
-    /// GeneUIUtility.DrawGenesInfo or the View genes window draws for a skeleton, Translator.TryTranslate reads each
-    /// vanilla key in Swaps as our Rimshi_ key instead (Languages/English/Keyed/Rimshi_Cores.xml). Every Translate overload
-    /// goes through TryTranslate, and gene tooltips are built while the screen draws, so they are covered too. A language
-    /// without our key keeps the vanilla text. The character card's "Click to view genes" tooltip is built later, outside
-    /// the screen, so it is swapped by its pawn argument instead (Patch_ViewGenesDesc).
+    /// GeneUIUtility.DrawGenesInfo or the View genes window draws for a skeleton, the active language's entry for each
+    /// vanilla key in Swaps is pointed at our Rimshi_ entry (Languages/English/Keyed/Rimshi_Cores.xml), and put back when
+    /// the screen is done. Swapping the data instead of patching Translator matters on 1.7: its JIT inlines the tiny
+    /// Translator.TryTranslate into Translate, so a TryTranslate prefix never ran there. Gene tooltips are built while
+    /// the screen draws, so they are covered too. A language without our key keeps the vanilla text. The character
+    /// card's "Click to view genes" tooltip is built later, outside the screen, so it is swapped by its pawn argument
+    /// instead (Patch_ViewGenesDesc).
     /// </summary>
     public static class CoreTerms
     {
@@ -32,6 +34,8 @@ namespace RimshiSkeletons
 
         private static int depth;
         private static bool logged;
+        private static LoadedLanguage swappedLanguage;
+        private static readonly Dictionary<string, LoadedLanguage.KeyedReplacement> originals = new Dictionary<string, LoadedLanguage.KeyedReplacement>();
 
         public static bool Active => depth > 0;
 
@@ -44,7 +48,10 @@ namespace RimshiSkeletons
             {
                 return false;
             }
-            depth++;
+            if (depth++ == 0)
+            {
+                SwapIn();
+            }
             if (log && !logged)
             {
                 logged = true;
@@ -55,31 +62,54 @@ namespace RimshiSkeletons
 
         public static void End(bool began)
         {
-            if (began && depth > 0)
+            if (began && depth > 0 && --depth == 0)
             {
-                depth--;
+                SwapOut();
             }
         }
 
-        public static void Swap(ref string key)
+        /// <summary>Points each vanilla key at our entry in the active language, remembering what it held.</summary>
+        private static void SwapIn()
         {
-            if (key != null && Swaps.TryGetValue(key, out string alt) && LanguageDatabase.activeLanguage != null
-                && LanguageDatabase.activeLanguage.HaveTextForKey(alt))
+            LoadedLanguage lang = LanguageDatabase.activeLanguage;
+            if (lang == null)
             {
-                key = alt;
+                return;
+            }
+            lang.HaveTextForKey(ViewGenesDescKey); // loads the language data if it is not loaded yet
+            swappedLanguage = lang;
+            originals.Clear();
+            Dictionary<string, LoadedLanguage.KeyedReplacement> keyed = lang.keyedReplacements;
+            foreach (KeyValuePair<string, string> swap in Swaps)
+            {
+                if (keyed.TryGetValue(swap.Value, out LoadedLanguage.KeyedReplacement ours) && !ours.isPlaceholder)
+                {
+                    keyed.TryGetValue(swap.Key, out LoadedLanguage.KeyedReplacement vanilla);
+                    originals[swap.Key] = vanilla;
+                    keyed[swap.Key] = ours;
+                }
             }
         }
-    }
 
-    [HarmonyPatch(typeof(Translator), nameof(Translator.TryTranslate))]
-    public static class Patch_CoreTermsTranslate
-    {
-        public static void Prefix(ref string key)
+        private static void SwapOut()
         {
-            if (CoreTerms.Active)
+            if (swappedLanguage != null)
             {
-                CoreTerms.Swap(ref key);
+                Dictionary<string, LoadedLanguage.KeyedReplacement> keyed = swappedLanguage.keyedReplacements;
+                foreach (KeyValuePair<string, LoadedLanguage.KeyedReplacement> original in originals)
+                {
+                    if (original.Value != null)
+                    {
+                        keyed[original.Key] = original.Value;
+                    }
+                    else
+                    {
+                        keyed.Remove(original.Key);
+                    }
+                }
             }
+            originals.Clear();
+            swappedLanguage = null;
         }
     }
 
