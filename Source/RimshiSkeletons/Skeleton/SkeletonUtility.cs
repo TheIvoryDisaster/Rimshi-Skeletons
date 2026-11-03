@@ -48,6 +48,8 @@ namespace RimshiSkeletons
         public static ThoughtDef Rimshi_SoftCycleHoned;
         public static ThoughtDef Rimshi_SoftResetForeign;
         public static RecipeDef Rimshi_ScrapSkeletonRemains;
+        public static DamageDef Rimshi_MaintenanceWear;
+        public static HediffDef Rimshi_WornPart;
 
         static RimshiDefOf()
         {

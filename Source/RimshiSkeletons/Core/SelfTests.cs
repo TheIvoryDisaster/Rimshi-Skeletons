@@ -75,6 +75,7 @@ namespace RimshiSkeletons
                 RemainsChecks(skeleton, human);
                 GeneRestoreCheck(skeleton);
                 PowerDownChecks(skeleton, human);
+                WearChecks(skeleton);
                 // Last: it takes the null chromosome off the skeleton, and every check above needs it.
                 GeneRemovalCheck(skeleton);
             }
@@ -1094,6 +1095,41 @@ namespace RimshiSkeletons
                 s.genes.RemoveGene(gene);
             }
             Check("gene removal", gene != null && s.gender != Gender.None, "gender after removing null chromosome " + s.gender);
+        }
+
+        /// <summary>
+        /// Maintenance wear (Skeleton/SkeletonWear.cs): the clock only runs while out of maintenance and not frozen, resets once
+        /// maintained, and a full day out wears one random part that is not the brain. Damages the throwaway skeleton.
+        /// </summary>
+        private static void WearChecks(Pawn s)
+        {
+            MethodBase interval = AccessTools.Method(typeof(Need_Food), nameof(Need_Food.NeedInterval));
+            Patches info = interval == null ? null : Harmony.GetPatchInfo(interval);
+            Check("wear patch", info != null && info.Owners.Contains(RimshiMod.HarmonyId), "Need_Food.NeedInterval: " + PatchOwners(interval));
+            Gene_FuelReactor gene = s.genes.GetGene(RimshiDefOf.Rimshi_FuelReactor) as Gene_FuelReactor;
+            BodyPartRecord brain = s.health.hediffSet.GetBrain();
+            if (gene == null || brain == null)
+            {
+                Check("maintenance wear", false, "maintenance gene " + (gene != null) + ", brain " + (brain != null));
+                return;
+            }
+            int almost = SkeletonWear.WearIntervalTicks - SkeletonWear.IntervalTicks;
+            gene.wearTicks = almost;
+            bool frozenHeld = SkeletonWear.Advance(s, gene, starving: true, frozen: true) == null && gene.wearTicks == almost;
+            SkeletonWear.Advance(s, gene, starving: false, frozen: false);
+            bool reset = gene.wearTicks == 0;
+            bool early = SkeletonWear.Advance(s, gene, starving: true, frozen: false) == null && gene.wearTicks == SkeletonWear.IntervalTicks;
+            Check("wear clock", frozenHeld && reset && early, "frozen holds the clock " + frozenHeld + ", maintained resets it " + reset + ", no wear before a full day " + early
+                + " (a day is " + SkeletonWear.WearIntervalTicks + " ticks)");
+
+            bool brainExcluded = !SkeletonWear.WearableParts(s).Contains(brain);
+            gene.wearTicks = almost;
+            BodyPartRecord part = SkeletonWear.Advance(s, gene, starving: true, frozen: false);
+            float severity = part == null ? 0f : s.health.hediffSet.hediffs.Where(h => h.def == RimshiDefOf.Rimshi_WornPart && h.Part == part).Sum(h => h.Severity);
+            bool worn = part != null && (severity > 0f || s.health.hediffSet.PartIsMissing(part));
+            Check("maintenance wear", worn && part != brain && brainExcluded && gene.wearTicks == 0 && !s.Dead, "a full day out wore " + (part?.Label ?? "nothing")
+                + " (worn " + severity.ToString("0.##") + ", dealt " + SkeletonWear.WearDamage + "), brain never chosen " + brainExcluded + ", clock restarted " + (gene.wearTicks == 0)
+                + ", alive " + !s.Dead);
         }
 
         private static Pawn Generate(XenotypeDef xenotype)

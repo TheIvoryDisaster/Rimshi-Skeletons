@@ -60,6 +60,7 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | maintenance | Need bar and tooltips relabel needs (this line only appears when a patch target is missing) | not seen |  |  |
 | maintenance | Components allowed in the save's food policies and Skeletons policy added (once per save) | not seen |  |  |
 | maintenance | Skeleton picking up a component to carry | passed | 43 | the Blunt picking up 1 ComponentIndustrial to carry, from (146, 0, 181) |
+| maintenance | Skeleton a full day out of maintenance wore a random non-brain part | not seen |  |  |
 | softcycle | Skeleton went to soft cycle in a repair bed (gives the cycle's power draw) | not seen |  |  |
 | softcycle | Skeleton soft cycling in a powered repair bed (48 hours, power draw, integrity) | not seen |  |  |
 | softcycle | Soft cycle held outside a repair bed (carried, in a rib cage, older save) | not seen |  |  |
@@ -274,6 +275,9 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | selftest | Self-test: the remains patches are applied | passed | 43 | 5 remains patches applied |
 | selftest | Self-test: a skeleton that lost mechanical nature gets it back from its xenotype | not seen |  |  |
 | selftest | Self-test: temporarily power down is offered on skeletons only, Anesthetize on baseliners only, and anesthetic becomes maintenance mode | not seen |  |  |
+| selftest | Self-test: the maintenance wear patch is applied | not seen |  |  |
+| selftest | Self-test: the wear clock holds while frozen, resets once maintained, and waits a full day | not seen |  |  |
+| selftest | Self-test: a full day out of maintenance wears one random part that is not the brain | not seen |  |  |
 
 ## Manual checks
 
@@ -286,6 +290,7 @@ Things the log cannot show; tick them off by hand after looking in game.
 - [ ] In a save from before components were edible, the food policies now allow components and there is a Skeletons policy allowing only components; a hungry skeleton walks to a component, and idle skeletons pick up one component to carry and strip it when hungry. Disallowing components in a skeleton's policy stops it eating them, and the change sticks after a reload.
 - [ ] A skeleton refuses ordinary meals (right-click shows "not suitable"), and a human or animal refuses components.
 - [ ] Without components, a skeleton gets "maintenance due", then "maintenance overdue", then "worn parts" at 0%, getting one stage worse per day (down to "falling apart", -22); the vanilla hunger thought shows as nullified, and it never gets malnutrition.
+- [ ] A skeleton left at 0% maintenance for a full day gets one "worn" injury (2 damage) on a random part, never the brain, with a message for colonists; one more each further day. No blood, it does not heal on its own, a repair kit or the repair bed fixes it, and once it has a component the wear stops. While it soft cycles the wear waits.
 - [ ] CPU integrity: a skeleton's needs tab shows "CPU integrity" with a lore line for its current state (no countdown). The gizmo by the draft button reads "CPU integrity" with the bar and the CPU's state (Running, Soft cycling, Overloaded...), never "Deathrest" or a deathrest building count. Hovering the bar shows a lore tooltip about the CPU and soft cycling, with no mention of deathrest or a deathrest gene. The one "Soft cycle" button targets a repair bed, a rib cage or any standable spot, and is not greyed out when the repair bed is taken; vanilla's wake buttons are gone. A skeleton at 0% integrity has no "Deathrest exhaustion" (-12) mood, only "CPU overloaded" (-8).
 - [ ] Bed soft cycle: a repair bed draws 50 W idle, 400 W more while repairing, and 15 W per skill level of a cycling skeleton (inspect the bed and the power grid). The cycle takes 48 hours, the bar climbs to 100%, the skeleton gets "Honing my memories like an edgewalker." (+3, 5 days), its other memories are gone and one skill lost a little XP. Flicking the bed off, cutting power, a solar flare or "Wake up" cuts it short: integrity stays where the cycle got it, with no overload and no memory flush, skill loss or thought. Other needs (maintenance, hygiene, recreation, mood) do not move while it cycles.
 - [ ] Standing soft reset: "Soft cycle" on an empty cell; the skeleton walks there, stands facing south for 5 days (slow for 3 days, fast on the last), then gets "It's like these memories aren't mine..." (-3, 2 days). Once it stands still, right-click orders are refused ("will not respond until woken") and the draft button is disabled; only "Wake up" (with a warning tooltip and a confirmation) cancels it, with 0% integrity and an overload. Other needs do not move while it stands there. Targeting a rib cage makes it hang there instead.

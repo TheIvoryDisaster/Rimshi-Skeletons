@@ -61,6 +61,7 @@ CHECKLIST = [
     ("maintenance", "need label", "Need bar and tooltips relabel needs (this line only appears when a patch target is missing)"),
     ("maintenance", "food policies", "Components allowed in the save's food policies and Skeletons policy added (once per save)"),
     ("maintenance", "packed", "Skeleton picking up a component to carry"),
+    ("maintenance", "wear", "Skeleton a full day out of maintenance wore a random non-brain part"),
     ("softcycle", "start", "Skeleton went to soft cycle in a repair bed (gives the cycle's power draw)"),
     ("softcycle", "cycling", "Skeleton soft cycling in a powered repair bed (48 hours, power draw, integrity)"),
     ("softcycle", "held", "Soft cycle held outside a repair bed (carried, in a rib cage, older save)"),
@@ -275,6 +276,9 @@ CHECKLIST = [
     ("selftest", "remains patched", "Self-test: the remains patches are applied"),
     ("selftest", "gene restore", "Self-test: a skeleton that lost mechanical nature gets it back from its xenotype"),
     ("selftest", "power down", "Self-test: temporarily power down is offered on skeletons only, Anesthetize on baseliners only, and anesthetic becomes maintenance mode"),
+    ("selftest", "wear patch", "Self-test: the maintenance wear patch is applied"),
+    ("selftest", "wear clock", "Self-test: the wear clock holds while frozen, resets once maintained, and waits a full day"),
+    ("selftest", "maintenance wear", "Self-test: a full day out of maintenance wears one random part that is not the brain"),
 ]
 
 
