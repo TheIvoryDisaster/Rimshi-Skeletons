@@ -73,6 +73,10 @@ CHECKLIST = [
     ("softcycle", "cancelled standing", "Soft reset cancelled: woken, downed or a mental break (integrity 0%)"),
     ("softcycle", "order refused", "A skeleton in a standing soft cycle refused a player order (names the job)"),
     ("softcycle", "draft refused", "A skeleton in a standing soft cycle was not drafted"),
+    ("softcycle", "mending", "Soft cycle mending its injuries toward getting up, legs first (gives the amount needed and time left)"),
+    ("softcycle", "mended", "Soft cycle finished and mended just enough to get up"),
+    ("softcycle", "mend skipped", "Soft cycle mends nothing: no legs left, or could not get up even fully mended"),
+    ("softcycle", "rose", "Skeleton that began a soft reset downed got up and carries on with it standing"),
     ("softcycle", "migrated", "Skeletons with deathrest exhaustion from an older save got CPU overload instead"),
     ("facility", "engaged", "A soft cycle facility joined a soft cycle in a linked repair bed (a tuning fork burnt an advanced component, gives the cycle length factor)"),
     ("facility", "released", "A soft cycle facility let go of a skeleton when its soft cycle ended (finished or cut short)"),
@@ -289,6 +293,9 @@ CHECKLIST = [
     ("selftest", "wear patch", "Self-test: the maintenance wear patch is applied"),
     ("selftest", "wear clock", "Self-test: the wear clock holds while frozen, resets once maintained, and waits a full day"),
     ("selftest", "maintenance wear", "Self-test: a full day out of maintenance wears one random part that is not the brain"),
+    ("selftest", "soft cycle mending", "Self-test: soft cycle mending is paced over the time left and leaves the skeleton able to get up"),
+    ("selftest", "mending legs first", "Self-test: soft cycle mending starts with the legs and leaves the torso when the legs are enough"),
+    ("selftest", "mending no legs", "Self-test: soft cycle mending does nothing for a skeleton with no legs"),
 ]
 
 

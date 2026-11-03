@@ -68,15 +68,45 @@ namespace RimshiSkeletons
         }
 
         /// <summary>Called from the job once the skeleton is in place.</summary>
-        public static void Begin(Pawn pawn)
+        public static void Begin(Pawn pawn) => Begin(pawn, lying: false);
+
+        /// <summary>A downed skeleton's soft reset, begun from its "Soft cycle" button where it lies; it needs no job.</summary>
+        public static void BeginLying(Pawn pawn)
+        {
+            if (!pawn.Downed)
+            {
+                return;
+            }
+            Begin(pawn, lying: true);
+        }
+
+        private static void Begin(Pawn pawn, bool lying)
         {
             if (InProgress(pawn))
             {
                 return;
             }
-            pawn.health.AddHediff(RimshiDefOf.Rimshi_SoftResetting);
-            RimshiLog.Test("softcycle", "start standing", pawn.LabelShort + " began a soft reset " + (RibCage.Suspended(pawn) ? "hanging in a rib cage" : "standing at " + pawn.Position)
-                + ", integrity " + SoftCycle.Integrity(pawn)?.CurLevelPercentage.ToStringPercent());
+            Hediff_Rimshi_SoftReset reset = pawn.health.AddHediff(RimshiDefOf.Rimshi_SoftResetting) as Hediff_Rimshi_SoftReset;
+            if (reset != null)
+            {
+                reset.lying = lying;
+            }
+            string where = lying ? "lying downed " + (pawn.CurrentBed() != null ? "in " + pawn.CurrentBed().LabelShort : "at " + pawn.Position)
+                : RibCage.Suspended(pawn) ? "hanging in a rib cage" : "standing at " + pawn.Position;
+            RimshiLog.Test("softcycle", "start standing", pawn.LabelShort + " began a soft reset " + where + ", integrity " + SoftCycle.Integrity(pawn)?.CurLevelPercentage.ToStringPercent());
+        }
+
+        /// <summary>
+        /// A skeleton that began its reset downed and got up before it ended carries on with the reset on its feet (or
+        /// hanging, in a rib cage), under the same rules as one it walked to.
+        /// </summary>
+        public static void Rise(Pawn pawn)
+        {
+            Building_Bed cage = RibCage.Suspended(pawn) ? pawn.CurrentBed() : null;
+            Job job = cage != null ? JobMaker.MakeJob(RimshiDefOf.Rimshi_SoftReset, cage) : JobMaker.MakeJob(RimshiDefOf.Rimshi_SoftReset, pawn.Position);
+            pawn.jobs.StartJob(job, JobCondition.InterruptForced);
+            RimshiLog.Test("softcycle", "rose", pawn.LabelShort + " got up during a soft reset begun downed and carries on " + (cage != null ? "in a rib cage" : "standing at " + pawn.Position)
+                + " (" + FractionDone(pawn).ToStringPercent("F0") + ")");
         }
 
         public static void Finish(Pawn pawn)
@@ -116,6 +146,9 @@ namespace RimshiSkeletons
     {
         public int resetTicks;
         public bool done;
+
+        /// <summary>Begun downed, where the skeleton lay, with no job (StandingReset.BeginLying).</summary>
+        public bool lying;
         private int ticksWithoutJob;
 
         public float Fraction => SoftCycle.StandingCurve.Evaluate((float)resetTicks / GenDate.TicksPerDay);
@@ -131,7 +164,21 @@ namespace RimshiSkeletons
             {
                 return;
             }
-            if (pawn.CurJobDef != RimshiDefOf.Rimshi_SoftReset)
+            if (lying)
+            {
+                if (!pawn.Downed)
+                {
+                    lying = false;
+                    StandingReset.Rise(pawn);
+                    return;
+                }
+                if (!pawn.Spawned)
+                {
+                    // Carried somewhere (a rescue, a kidnapper): held, neither progressing nor cancelled.
+                    return;
+                }
+            }
+            else if (pawn.CurJobDef != RimshiDefOf.Rimshi_SoftReset)
             {
                 // The job's own end cancels the reset; this catches a reset left without one (a dev action, a lost job on load).
                 ticksWithoutJob += delta;
@@ -145,6 +192,10 @@ namespace RimshiSkeletons
             float before = Fraction;
             resetTicks += delta;
             SoftCycle.Raise(pawn, before, Fraction);
+            if (pawn.IsHashIntervalTick(SoftCycleMending.Interval, delta))
+            {
+                SoftCycleMending.Step(pawn, SoftCycle.StandingResetTicks - resetTicks);
+            }
             Need_Deathrest need = SoftCycle.Integrity(pawn);
             if (need != null)
             {
@@ -161,6 +212,7 @@ namespace RimshiSkeletons
             base.ExposeData();
             Scribe_Values.Look(ref resetTicks, "resetTicks");
             Scribe_Values.Look(ref done, "done");
+            Scribe_Values.Look(ref lying, "lying");
         }
     }
 
