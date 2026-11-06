@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
 
-  <!-- Every skeleton in a recall horde has a corrupted protocol: it keeps the skeleton berserk while it is free,
-       stops it from being recruited the normal way, and is worn down by the Reprogram prisoner interaction. Severity is
+  <!-- About two in three skeletons in a recall horde have a corrupted protocol: it stops the skeleton from being
+       recruited the normal way, and is worn down by the Reprogram prisoner interaction. Severity is
        how much corruption is left; at zero the skeleton joins the colony. -->
   <HediffDef>
     <defName>Rimshi_CorruptedProtocol</defName>
     <label>corrupted recall protocol</label>
-    <description>This skeleton answered a recall broadcast with protocols corrupted by centuries of dormancy. While free it is berserk and attacks anything it finds. As a prisoner it lies dormant, cannot be recruited by talking, and can only be won over by interrogating and reprogramming it (the Reprogram prisoner interaction). Each session wears the corruption down; wardens with higher Intellectual skill make faster progress.</description>
+    <description>This skeleton answered a recall broadcast with protocols corrupted by centuries of dormancy. As a prisoner it cannot be recruited by talking, and can only be won over by interrogating and reprogramming it (the Reprogram prisoner interaction). Each session wears the corruption down; wardens with higher Intellectual skill make faster progress.</description>
     <hediffClass>HediffWithComps</hediffClass>
     <defaultLabelColor>(0.85, 0.35, 0.3)</defaultLabelColor>
     <isBad>false</isBad>

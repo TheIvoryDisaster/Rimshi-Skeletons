@@ -47,8 +47,8 @@ namespace RimshiSkeletons
 
             Find.LetterStack.ReceiveLetter("Recall codes broadcast",
                 usedBy.LabelShort + " broadcast the old empire's recall codes and the array burned out. Something answered.\n\n"
-                + "A skeleton legion will drop in around the array within a few hours. Its protocols are corrupted: every skeleton in it is berserk. "
-                + "Skeletons with a failsafe core usually go down intact instead of being destroyed; capture them and interrogate them to reprogram them for the colony.",
+                + "A skeleton legion will drop in around the array within a few hours. It will be hostile, and most of its skeletons carry corrupted protocols. "
+                + "Skeletons with a failsafe core usually go down intact instead of being destroyed; captured, corrupted ones can be interrogated and reprogrammed for the colony.",
                 LetterDefOf.ThreatSmall, new TargetInfo(cell, map));
             RimshiLog.Test("horde", "array used", usedBy.LabelShort + " at " + cell + "; horde due in " + delay.ToStringTicksToPeriod() + ", broadcast " + (RimshiGameComponent.Instance.Summons + 1) + " in this game");
 

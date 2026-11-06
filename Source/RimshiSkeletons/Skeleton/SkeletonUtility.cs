@@ -17,6 +17,7 @@ namespace RimshiSkeletons
 
         public static FactionDef Rimshi_SkeletalImperium;
         public static FactionDef Rimshi_PlayerSkeletons;
+        public static FactionDef Rimshi_RecallLegion;
 
         public static ThingDef Rimshi_RepairKit;
         public static ThingDef Rimshi_SkeletonRepairBed;

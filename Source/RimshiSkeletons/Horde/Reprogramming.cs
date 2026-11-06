@@ -72,7 +72,7 @@ namespace RimshiSkeletons
             if (joined)
             {
                 Find.LetterStack.ReceiveLetter("Skeleton reprogrammed: " + prisoner.LabelShort,
-                    (warden != null ? warden.LabelShort + " has" : "The colony has") + " rewritten " + prisoner.LabelShort + "'s corrupted recall protocol. It is no longer berserk and now serves the colony.",
+                    (warden != null ? warden.LabelShort + " has" : "The colony has") + " rewritten " + prisoner.LabelShort + "'s corrupted recall protocol. It now serves the colony.",
                     LetterDefOf.PositiveEvent, prisoner);
                 RimshiLog.Test("reprogram", "joined", prisoner.LabelShort + " joined " + prisoner.Faction.Name + (warden != null ? " (warden " + warden.LabelShort + ")" : ""));
             }

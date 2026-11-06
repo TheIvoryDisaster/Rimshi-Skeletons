@@ -4,11 +4,11 @@
   <!-- The recall array: Biotech's mechband antenna (vanilla defName BurnoutMechlinkBooster) rewired to broadcast the old
        empire's recall codes. It copies the antenna's graphic, size and build settings instead of inheriting from it, so the
        array always has a thingClass even if the antenna changes. Any colonist can activate it (no mechanitor needed); it
-       burns out, and a few hours later a horde of corrupted, berserk skeletons drops in around it. -->
+       burns out, and a few hours later a hostile horde from the hidden recalled legion faction drops in around it as a raid. -->
   <ThingDef ParentName="BuildingBase">
     <defName>Rimshi_RecallArray</defName>
     <label>skeleton recall array</label>
-    <description>A mechband antenna rewired to broadcast the old empire's recall codes. A colonist can activate it to call a dormant skeleton legion out of the dark.\n\nThe legion arrives by drop pod around the array a few hours later. Its protocols are corrupted: every skeleton in it is berserk and belongs to no faction. Some still carry a failsafe core that shuts the frame down instead of letting it be destroyed; those can be captured and reprogrammed to join the colony.\n\nThe broadcast burns out the array. Each new broadcast reaches further and wakes a larger legion.</description>
+    <description>A mechband antenna rewired to broadcast the old empire's recall codes. A colonist can activate it to call a dormant skeleton legion out of the dark.\n\nThe legion arrives by drop pod around the array a few hours later. It is hostile, and most of its skeletons carry corrupted protocols. Some still carry a failsafe core that shuts the frame down instead of letting it be destroyed; those can be captured, and corrupted ones reprogrammed to join the colony.\n\nThe broadcast burns out the array. Each new broadcast reaches further and wakes a larger legion.</description>
     <graphicData>
       <texPath>Things/Building/Misc/MechbandAntenna</texPath>
       <graphicClass>Graphic_Multi</graphicClass>

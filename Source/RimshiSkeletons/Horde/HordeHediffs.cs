@@ -18,18 +18,15 @@ namespace RimshiSkeletons
     }
 
     /// <summary>
-    /// Corrupted recall protocol. While the skeleton is free (spawned, up, not the colony's prisoner, not in the player
-    /// faction) it is kept berserk. While it has the protocol it cannot be recruited by talking; captured, it is switched
-    /// to the Reprogram interaction once (the player can change it). Reprogramming (ReprogramUtility) lowers the severity.
+    /// Corrupted recall protocol (about two in three horde skeletons). While it has the protocol the skeleton cannot be
+    /// recruited by talking; captured, it is switched to the Reprogram interaction once (the player can change it).
+    /// Reprogramming (ReprogramUtility) lowers the severity. Hostility comes from the recalled legion faction, not from here.
     /// </summary>
     public class HediffComp_CorruptedProtocol : HediffComp
     {
         public const int CheckInterval = 250;
 
         private bool modeSet;
-
-        /// <summary>Logged once per pawn per session when the game refuses to start Berserk.</summary>
-        private bool failLogged;
 
         public HediffCompProperties_CorruptedProtocol Props => (HediffCompProperties_CorruptedProtocol)props;
 
@@ -48,7 +45,7 @@ namespace RimshiSkeletons
             }
         }
 
-        public void Refresh(string why = null)
+        public void Refresh()
         {
             Pawn pawn = Pawn;
             if (pawn.Dead || (pawn.Faction != null && pawn.Faction.IsPlayer))
@@ -66,19 +63,6 @@ namespace RimshiSkeletons
                     modeSet = true;
                     pawn.guest.SetExclusiveInteraction(RimshiDefOf.Rimshi_Reprogram);
                     RimshiLog.Test("reprogram", "captured", pawn.LabelShort + ": corruption " + parent.Severity.ToStringPercent() + ", interaction set to reprogram");
-                }
-                return;
-            }
-            if (pawn.Spawned && !pawn.Downed && !pawn.InMentalState)
-            {
-                if (pawn.mindState.mentalStateHandler.TryStartMentalState(MentalStateDefOf.Berserk, "corrupted recall protocol", forced: true, forceWake: true, transitionSilently: true))
-                {
-                    RimshiLog.Test("horde", "berserk", pawn.LabelShort + " (" + pawn.kindDef.defName + ") went berserk at " + pawn.Position + (why != null ? " (" + why + ")" : ""));
-                }
-                else if (!failLogged)
-                {
-                    failLogged = true;
-                    RimshiLog.Fail("horde", "berserk refused", pawn.LabelShort + ": the game would not start Berserk (awake " + pawn.Awake() + ", job " + (pawn.CurJobDef?.defName ?? "none") + ")");
                 }
             }
         }
