@@ -16,6 +16,10 @@ import argparse, json, os, re, sys
 
 LINE = re.compile(r"\[Rimshi\]\[T\] (?P<area>[^|]+?) \| (?P<key>[^|]+?) \| ?(?P<detail>.*)$")
 BUILD = re.compile(r"build (\d+)")
+# RimWorld 1.7 (Waylith) logs put a stack trace under every entry, INFO included, and frames can name a parameter
+# such as diffException, so only an exception message or an entry above INFO counts as an error.
+FRAME = re.compile(r"^\s+at ")
+WAYLITH_QUIET = re.compile(r"^\d{4}-\d\d-\d\d [\d:.]+ +(INFO|DEBUG|TRACE) ")
 
 # (area, key, label). Keep in the same order as docs/project/test-checklist.md.
 CHECKLIST = [
@@ -323,7 +327,8 @@ def read(logs):
                     b = BUILD.search(detail)
                     build = int(b.group(1)) if b else build
                 lines.append((area, key, detail, build, os.path.basename(path)))
-            elif ("Exception" in raw or "Error" in raw) and any("RimshiSkeletons" in t or "Rimshi_" in t for t in text[i:i + 12]):
+            elif (("Exception" in raw or "Error" in raw) and not FRAME.match(raw) and not WAYLITH_QUIET.match(raw)
+                  and any("RimshiSkeletons" in t or "Rimshi_" in t for t in text[i:i + 12])):
                 trace = " / ".join(t.strip() for t in text[i:i + 6] if "Rimshi" in t or t is raw)
                 errors.append((os.path.basename(path), i + 1, trace[:300]))
     return lines, errors
