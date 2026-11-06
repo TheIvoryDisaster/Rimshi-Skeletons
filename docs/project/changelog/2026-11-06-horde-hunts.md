@@ -1,0 +1,1 @@
+Recall horde skeletons actually fight: instead of vanilla berserk's short-range melee search they hunt the closest reachable enemy anywhere on the map, shooting with their guns and charging with blades, and a horde skeleton that drops out of berserk goes straight back to hunting instead of walking off the map.

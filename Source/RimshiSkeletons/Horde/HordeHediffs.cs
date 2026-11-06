@@ -28,6 +28,9 @@ namespace RimshiSkeletons
 
         private bool modeSet;
 
+        /// <summary>Logged once per pawn per session when the game refuses to start Berserk.</summary>
+        private bool failLogged;
+
         public HediffCompProperties_CorruptedProtocol Props => (HediffCompProperties_CorruptedProtocol)props;
 
         public override void CompPostPostAdd(DamageInfo? dinfo)
@@ -45,7 +48,7 @@ namespace RimshiSkeletons
             }
         }
 
-        public void Refresh()
+        public void Refresh(string why = null)
         {
             Pawn pawn = Pawn;
             if (pawn.Dead || (pawn.Faction != null && pawn.Faction.IsPlayer))
@@ -66,10 +69,17 @@ namespace RimshiSkeletons
                 }
                 return;
             }
-            if (pawn.Spawned && !pawn.Downed && !pawn.InMentalState
-                && pawn.mindState.mentalStateHandler.TryStartMentalState(MentalStateDefOf.Berserk, "corrupted recall protocol", forced: true, forceWake: true, transitionSilently: true))
+            if (pawn.Spawned && !pawn.Downed && !pawn.InMentalState)
             {
-                RimshiLog.Test("horde", "berserk", pawn.LabelShort + " (" + pawn.kindDef.defName + ") went berserk at " + pawn.Position);
+                if (pawn.mindState.mentalStateHandler.TryStartMentalState(MentalStateDefOf.Berserk, "corrupted recall protocol", forced: true, forceWake: true, transitionSilently: true))
+                {
+                    RimshiLog.Test("horde", "berserk", pawn.LabelShort + " (" + pawn.kindDef.defName + ") went berserk at " + pawn.Position + (why != null ? " (" + why + ")" : ""));
+                }
+                else if (!failLogged)
+                {
+                    failLogged = true;
+                    RimshiLog.Fail("horde", "berserk refused", pawn.LabelShort + ": the game would not start Berserk (awake " + pawn.Awake() + ", job " + (pawn.CurJobDef?.defName ?? "none") + ")");
+                }
             }
         }
 

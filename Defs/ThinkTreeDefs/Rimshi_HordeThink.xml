@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!-- Backstop for the recall horde (HordeAI): sits in the humanlike tree after the mental state subtrees and ahead of
+       lord duties and the "not a colonist, leave the map" fallback. A free horde skeleton that is somehow not berserk
+       is put back into Berserk and hunts instead of walking off the map. Berserk horde skeletons never get here: the
+       Berserk subtree above handles them (JobGiver_Berserk, patched to use HordeAI). -->
+  <ThinkTreeDef>
+    <defName>Rimshi_HordeHunt</defName>
+    <insertTag>Humanlike_PostMentalState</insertTag>
+    <insertPriority>100</insertPriority>
+    <thinkRoot Class="RimshiSkeletons.ThinkNode_ConditionalFreeHorde">
+      <subNodes>
+        <li Class="ThinkNode_Tagger">
+          <tagToGive>Misc</tagToGive>
+          <subNodes>
+            <li Class="RimshiSkeletons.JobGiver_HordeHunt" />
+          </subNodes>
+        </li>
+      </subNodes>
+    </thinkRoot>
+  </ThinkTreeDef>
+
+</Defs>

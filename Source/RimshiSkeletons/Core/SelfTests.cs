@@ -436,6 +436,12 @@ namespace RimshiSkeletons
                 + (SkeletonHorde.HasShieldBelt(p) ? " + shield belt" : ""))));
             Check("horde peace", !horde[0].HostileTo(horde[1]) && !horde[1].HostileTo(horde[2]), "horde skeletons not hostile to each other");
 
+            MethodInfo berserkJob = AccessTools.Method(typeof(JobGiver_Berserk), "TryGiveJob", new[] { typeof(Pawn) });
+            bool berserkPatched = berserkJob != null && (Harmony.GetPatchInfo(berserkJob)?.Owners.Contains(RimshiMod.HarmonyId) ?? false);
+            ThinkTreeDef hunt = DefDatabase<ThinkTreeDef>.GetNamedSilentFail("Rimshi_HordeHunt");
+            Check("horde ai", berserkPatched && hunt != null && hunt.insertTag == "Humanlike_PostMentalState" && !HordeAI.IsFreeHordePawn(horde[0]),
+                "berserk job patched " + berserkPatched + ", hunt backstop " + (hunt?.insertTag ?? "missing") + ", unspawned horde pawn counted as free " + HordeAI.IsFreeHordePawn(horde[0]));
+
             Pawn failsafe = horde[0];
             failsafe.health.AddHediff(RimshiDefOf.Rimshi_FailsafeCore);
             float chance = failsafe.health.overrideDeathOnDownedChance;
