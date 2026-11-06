@@ -422,25 +422,25 @@ namespace RimshiSkeletons
                 array.defName + " needs " + research.defName + " (" + research.baseCost + ", after " + string.Join(", ", research.prerequisites?.ConvertAll(r => r.defName) ?? new List<string>())
                 + ", needs mechanitor " + research.requiresMechanitor + ")");
 
+            Faction legion = SkeletonHorde.LegionFaction();
             var horde = new List<Pawn>();
             foreach (PawnKindDef kind in SkeletonHorde.AllKinds)
             {
-                horde.Add(SkeletonHorde.GeneratePawn(kind));
+                horde.Add(SkeletonHorde.GeneratePawn(kind, legion, corrupted: true));
             }
+            Pawn loose = SkeletonHorde.GeneratePawn(SkeletonHorde.AllKinds.First(), legion, corrupted: false);
             pawns.AddRange(horde);
-            Check("horde factionless", horde.TrueForAll(p => p.Faction == null && p.genes.Xenotype == RimshiDefOf.Rimshi_Skeleton),
-                string.Join(", ", horde.ConvertAll(p => p.kindDef.defName + " faction " + (p.Faction?.Name ?? "none") + " " + p.genes.XenotypeLabel)));
+            pawns.Add(loose);
+            Check("horde faction", horde.TrueForAll(p => p.Faction == legion && p.genes.Xenotype == RimshiDefOf.Rimshi_Skeleton) && legion.Hidden && legion.HostileTo(Faction.OfPlayer),
+                legion.Name + " hidden " + legion.Hidden + " hostile to player " + legion.HostileTo(Faction.OfPlayer) + "; "
+                + string.Join(", ", horde.ConvertAll(p => p.kindDef.defName + " faction " + (p.Faction?.Name ?? "none") + " " + p.genes.XenotypeLabel)));
             Check("horde protocol", horde.TrueForAll(p => ReprogramUtility.IsCorrupted(p) && !p.guest.Recruitable),
                 string.Join(", ", horde.ConvertAll(p => p.LabelShort + " corrupted " + ReprogramUtility.IsCorrupted(p) + " recruitable " + p.guest.Recruitable)));
+            Check("horde recruitable", !ReprogramUtility.IsCorrupted(loose) && loose.guest.Recruitable && SkeletonHorde.RecruitableChance >= 1f / 3f,
+                loose.LabelShort + " corrupted " + ReprogramUtility.IsCorrupted(loose) + " recruitable " + loose.guest.Recruitable + ", chance " + SkeletonHorde.RecruitableChance.ToStringPercent());
             Check("horde gear", horde.TrueForAll(HordeGearOk), string.Join(", ", horde.ConvertAll(p => p.kindDef.defName + ": " + (p.equipment?.Primary?.def.defName ?? "no weapon")
                 + (SkeletonHorde.HasShieldBelt(p) ? " + shield belt" : ""))));
             Check("horde peace", !horde[0].HostileTo(horde[1]) && !horde[1].HostileTo(horde[2]), "horde skeletons not hostile to each other");
-
-            MethodInfo berserkJob = AccessTools.Method(typeof(JobGiver_Berserk), "TryGiveJob", new[] { typeof(Pawn) });
-            bool berserkPatched = berserkJob != null && (Harmony.GetPatchInfo(berserkJob)?.Owners.Contains(RimshiMod.HarmonyId) ?? false);
-            ThinkTreeDef hunt = DefDatabase<ThinkTreeDef>.GetNamedSilentFail("Rimshi_HordeHunt");
-            Check("horde ai", berserkPatched && hunt != null && hunt.insertTag == "Humanlike_PostMentalState" && !HordeAI.IsFreeHordePawn(horde[0]),
-                "berserk job patched " + berserkPatched + ", hunt backstop " + (hunt?.insertTag ?? "missing") + ", unspawned horde pawn counted as free " + HordeAI.IsFreeHordePawn(horde[0]));
 
             Pawn failsafe = horde[0];
             failsafe.health.AddHediff(RimshiDefOf.Rimshi_FailsafeCore);
@@ -1607,6 +1607,7 @@ namespace RimshiSkeletons
             LongEventHandler.ExecuteWhenFinished(SkeletonAnatomy.MigrateSave);
             LongEventHandler.ExecuteWhenFinished(SkeletonModules.MigrateSave);
             LongEventHandler.ExecuteWhenFinished(AddictionLock.MigrateSave);
+            LongEventHandler.ExecuteWhenFinished(SkeletonHorde.MigrateSave);
             LongEventHandler.ExecuteWhenFinished(SetFoodPoliciesOnce);
             LongEventHandler.ExecuteWhenFinished(SelfTests.RunIfDevMode);
         }

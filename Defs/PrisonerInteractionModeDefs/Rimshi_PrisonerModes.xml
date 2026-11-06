@@ -6,7 +6,7 @@
   <PrisonerInteractionModeDef>
     <defName>Rimshi_Reprogram</defName>
     <label>interrogate and reprogram</label>
-    <description>Interrogate this skeleton and rewrite its corrupted recall protocol. Each session wears the corruption down; when it is gone the skeleton comes out of its berserk state and joins the colony. Wardens with higher Intellectual skill make faster progress.</description>
+    <description>Interrogate this skeleton and rewrite its corrupted recall protocol. Each session wears the corruption down; when it is gone the skeleton joins the colony. Wardens with higher Intellectual skill make faster progress.</description>
     <listOrder>15</listOrder>
     <mustBeAwake>true</mustBeAwake>
   </PrisonerInteractionModeDef>

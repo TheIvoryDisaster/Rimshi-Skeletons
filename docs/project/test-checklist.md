@@ -100,12 +100,10 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | horde | Colonist broadcast the recall codes; array burned out | not seen |  |  |
 | horde | Skeleton horde dropped in (counts, kinds, weapons, shield belts, failsafe cores) | not seen |  |  |
 | horde | Horde called to a map that is gone was dropped | not seen |  |  |
-| horde | Horde skeleton went berserk | not seen |  |  |
+| horde | Recalled legion faction created for a save from before it existed | not seen |  |  |
+| horde | Factionless horde skeletons from an older save joined the recalled legion | not seen |  |  |
 | horde | Failsafe core set the death on downed chance | passed | 52 | Halsit: death on downed chance 10% (was -100%) |
 | horde | A failsafe skeleton died anyway (says how; not a failure) | not seen |  |  |
-| horde | Free horde skeleton picked a target and attacked it (shooting, moving to shoot or charging) | not seen |  |  |
-| horde | Free horde skeleton found nothing hostile it could reach (diagnostic, not a failure) | not seen |  |  |
-| horde | Game refused to start Berserk on a free horde skeleton (only ever logged as a failure) | not seen |  |  |
 | reprogram | Captured horde skeleton set to interrogate and reprogram | not seen |  |  |
 | reprogram | Warden reprogramming session lowered the corruption | passed | 52 | Barr reprogrammed the Smiling: -22%, 78% corruption left |
 | reprogram | Reprogrammed skeleton joined the colony | not seen |  |  |
@@ -237,11 +235,11 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | selftest | Self-test: skeleton cannot have children or be implanted | passed | 52 | child with baseliner Aranita is a skeleton and cannot have children., pregnancy chance 0 |
 | selftest | Self-test: pregnancy cannot be added to a skeleton | passed | 52 | pregnancy hediff refused |
 | selftest | Self-test: recall array and its research loaded (2000, after basic mechtech, no mechanitor needed) | passed | 52 | Rimshi_RecallArray needs Rimshi_SkeletonRecall (2000, after BasicMechtech, needs mechanitor False) |
-| selftest | Self-test: horde skeletons have no faction | passed | 52 | Rimshi_HordeLegionary faction none skeleton, Rimshi_HordeBladeguard faction none skeleton, Rimshi_HordeCenturion faction none skeleton |
+| selftest | Self-test: horde skeletons are in the hidden recalled legion, hostile to the player | not seen |  |  |
+| selftest | Self-test: horde skeletons without a corrupted protocol can be recruited the normal way | not seen |  |  |
 | selftest | Self-test: horde skeletons have the corrupted protocol and cannot be recruited | passed | 52 | Halsit corrupted True recruitable False, the Smiling corrupted True recruitable False, Mochida corrupted True recruitable False |
 | selftest | Self-test: horde gunners carry spacer guns, bladeguards melee weapons and shield belts | passed | 52 | Rimshi_HordeLegionary: VWE_Gun_ChargeSMG, Rimshi_HordeBladeguard: MeleeWeapon_PlasmaSword + shield belt, Rimshi_HordeCenturion: VWE_Gun_ChargeShotgun |
 | selftest | Self-test: horde skeletons are not hostile to each other | passed | 52 | horde skeletons not hostile to each other |
-| selftest | Self-test: berserk job patched for horde skeletons and the hunt backstop is in the think tree | not seen |  |  |
 | selftest | Self-test: failsafe core sets the death on downed chance | passed | 52 | death on downed chance 10% |
 | selftest | Self-test: a reprogramming session lowers the corruption | passed | 52 | corruption 100% to 78% (warden Intellectual 4) |
 | selftest | Self-test: a bionics-rolling kind gives the skeleton none and the baseliner some | passed | 52 | bionics generated: skeleton 0, baseliner 2 |

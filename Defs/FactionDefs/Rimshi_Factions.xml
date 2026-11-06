@@ -214,4 +214,42 @@
     </apparelStuffFilter>
   </FactionDef>
 
+
+  <!-- The recall horde's faction (SkeletonHorde.LegionFaction): hidden, hostile to everyone, never raids on its own (no
+       pawn group makers, so the storyteller can't pick it). Horde skeletons drop in as its members under an assault
+       lord, so they are hostile in their pods and get the normal raid AI and raid mechanics. Created on first use in
+       saves that predate it. -->
+  <FactionDef ParentName="FactionBase">
+    <defName>Rimshi_RecallLegion</defName>
+    <label>recalled legion</label>
+    <description>A legion of the old skeletal empire, roused from centuries of dormancy by a recall broadcast. It answers to no living commander.</description>
+    <pawnSingular>legionary</pawnSingular>
+    <pawnsPlural>legionaries</pawnsPlural>
+    <fixedName>Recalled legion</fixedName>
+    <requiredCountAtGameStart>1</requiredCountAtGameStart>
+    <maxCountAtGameStart>1</maxCountAtGameStart>
+    <hidden>true</hidden>
+    <permanentEnemy>true</permanentEnemy>
+    <humanlikeFaction>true</humanlikeFaction>
+    <autoFlee>false</autoFlee>
+    <rescueesCanJoin>false</rescueesCanJoin>
+    <canMakeRandomly>false</canMakeRandomly>
+    <displayInFactionSelection>false</displayInFactionSelection>
+    <hiddenIdeo>true</hiddenIdeo>
+    <techLevel>Spacer</techLevel>
+    <factionIconPath>Rimshi/World/SkeletonFaction</factionIconPath>
+    <allowedCultures><li>Astropolitan</li></allowedCultures>
+    <colorSpectrum>
+      <li>(72, 70, 78)</li>
+    </colorSpectrum>
+    <backstoryFilters>
+      <li>
+        <categories>
+          <li>Rimshi_Skeleton</li>
+        </categories>
+      </li>
+    </backstoryFilters>
+    <allowedArrivalTemperatureRange>-200~200</allowedArrivalTemperatureRange>
+  </FactionDef>
+
 </Defs>
