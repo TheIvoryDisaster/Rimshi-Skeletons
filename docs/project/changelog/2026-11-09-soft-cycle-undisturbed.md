@@ -1,0 +1,1 @@
+Soft cycles are no longer cut short when another pawn repairs (or otherwise works on) the skeleton; only real damage, downing or a mental break still end one. A downed skeleton whose CPU integrity runs out begins a soft reset where it lies, which slowly mends it until it can get up. Maintenance wear no longer picks the waist.

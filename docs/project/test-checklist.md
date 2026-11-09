@@ -60,7 +60,7 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | maintenance | Need bar and tooltips relabel needs (this line only appears when a patch target is missing) | not seen |  |  |
 | maintenance | Components allowed in the save's food policies and Skeletons policy added (once per save) | not seen |  |  |
 | maintenance | Skeleton picking up a component to carry | passed | 52 | the Destitute picking up 1 ComponentIndustrial to carry, from (146, 0, 181) |
-| maintenance | Skeleton a full day out of maintenance wore a random non-brain part | passed | 52 | Goichi: out of maintenance, ribcage worn by 2 (worn total 2 of 30) |
+| maintenance | Skeleton a full day out of maintenance wore a random part that is not the brain or the waist | not seen |  |  |
 | softcycle | Skeleton went to soft cycle in a repair bed (gives the cycle's power draw) | not seen |  |  |
 | softcycle | Skeleton soft cycling in a powered repair bed (48 hours, power draw, integrity) | passed | 52 | the Destitute soft cycling in skeleton repair bed (masterwork), 2 days, drawing 765 W, integrity 7% |
 | softcycle | Soft cycle held outside a repair bed (carried, in a rib cage, older save) | not seen |  |  |
@@ -76,6 +76,8 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | softcycle | Soft cycle finished and mended just enough to get up | passed | 52 | the Doubtful mended enough to get up as the cycle ended (last 15.25), downed False |
 | softcycle | Soft cycle mends nothing: no legs left, or could not get up even fully mended | passed | 52 | the Doubtful has no legs left, the cycle mends nothing |
 | softcycle | Skeleton that began a soft reset downed got up and carries on with it standing | not seen |  |  |
+| softcycle | A soft cycling skeleton kept cycling while worked on (repaired, tended) instead of stopping to wait | not seen |  |  |
+| softcycle | A downed skeleton with no CPU integrity left began a soft reset where it lies | not seen |  |  |
 | softcycle | Skeletons with deathrest exhaustion from an older save got CPU overload instead | not seen |  |  |
 | facility | A soft cycle facility joined a soft cycle in a linked repair bed (a tuning fork burnt an advanced component, gives the cycle length factor) | not seen |  |  |
 | facility | A soft cycle facility let go of a skeleton when its soft cycle ended (finished or cut short) | not seen |  |  |
@@ -185,6 +187,8 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | selftest | Self-test: needs other than CPU integrity are frozen during a soft cycle | passed | 52 | while soft cycling: maintenance frozen True, CPU integrity frozen False |
 | selftest | Self-test: a skeleton at 0% CPU integrity gets no vanilla deathrest exhaustion thought | passed | 52 | vanilla thought DeathrestExhaustion active False at integrity 0% |
 | selftest | Self-test: skeleton shows the CPU integrity gizmo and one soft cycle button instead of vanilla's deathrest gizmo | passed | 52 | gizmos GeneGizmo_Rimshi_CpuIntegrity |
+| selftest | Self-test: waits forced by other pawns' work are ignored during a soft cycle (StartJob patched) | not seen |  |  |
+| selftest | Self-test: a skeleton on its feet does not begin an automatic lying soft reset | not seen |  |  |
 | selftest | Self-test: orders, drafting and the draft button are guarded during a standing soft cycle | passed | 52 | orders, drafting and the draft button are guarded during a standing soft cycle |
 | selftest | Self-test: the CPU integrity tooltip is skeleton lore with no vanilla deathrest text | passed after fail | 52 | integrity tooltip: <color=#E6E64CFF>CPU integrity: 0%</color> / <color=#FF3333FF>Overloaded.</color> /  / A skeleton's mind runs on a CPU and a memory buffer th |
 | selftest | Self-test: the rib cage texture is drawn unrotated and without the medical sheet tint | passed | 52 | rib cage drawRotated False, sheet colour False |
@@ -293,7 +297,7 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | selftest | Self-test: temporarily power down is offered on skeletons only, Anesthetize on baseliners only, and anesthetic becomes maintenance mode | passed | 52 | 'temporarily power down' on the skeleton True, on the baseliner False; Anesthetize on the skeleton False, on the baseliner True; anaesthetic became maintenance  |
 | selftest | Self-test: the maintenance wear patch is applied | passed | 52 | Need_Food.NeedInterval: prefixes [], postfixes [Matthew.RimshiSkeletons Patch_MaintenanceWear (400)], transpilers [] |
 | selftest | Self-test: the wear clock holds while frozen, resets once maintained, and waits a full day | passed | 52 | frozen holds the clock True, maintained resets it True, no wear before a full day True (a day is 60000 ticks) |
-| selftest | Self-test: a full day out of maintenance wears one random part that is not the brain | passed | 52 | a full day out wore right hand (worn 2, dealt 2), brain never chosen True, clock restarted True, alive True |
+| selftest | Self-test: a full day out of maintenance wears one random part that is not the brain or the waist | not seen |  |  |
 | selftest | Self-test: soft cycle mending is paced over the time left and leaves the skeleton able to get up | passed | 52 | needed 30.5 to get up, half the time left mended 15.25, after the finish still needed 0, injuries 38.5 -> 8 |
 | selftest | Self-test: soft cycle mending starts with the legs and leaves the torso when the legs are enough | passed | 52 | first mended left leg, torso cut 3 of 8 left |
 | selftest | Self-test: soft cycle mending does nothing for a skeleton with no legs | passed | 52 | no legs True, mended 0 |

@@ -749,7 +749,8 @@ namespace RimshiSkeletons
 
     /// <summary>
     /// CPU integrity for skeletons: falls 1/30 a day like vanilla deathrest, holds while frozen, cycling or suspended in a
-    /// rib cage (cycles raise it themselves), and at 0% overloads the CPU instead of vanilla's deathrest exhaustion.
+    /// rib cage (cycles raise it themselves), and at 0% overloads the CPU instead of vanilla's deathrest exhaustion. A downed
+    /// skeleton at 0% begins a lying soft reset (StandingReset.TryAutoLying).
     /// </summary>
     [HarmonyPatch(typeof(Need_Deathrest), nameof(Need_Deathrest.NeedInterval))]
     public static class Patch_CpuIntegrity
@@ -772,6 +773,7 @@ namespace RimshiSkeletons
             if (__instance.CurLevel <= 0f)
             {
                 CpuOverload.Begin(pawn, "CPU integrity ran out");
+                StandingReset.TryAutoLying(pawn);
             }
             return false;
         }
