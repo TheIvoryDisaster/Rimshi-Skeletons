@@ -12,7 +12,7 @@ The vanilla food need is kept rather than replaced, so food search, feeding, car
 | What they consume | `ComponentIndustrial` gets `MaintenanceItemExtension`, `Nutrition` 0.7, and an ingestible block (food type Processed, one at a time, preferability MealAwful so every vanilla food policy except raw food allows it, the repair weld sound). `Patch_FoodIsSuitable` keeps it both ways: only maintenance pawns may consume tagged items, and they consume nothing else. Chemfuel and uranium are no longer edible. |
 | Rate | `Patch_FoodFall` sets a fixed rate: one item's nutrition over `MaintenanceExtension.daysPerItem` (2) days, so 0.35 a day. Colonists eat at 30%, so a full bar lasts two days and one component (0.7) refills it. Metabolism, age, beds and hediffs no longer change it; the vanilla slowdown once hungry still applies. |
 | Malnutrition | `Patch_NoMalnutrition` refuses any rise in malnutrition through `HealthUtility.AdjustSeverity` (the only way `Need_Food` adds it). Old malnutrition still wears off. |
-| Wear | See below: a full day at 0% wears a random non-brain part for 2. |
+| Wear | See below: a full day at 0% wears a random part (not the brain or the waist) for 2. |
 | Mood | `Rimshi_MaintenanceNeed` with `ThoughtWorker_Maintenance`: "maintenance due" (-3) below 24%, "overdue" (-6) below 12%, then from "worn parts" (-10) at 0%, one stage worse per day out, down to "falling apart" (-22). It stands in for malnutrition's growing stages. |
 
 ### Wear (2026-11-03)
@@ -23,7 +23,7 @@ Matthew: skeletons out of maintenance should take 2 damage a day to a random par
 | --- | --- |
 | One hit per full day at 0% (starving), the first one day after the bar empties | Matches the mood thought's daily stages and keeps the health tab readable (a few clear marks, not dozens of 0.3 specks). |
 | Clock in `Gene_FuelReactor.wearTicks` (saved), counted in need intervals while starving and not frozen, reset when no longer starving | Like vanilla malnutrition: no wear in cryptosleep, while soft cycling (needs are frozen), or off-map where needs freeze. Old saves start at 0, so nobody takes a backlog of hits on load. |
-| Part: any present part except consciousness sources (the brain) and parts inside an added part (a prosthetic's own fingers), uniform | Matthew's "random non-brain body part". Machine organs are added parts on the organ itself, so they can be worn. A part can be worn away (destroyed); torso, heart and the like can eventually kill. |
+| Part: any present part except consciousness sources (the brain), the waist (Matthew, 2026-11-09: kept turning up in the log; `SkeletonWear.ExcludedPartDefs`) and parts inside an added part (a prosthetic's own fingers), uniform | Matthew's "random non-brain body part". Machine organs are added parts on the organ itself, so they can be worn. A part can be worn away (destroyed); torso, heart and the like can eventually kill. |
 | `Rimshi_MaintenanceWear` damage (`DamageWorker_AddInjury`, not violence, no impact, no job interrupt), armour ignored, no propagation, no filth | Wear comes from inside, so apparel and the KLR arm do not stop it; the full 2 stays on the chosen part. Stats like `IncomingDamageFactor` from other mods still scale it. |
 | `Rimshi_WornPart` injury ("worn", destroyed "worn away") | A plain `Hediff_Injury`: skeletons do not bleed it (#19), it never heals on its own (#58), repair kits and the repair bed fix it. |
 | Message for player pawns on a map or in a caravan | The only warning; text says what is happening now, nothing about the schedule. |

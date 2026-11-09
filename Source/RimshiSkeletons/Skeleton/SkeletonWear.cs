@@ -9,7 +9,7 @@ namespace RimshiSkeletons
 {
     /// <summary>
     /// A skeleton out of maintenance (food need at zero, "starving") wears down: for each full day spent there, one random
-    /// part that is not the brain takes MaintenanceExtension.wearDamage (2) Rimshi_MaintenanceWear damage, a worn part
+    /// part that is not the brain or the waist takes MaintenanceExtension.wearDamage (2) Rimshi_MaintenanceWear damage, a worn part
     /// injury. One hit a day rather than a trickle, so the health tab shows a few clear wear marks instead of many specks.
     /// The clock (Gene_FuelReactor.wearTicks) only runs while the need is not frozen (soft cycle, cryptosleep), like
     /// vanilla malnutrition, and resets once the skeleton is maintained again. Skeleton injuries never heal on their own
@@ -72,16 +72,24 @@ namespace RimshiSkeletons
             return Wear(pawn);
         }
 
-        /// <summary>Parts wear can reach: present, not the brain, and not inside an added part (a prosthetic's own hand).</summary>
+        /// <summary>
+        /// Body parts wear never picks by def: the waist (Matthew, 2026-11-09: a belt slot, not a moving part, and worn
+        /// waists kept filling the log).
+        /// </summary>
+        public static readonly HashSet<string> ExcludedPartDefs = new HashSet<string> { "Waist" };
+
+        /// <summary>
+        /// Parts wear can reach: present, not the brain, not the waist, and not inside an added part (a prosthetic's own hand).
+        /// </summary>
         public static List<BodyPartRecord> WearableParts(Pawn pawn)
         {
             HediffSet set = pawn.health.hediffSet;
             return set.GetNotMissingParts()
-                .Where(p => !p.def.tags.Contains(BodyPartTagDefOf.ConsciousnessSource) && !set.AncestorHasDirectlyAddedParts(p))
+                .Where(p => !p.def.tags.Contains(BodyPartTagDefOf.ConsciousnessSource) && !ExcludedPartDefs.Contains(p.def.defName) && !set.AncestorHasDirectlyAddedParts(p))
                 .ToList();
         }
 
-        /// <summary>Wears one random part that is not the brain. Returns that part, or null when there is none.</summary>
+        /// <summary>Wears one random part that is not the brain or the waist. Returns that part, or null when there is none.</summary>
         public static BodyPartRecord Wear(Pawn pawn)
         {
             if (!WearableParts(pawn).TryRandomElement(out BodyPartRecord part))

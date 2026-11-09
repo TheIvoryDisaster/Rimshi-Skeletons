@@ -80,6 +80,37 @@ namespace RimshiSkeletons
             Begin(pawn, lying: true);
         }
 
+        /// <summary>
+        /// A downed skeleton whose CPU integrity has run out begins a lying soft reset by itself (Matthew, 2026-11-09), so
+        /// the reset's mending (SoftCycleMending) slowly gets it back on its feet. Called from the integrity tick while it is
+        /// at 0%, so one downed after running out starts too. Not while carried, in a mental state, hanging in a rib cage
+        /// or lying in a powered repair bed (which is already repairing it, as for the "Soft cycle" button).
+        /// </summary>
+        public static bool TryAutoLying(Pawn pawn)
+        {
+            if (pawn?.health == null || pawn.Dead || !pawn.Downed || !pawn.Spawned || pawn.InMentalState || InProgress(pawn) || pawn.Deathresting
+                || RibCage.Suspended(pawn) || !SkeletonUtility.HasFrame(pawn))
+            {
+                return false;
+            }
+            CompRimshi_RepairBed bed = SoftCycle.RepairBedOf(pawn.CurrentBed());
+            if (bed != null && bed.Powered)
+            {
+                return false;
+            }
+            Begin(pawn, lying: true);
+            if (!InProgress(pawn))
+            {
+                return false;
+            }
+            RimshiLog.Test("softcycle", "auto lying", pawn.LabelShort + " is downed with no CPU integrity left and began a soft reset where it lies at " + pawn.Position);
+            if (PawnUtility.ShouldSendNotificationAbout(pawn))
+            {
+                Messages.Message(pawn.LabelShort + " has begun a soft reset where it lies.", pawn, MessageTypeDefOf.NeutralEvent);
+            }
+            return true;
+        }
+
         private static void Begin(Pawn pawn, bool lying)
         {
             if (InProgress(pawn))

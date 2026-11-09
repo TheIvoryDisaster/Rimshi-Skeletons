@@ -308,6 +308,15 @@ namespace RimshiSkeletons
             MethodBase[] wakeOnly = { AccessTools.Method(typeof(Pawn_JobTracker), nameof(Pawn_JobTracker.TryTakeOrderedJob)), AccessTools.PropertySetter(typeof(Pawn_DraftController), nameof(Pawn_DraftController.Drafted)), AccessTools.Method(typeof(Pawn_DraftController), "GetGizmos") };
             List<string> unguarded = wakeOnly.Where(m => m == null || !(Harmony.GetPatchInfo(m)?.Owners.Contains(RimshiMod.HarmonyId) ?? false)).Select(m => m == null ? "missing method" : m.DeclaringType.Name + "." + m.Name).ToList();
             Check("wake only", unguarded.Count == 0, unguarded.Count == 0 ? "orders, drafting and the draft button are guarded during a standing soft cycle" : "not patched: " + string.Join(", ", unguarded));
+            MethodBase startJob = AccessTools.Method(typeof(Pawn_JobTracker), nameof(Pawn_JobTracker.StartJob));
+            bool waitsPatched = startJob != null && (Harmony.GetPatchInfo(startJob)?.Owners.Contains(RimshiMod.HarmonyId) ?? false);
+            bool waitsSpotted = SoftCycleUndisturbed.IsForcedWait(JobMaker.MakeJob(JobDefOf.Wait)) && SoftCycleUndisturbed.IsForcedWait(JobMaker.MakeJob(JobDefOf.Wait_MaintainPosture))
+                && !SoftCycleUndisturbed.IsForcedWait(JobMaker.MakeJob(JobDefOf.Goto, s.Position));
+            bool idleTakesWaits = !SoftCycleUndisturbed.Ignore(s, JobMaker.MakeJob(JobDefOf.Wait));
+            Check("cycle undisturbed", waitsPatched && waitsSpotted && idleTakesWaits, "StartJob patched " + waitsPatched + ", forced waits recognised " + waitsSpotted
+                + ", a skeleton not cycling still takes waits " + idleTakesWaits);
+            bool autoRefused = !StandingReset.TryAutoLying(s) && !StandingReset.InProgress(s);
+            Check("auto lying gate", autoRefused, "an unspawned skeleton on its feet at integrity " + need?.CurLevelPercentage.ToStringPercent() + " began no lying reset " + autoRefused);
             ThingDef ribCage = DefDatabase<ThingDef>.GetNamedSilentFail("Rimshi_RibCage");
             Check("rib cage draw", ribCage != null && !ribCage.graphicData.drawRotated && !ribCage.building.bed_UseSheetColor,
                 "rib cage drawRotated " + ribCage?.graphicData.drawRotated + ", sheet colour " + ribCage?.building.bed_UseSheetColor);
@@ -1197,13 +1206,17 @@ namespace RimshiSkeletons
             Check("wear clock", frozenHeld && reset && early, "frozen holds the clock " + frozenHeld + ", maintained resets it " + reset + ", no wear before a full day " + early
                 + " (a day is " + SkeletonWear.WearIntervalTicks + " ticks)");
 
-            bool brainExcluded = !SkeletonWear.WearableParts(s).Contains(brain);
+            List<BodyPartRecord> wearable = SkeletonWear.WearableParts(s);
+            bool brainExcluded = !wearable.Contains(brain);
+            bool hasWaist = s.RaceProps.body.AllParts.Any(p => p.def.defName == "Waist");
+            bool waistExcluded = !wearable.Any(p => p.def.defName == "Waist");
             gene.wearTicks = almost;
             BodyPartRecord part = SkeletonWear.Advance(s, gene, starving: true, frozen: false);
             float severity = part == null ? 0f : s.health.hediffSet.hediffs.Where(h => h.def == RimshiDefOf.Rimshi_WornPart && h.Part == part).Sum(h => h.Severity);
             bool worn = part != null && (severity > 0f || s.health.hediffSet.PartIsMissing(part));
-            Check("maintenance wear", worn && part != brain && brainExcluded && gene.wearTicks == 0 && !s.Dead, "a full day out wore " + (part?.Label ?? "nothing")
-                + " (worn " + severity.ToString("0.##") + ", dealt " + SkeletonWear.WearDamage + "), brain never chosen " + brainExcluded + ", clock restarted " + (gene.wearTicks == 0)
+            Check("maintenance wear", worn && part != brain && brainExcluded && waistExcluded && part?.def.defName != "Waist" && gene.wearTicks == 0 && !s.Dead, "a full day out wore " + (part?.Label ?? "nothing")
+                + " (worn " + severity.ToString("0.##") + ", dealt " + SkeletonWear.WearDamage + "), brain never chosen " + brainExcluded + ", waist never chosen " + waistExcluded
+                + (hasWaist ? "" : " (body has no waist)") + ", clock restarted " + (gene.wearTicks == 0)
                 + ", alive " + !s.Dead);
         }
 
