@@ -19,8 +19,10 @@ namespace RimshiSkeletons
         public const float MinPoints = 1000f;
         public const float PointsPerSummon = 0.2f;
         public const int MaxSummonBonus = 5;
-        public const int MinPawns = 6;
-        public const int MaxPawns = 40;
+        /// <summary>Hordes were cut by a fifth after the first real one overran the colony (Matthew, 2026-11-09).</summary>
+        public const float SizeFactor = 0.8f;
+        public const int MinPawns = 5;
+        public const int MaxPawns = 32;
         public const float FailsafeFraction = 0.1f;
 
         /// <summary>Chance that a horde skeleton has no corrupted protocol and can be recruited the normal way (at least one per horde).</summary>
@@ -33,11 +35,11 @@ namespace RimshiSkeletons
             ("Rimshi_HordeCenturion", 0.15f),
         };
 
-        /// <summary>Threat points for the next horde: the storyteller's points (at least MinPoints), more for each earlier summon.</summary>
+        /// <summary>Threat points for the next horde: the storyteller's points (at least MinPoints) times SizeFactor, more for each earlier summon.</summary>
         public static float PointsFor(Map map, int earlierSummons)
         {
             float points = Mathf.Max(MinPoints, StorytellerUtility.DefaultThreatPointsNow(map));
-            return points * (1f + PointsPerSummon * Mathf.Min(earlierSummons, MaxSummonBonus));
+            return points * SizeFactor * (1f + PointsPerSummon * Mathf.Min(earlierSummons, MaxSummonBonus));
         }
 
         public static List<Pawn> Generate(float points)

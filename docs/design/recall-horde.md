@@ -19,7 +19,7 @@ Requested by Matthew on 2026-10-24. Values below are first-pass numbers for play
 
 ## The horde
 
-- Size: the storyteller's threat points (at least 1000), plus 20% per earlier broadcast in this game (up to +100%), spent on pawn combat power; at least 6 and at most 40 skeletons. Drop pods land around the array (a random drop spot if that cell is gone).
+- Size: the storyteller's threat points (at least 1000) times 0.8, plus 20% per earlier broadcast in this game (up to +100%), spent on pawn combat power; at least 5 and at most 32 skeletons. The 0.8 and the limits (from 6 and 40) cut every horde by a fifth after the first real one overran Matthew's colony (2026-11-09). Drop pods land around the array (a random drop spot if that cell is gone).
 - Kinds (`Defs/PawnKindDefs/Rimshi_HordeKinds.xml`), generated with no faction:
 
 | Kind | Weight | Combat power | Gear |
@@ -43,9 +43,19 @@ Requested by Matthew on 2026-10-24. Values below are first-pass numbers for play
 
 Fertility 0, Asexual and no gender already stop Biotech pregnancy. Added for any pawn with the null chromosome gene: `PregnancyUtility.CanEverProduceChild` refuses, `PregnancyChanceForPawn` and `PregnancyChanceImplantEmbryo` return 0, and `Pawn_HealthTracker.AddHediff` refuses a `Hediff_Pregnant` (dev mode or another mod).
 
+## Breaking point: the legion turns on itself
+
+Added 2026-11-09 at Matthew's request, with the size cut above. Vanilla has no "the colony is losing" signal to reuse: the nearest is the game-over check, which only fires once every colonist is down or dead, and raid retreat triggers are about the raiders' own losses. So the rule is ours (`HordeInfighting`):
+
+- Every 250 ticks, on each map with free legion skeletons (spawned, not prisoners): if at least half of the map's spawned free colonists are downed (and at least one), every free legion skeleton there gets the **recall frenzy** (`Rimshi_HordeFrenzy`). Colonists who are dead no longer count, so losses push the colony over the line sooner. The first time on a map a positive letter says the legion is turning on itself (`horde | infighting`).
+- It is latched: the frenzy stays when the colonists get back up. It is removed if the skeleton is captured or joins the colony. A horde arriving while the colony is already losing gets it straight away.
+- The frenzy keeps the skeleton berserk (restarted every 250 ticks if it recovers; `horde | frenzy`). Vanilla berserk (`MentalState_Berserk.ForceHostileTo` is always true) makes a pawn hostile to everyone, its own faction too, and the mental state branch of the think tree runs ahead of its raid duty.
+- A `JobGiver_Berserk.TryGiveJob` prefix (a virtual override, so 1.7 cannot inline it away) gives frenzied skeletons the closest reachable other legion skeleton that is still up, shooting with a gun (moving to a firing spot if needed) and charging with a melee weapon (`horde | infight`, once per skeleton per in-game hour). With no legion skeleton left in reach it falls back to vanilla berserk, which only melees whoever is within 40 cells and can still hit colonists.
+- The 50% is `HordeInfighting.DownedFraction`, a first guess.
+
 ## Tests
 
-Self-tests: `cannot reproduce`, `pregnancy refused`, `recall array`, `horde faction`, `horde protocol`, `horde recruitable`, `horde gear`, `horde peace`, `failsafe`, `reprogram session`. Debug actions > Rimshi Skeletons > "Summon skeleton horde now" drops a horde at the mouse. In-play lines: `horde | array used`, `arrived` (faction, lord, recruitable count), `legion added`, `migrated`, `failsafe`, `failsafe died`; `reprogram | captured`, `session`, `joined`; `reproduction | pregnancy blocked`.
+Self-tests: `cannot reproduce`, `pregnancy refused`, `recall array`, `horde faction`, `horde protocol`, `horde recruitable`, `horde gear`, `horde peace`, `horde size`, `colony losing`, `horde frenzy`, `failsafe`, `reprogram session`. Debug actions > Rimshi Skeletons > "Summon skeleton horde now" drops a horde at the mouse. In-play lines: `horde | array used`, `arrived` (faction, lord, recruitable count), `legion added`, `migrated`, `infighting`, `frenzy`, `infight`, `failsafe`, `failsafe died`; `reprogram | captured`, `session`, `joined`; `reproduction | pregnancy blocked`.
 
 ## Checked and not checked
 

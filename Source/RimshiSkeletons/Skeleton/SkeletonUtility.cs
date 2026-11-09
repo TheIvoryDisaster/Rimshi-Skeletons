@@ -28,6 +28,7 @@ namespace RimshiSkeletons
         public static ResearchProjectDef Rimshi_SkeletonRecall;
         public static HediffDef Rimshi_CorruptedProtocol;
         public static HediffDef Rimshi_FailsafeCore;
+        public static HediffDef Rimshi_HordeFrenzy;
         public static PrisonerInteractionModeDef Rimshi_Reprogram;
         public static JobDef Rimshi_ReprogramSkeleton;
         public static ThingDef Rimshi_Filth_AncientOil;
