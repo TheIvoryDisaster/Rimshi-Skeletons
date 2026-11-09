@@ -106,6 +106,9 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | horde | Factionless horde skeletons from an older save joined the recalled legion | not seen |  |  |
 | horde | Failsafe core set the death on downed chance | passed | 52 | Halsit: death on downed chance 10% (was -100%) |
 | horde | A failsafe skeleton died anyway (says how; not a failure) | not seen |  |  |
+| horde | Half the colonists downed: the horde turned on itself (counts) | not seen |  |  |
+| horde | Frenzied horde skeleton went berserk (FAILED if the game refused) | not seen |  |  |
+| horde | Frenzied horde skeleton attacked another legion skeleton (shooting, moving to shoot or charging) | not seen |  |  |
 | reprogram | Captured horde skeleton set to interrogate and reprogram | not seen |  |  |
 | reprogram | Warden reprogramming session lowered the corruption | passed | 52 | Barr reprogrammed the Smiling: -22%, 78% corruption left |
 | reprogram | Reprogrammed skeleton joined the colony | not seen |  |  |
@@ -244,6 +247,9 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | selftest | Self-test: horde skeletons have the corrupted protocol and cannot be recruited | passed | 52 | Halsit corrupted True recruitable False, the Smiling corrupted True recruitable False, Mochida corrupted True recruitable False |
 | selftest | Self-test: horde gunners carry spacer guns, bladeguards melee weapons and shield belts | passed | 52 | Rimshi_HordeLegionary: VWE_Gun_ChargeSMG, Rimshi_HordeBladeguard: MeleeWeapon_PlasmaSword + shield belt, Rimshi_HordeCenturion: VWE_Gun_ChargeShotgun |
 | selftest | Self-test: horde skeletons are not hostile to each other | passed | 52 | horde skeletons not hostile to each other |
+| selftest | Self-test: hordes are a fifth smaller (points x0.8, 5 to 32 skeletons) | not seen |  |  |
+| selftest | Self-test: the losing rule (at least half the free colonists downed, at least one) | not seen |  |  |
+| selftest | Self-test: recall frenzy hediff applies and the berserk job patch is on | not seen |  |  |
 | selftest | Self-test: failsafe core sets the death on downed chance | passed | 52 | death on downed chance 10% |
 | selftest | Self-test: a reprogramming session lowers the corruption | passed | 52 | corruption 100% to 78% (warden Intellectual 4) |
 | selftest | Self-test: a bionics-rolling kind gives the skeleton none and the baseliner some | passed | 52 | bionics generated: skeleton 0, baseliner 2 |

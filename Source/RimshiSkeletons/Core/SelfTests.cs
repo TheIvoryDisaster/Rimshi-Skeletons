@@ -451,6 +451,22 @@ namespace RimshiSkeletons
                 + (SkeletonHorde.HasShieldBelt(p) ? " + shield belt" : ""))));
             Check("horde peace", !horde[0].HostileTo(horde[1]) && !horde[1].HostileTo(horde[2]), "horde skeletons not hostile to each other");
 
+            Map map = Find.CurrentMap ?? Find.AnyPlayerHomeMap;
+            float threat = map != null ? Mathf.Max(SkeletonHorde.MinPoints, StorytellerUtility.DefaultThreatPointsNow(map)) : 0f;
+            float points = map != null ? SkeletonHorde.PointsFor(map, 0) : 0f;
+            Check("horde size", (map == null || Mathf.Approximately(points, threat * SkeletonHorde.SizeFactor)) && SkeletonHorde.SizeFactor == 0.8f
+                && SkeletonHorde.MinPawns == 5 && SkeletonHorde.MaxPawns == 32,
+                "first horde " + points.ToString("0") + " points from " + threat.ToString("0") + " threat (x" + SkeletonHorde.SizeFactor + "), " + SkeletonHorde.MinPawns + " to " + SkeletonHorde.MaxPawns + " skeletons");
+            Check("colony losing", HordeInfighting.ColonyLosing(1, 2) && HordeInfighting.ColonyLosing(1, 1) && HordeInfighting.ColonyLosing(3, 5)
+                && !HordeInfighting.ColonyLosing(1, 3) && !HordeInfighting.ColonyLosing(0, 0) && !HordeInfighting.ColonyLosing(0, 4),
+                "losing at 1 of 2, 1 of 1, 3 of 5; not at 1 of 3, 0 of 0, 0 of 4");
+            Pawn frenzied = horde[2];
+            frenzied.health.AddHediff(RimshiDefOf.Rimshi_HordeFrenzy);
+            MethodBase berserkJob = AccessTools.Method(typeof(JobGiver_Berserk), "TryGiveJob");
+            bool patched = berserkJob != null && (Harmony.GetPatchInfo(berserkJob)?.Owners.Contains(RimshiMod.HarmonyId) ?? false);
+            Check("horde frenzy", HordeInfighting.IsFrenzied(frenzied) && !HordeInfighting.IsFrenzied(horde[0]) && patched,
+                frenzied.LabelShort + " frenzied " + HordeInfighting.IsFrenzied(frenzied) + ", " + horde[0].LabelShort + " frenzied " + HordeInfighting.IsFrenzied(horde[0]) + ", berserk job patched " + patched);
+
             Pawn failsafe = horde[0];
             failsafe.health.AddHediff(RimshiDefOf.Rimshi_FailsafeCore);
             float chance = failsafe.health.overrideDeathOnDownedChance;
@@ -1570,6 +1586,10 @@ namespace RimshiSkeletons
 
         public override void GameComponentTick()
         {
+            if (Find.TickManager.TicksGame % HordeInfighting.CheckInterval == 0)
+            {
+                HordeInfighting.CheckMaps();
+            }
             if (pendingHordes.Count == 0 || Find.TickManager.TicksGame % 60 != 0)
             {
                 return;

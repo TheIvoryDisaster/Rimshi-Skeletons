@@ -60,4 +60,22 @@
     </stages>
   </HediffDef>
 
+  <!-- Given to every free horde skeleton on a map once at least half the colony's free colonists there are downed
+       (HordeInfighting): it keeps the skeleton berserk, and berserk horde skeletons go for each other first.
+       Removed if the skeleton is captured or joins the colony. -->
+  <HediffDef>
+    <defName>Rimshi_HordeFrenzy</defName>
+    <label>recall frenzy</label>
+    <description>Whatever held this skeleton's recall protocol together has given way. It no longer knows friend from foe.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <defaultLabelColor>(0.9, 0.25, 0.2)</defaultLabelColor>
+    <isBad>false</isBad>
+    <everCurableByItem>false</everCurableByItem>
+    <comps>
+      <li>
+        <compClass>RimshiSkeletons.HediffComp_HordeFrenzy</compClass>
+      </li>
+    </comps>
+  </HediffDef>
+
 </Defs>
