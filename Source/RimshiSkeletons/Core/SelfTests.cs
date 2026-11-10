@@ -180,6 +180,30 @@ namespace RimshiSkeletons
         /// cancelling, the overload stages and the rib cage. Changes the skeleton's memories, skills and hediffs, so it runs
         /// after the other skeleton checks.
         /// </summary>
+        /// <summary>Soft cycles ride through grav ship launches and landings (Repair/SoftCycleGravship.cs).</summary>
+        private static void GravshipChecks(Pawn s)
+        {
+            MethodBase launch = AccessTools.Method(typeof(GravshipUtility), nameof(GravshipUtility.GenerateGravship));
+            MethodBase landing = AccessTools.Method(typeof(GravshipPlacementUtility), nameof(GravshipPlacementUtility.PlaceGravshipInMap));
+            bool patched = new[] { launch, landing }.All(m => m != null && (Harmony.GetPatchInfo(m)?.Owners.Contains(RimshiMod.HarmonyId) ?? false));
+            bool grace = SoftCycleGravship.WithinGrace(1000, 1000 + SoftCycleGravship.LandingGraceTicks) && !SoftCycleGravship.WithinGrace(1000, 1001 + SoftCycleGravship.LandingGraceTicks)
+                && !SoftCycleGravship.WithinGrace(1000, 999) && !SoftCycleGravship.WithinGrace(-1, 10);
+            // A skeleton on the ground is not held for a flight; one whose reset is flagged aboard stays held while unspawned.
+            Hediff_Rimshi_SoftReset reset = s.health.AddHediff(RimshiDefOf.Rimshi_SoftResetting) as Hediff_Rimshi_SoftReset;
+            bool groundCancels = reset != null && !SoftCycleGravship.HoldForFlight(s) && !reset.aboardGravship;
+            bool held = false;
+            if (reset != null)
+            {
+                reset.aboardGravship = true;
+                int before = reset.resetTicks;
+                reset.PostTickInterval(400);
+                held = reset.aboardGravship && !reset.done && reset.resetTicks == before;
+                s.health.RemoveHediff(reset);
+            }
+            Check("cycle gravship", patched && grace && groundCancels && held, "launch and landing patched " + patched + ", landing power grace " + grace
+                + ", a reset on the ground still cancels " + groundCancels + ", a reset aboard is held in flight " + held);
+        }
+
         private static void SoftCycleChecks(Pawn s, Pawn human)
         {
             ThingDef bed = RimshiDefOf.Rimshi_SkeletonRepairBed;
@@ -315,6 +339,7 @@ namespace RimshiSkeletons
             bool idleTakesWaits = !SoftCycleUndisturbed.Ignore(s, JobMaker.MakeJob(JobDefOf.Wait));
             Check("cycle undisturbed", waitsPatched && waitsSpotted && idleTakesWaits, "StartJob patched " + waitsPatched + ", forced waits recognised " + waitsSpotted
                 + ", a skeleton not cycling still takes waits " + idleTakesWaits);
+            GravshipChecks(s);
             bool autoRefused = !StandingReset.TryAutoLying(s) && !StandingReset.InProgress(s);
             Check("auto lying gate", autoRefused, "an unspawned skeleton on its feet at integrity " + need?.CurLevelPercentage.ToStringPercent() + " began no lying reset " + autoRefused);
             ThingDef ribCage = DefDatabase<ThingDef>.GetNamedSilentFail("Rimshi_RibCage");

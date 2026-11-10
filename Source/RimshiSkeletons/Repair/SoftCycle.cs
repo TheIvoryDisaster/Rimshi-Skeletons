@@ -658,6 +658,7 @@ namespace RimshiSkeletons
     {
         private static readonly HashSet<int> loggedCycle = new HashSet<int>();
         private static readonly HashSet<int> loggedHeld = new HashSet<int>();
+        private static readonly HashSet<int> loggedGraceHeld = new HashSet<int>();
         private static readonly Dictionary<int, float> remainder = new Dictionary<int, float>();
 
         public static void Prefix(Gene_Deathrest __instance, ref bool paused, int delta)
@@ -680,6 +681,17 @@ namespace RimshiSkeletons
                 return;
             }
             loggedHeld.Remove(pawn.thingIDNumber);
+            if (!bed.Powered && SoftCycleGravship.HoldsUnpoweredBed(pawn, bed.parent))
+            {
+                // Just landed (or still aboard): the ship's power nets come back a moment after the bed does.
+                paused = true;
+                if (loggedGraceHeld.Add(pawn.thingIDNumber))
+                {
+                    RimshiLog.Test("softcycle", "gravship power wait", pawn.LabelShort + "'s " + bed.parent.LabelShort + " has no power yet after a grav ship landing, cycle held");
+                }
+                return;
+            }
+            loggedGraceHeld.Remove(pawn.thingIDNumber);
             if (!bed.Powered)
             {
                 paused = true;
