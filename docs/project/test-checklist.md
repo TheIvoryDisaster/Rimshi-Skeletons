@@ -77,6 +77,11 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | softcycle | Soft cycle mends nothing: no legs left, or could not get up even fully mended | passed | 52 | the Doubtful has no legs left, the cycle mends nothing |
 | softcycle | Skeleton that began a soft reset downed got up and carries on with it standing | not seen |  |  |
 | softcycle | A soft cycling skeleton kept cycling while worked on (repaired, tended) instead of stopping to wait | not seen |  |  |
+| softcycle | A skeleton left on a launching grav ship in the middle of a soft cycle (bed, standing or lying) | not seen |  |  |
+| softcycle | A launching grav ship carried off a skeleton mid standing soft reset; the reset was held instead of cancelled | not seen |  |  |
+| softcycle | A skeleton came down on a landing grav ship still in its soft cycle (gives the bed or cell) | not seen |  |  |
+| softcycle | A skeleton held aboard a grav ship took its standing (or rib cage, or lying) soft reset back after landing | not seen |  |  |
+| softcycle | A repair bed had no power yet just after a grav ship landing; its soft cycle was held, not cancelled | not seen |  |  |
 | softcycle | A downed skeleton with no CPU integrity left began a soft reset where it lies | not seen |  |  |
 | softcycle | Skeletons with deathrest exhaustion from an older save got CPU overload instead | not seen |  |  |
 | facility | A soft cycle facility joined a soft cycle in a linked repair bed (a tuning fork burnt an advanced component, gives the cycle length factor) | not seen |  |  |
@@ -191,6 +196,7 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | selftest | Self-test: a skeleton at 0% CPU integrity gets no vanilla deathrest exhaustion thought | passed | 52 | vanilla thought DeathrestExhaustion active False at integrity 0% |
 | selftest | Self-test: skeleton shows the CPU integrity gizmo and one soft cycle button instead of vanilla's deathrest gizmo | passed | 52 | gizmos GeneGizmo_Rimshi_CpuIntegrity |
 | selftest | Self-test: waits forced by other pawns' work are ignored during a soft cycle (StartJob patched) | not seen |  |  |
+| selftest | Self-test: soft cycles survive grav ship launch and landing (patches, landing power grace, reset held aboard) | not seen |  |  |
 | selftest | Self-test: a skeleton on its feet does not begin an automatic lying soft reset | not seen |  |  |
 | selftest | Self-test: orders, drafting and the draft button are guarded during a standing soft cycle | passed | 52 | orders, drafting and the draft button are guarded during a standing soft cycle |
 | selftest | Self-test: the CPU integrity tooltip is skeleton lore with no vanilla deathrest text | passed after fail | 52 | integrity tooltip: <color=#E6E64CFF>CPU integrity: 0%</color> / <color=#FF3333FF>Overloaded.</color> /  / A skeleton's mind runs on a CPU and a memory buffer th |

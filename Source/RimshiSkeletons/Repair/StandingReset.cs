@@ -180,6 +180,9 @@ namespace RimshiSkeletons
 
         /// <summary>Begun downed, where the skeleton lay, with no job (StandingReset.BeginLying).</summary>
         public bool lying;
+
+        /// <summary>The reset's job ended because a launching grav ship carried the skeleton off; resumes on landing (SoftCycleGravship).</summary>
+        public bool aboardGravship;
         private int ticksWithoutJob;
 
         public float Fraction => SoftCycle.StandingCurve.Evaluate((float)resetTicks / GenDate.TicksPerDay);
@@ -193,6 +196,17 @@ namespace RimshiSkeletons
             base.PostTickInterval(delta);
             if (done)
             {
+                return;
+            }
+            if (aboardGravship)
+            {
+                if (!pawn.Spawned)
+                {
+                    // In flight: held, neither progressing nor cancelled.
+                    return;
+                }
+                ticksWithoutJob = 0;
+                SoftCycleGravship.Resume(pawn, this);
                 return;
             }
             if (lying)
@@ -244,6 +258,7 @@ namespace RimshiSkeletons
             Scribe_Values.Look(ref resetTicks, "resetTicks");
             Scribe_Values.Look(ref done, "done");
             Scribe_Values.Look(ref lying, "lying");
+            Scribe_Values.Look(ref aboardGravship, "aboardGravship");
         }
     }
 
@@ -278,7 +293,7 @@ namespace RimshiSkeletons
         {
             AddFinishAction(delegate
             {
-                if (StandingReset.InProgress(pawn))
+                if (StandingReset.InProgress(pawn) && !SoftCycleGravship.HoldForFlight(pawn))
                 {
                     StandingReset.Cancel(pawn, pawn.Downed ? "downed" : pawn.InMentalState ? "mental break" : pawn.Drafted ? "drafted" : "interrupted");
                 }
