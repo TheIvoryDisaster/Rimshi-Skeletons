@@ -14,13 +14,14 @@
 # main, so pull requests open at the same time never conflict over the table. It then brings beta up to date with
 # main. A push made with the workflow's own token starts no new run, so neither push uses up a version.
 #
-# Azure debug upload (main only): the "Upload to Azure" job copies the packaged zip of each main build to the
+# Azure debug upload (main only): steps in the build job copy the packaged zip of each main build to the
 # repository's private container in the gutenhub storage account (managed in Matthew's azure-infra repo, where blobs
 # expire after three days). It signs in with GitHub OIDC as the rimshi-skeletons-debug-upload managed identity, whose
 # federated credential trusts only refs/heads/main. The blob path is <run id>/<run attempt>/<zip name>, so a rerun
 # never overwrites an earlier upload. It reads five repository variables (Settings > Secrets and variables > Actions >
 # Variables): AZURE_CLIENT_ID, AZURE_TENANT_ID, AZURE_SUBSCRIPTION_ID, AZURE_STORAGE_ACCOUNT, AZURE_DEBUG_CONTAINER.
-# It runs after the build job, so the build, tag and release never wait on or fail because of Azure.
+# They are skipped until AZURE_CLIENT_ID is set, and marked continue-on-error so an Azure problem shows as a failed
+# step (with the OIDC subject printed for comparison) but never stops the main tag and release.
 
 name: Build
 
@@ -40,8 +41,11 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    outputs:
-      version: ${{ steps.version.outputs.version }}
+    # contents: write for the main tag and release; id-token: write for the Azure upload's OIDC sign-in. Branch builds
+    # can mint a token too, but Azure's federated credential only trusts main, so it gets them nothing.
+    permissions:
+      contents: write
+      id-token: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -113,19 +117,50 @@ jobs:
           [ "$(grep -c '<modVersion>' "$out/About/About.xml")" = 1 ]
           (cd package && zip -qr "../RimshiSkeletons-${{ steps.version.outputs.version }}.zip" RimshiSkeletons)
 
+      # Azure debug upload (main only, skipped until the AZURE_* repository variables are set). Runs before the GitHub
+      # artifact upload so it still happens when the account's artifact storage quota is full.
+      - name: Show the OIDC subject
+        if: github.ref == 'refs/heads/main' && vars.AZURE_CLIENT_ID != ''
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Prints only the subject claim Azure checks (never the token), to compare with azure-infra's credential.
+          token=$(curl -sSf -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=api://AzureADTokenExchange" | jq -r .value)
+          echo "$token" | python3 -c 'import sys, json, base64; p = sys.stdin.read().split(".")[1]; print("OIDC subject:", json.loads(base64.urlsafe_b64decode(p + "=" * (-len(p) % 4)))["sub"])'
+
+      - uses: azure/login@v2
+        if: github.ref == 'refs/heads/main' && vars.AZURE_CLIENT_ID != ''
+        continue-on-error: true
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Upload the build to Azure Blob Storage
+        if: github.ref == 'refs/heads/main' && vars.AZURE_CLIENT_ID != ''
+        continue-on-error: true
+        shell: bash
+        env:
+          STORAGE_ACCOUNT: ${{ vars.AZURE_STORAGE_ACCOUNT }}
+          DEBUG_CONTAINER: ${{ vars.AZURE_DEBUG_CONTAINER }}
+          ZIP: RimshiSkeletons-${{ steps.version.outputs.version }}.zip
+        run: |
+          set -euo pipefail
+          blob="${GITHUB_RUN_ID}/${GITHUB_RUN_ATTEMPT}/${ZIP}"
+          az storage blob upload --auth-mode login --only-show-errors \
+            --account-name "$STORAGE_ACCOUNT" \
+            --container-name "$DEBUG_CONTAINER" \
+            --name "$blob" \
+            --file "$ZIP" \
+            --content-type application/zip
+          echo "Uploaded $ZIP to $STORAGE_ACCOUNT/$DEBUG_CONTAINER/$blob"
+
       - uses: actions/upload-artifact@v4
         with:
           name: RimshiSkeletons-${{ steps.version.outputs.version }}
           path: package/
-
-      # The exact zip the release gets, handed to the "Upload to Azure" job (main only, kept one day).
-      - uses: actions/upload-artifact@v4
-        if: github.ref == 'refs/heads/main' && vars.AZURE_CLIENT_ID != ''
-        with:
-          name: azure-upload
-          path: RimshiSkeletons-${{ steps.version.outputs.version }}.zip
-          if-no-files-found: error
-          retention-days: 1
 
       - name: Tag and release (main only)
         if: github.ref == 'refs/heads/main'
@@ -137,53 +172,6 @@ jobs:
           git tag "$TAG" "$GITHUB_SHA"
           git push origin "$TAG"
           gh release create "$TAG" "RimshiSkeletons-${TAG#v}.zip" --title "Rimshi Skeletons $TAG" --notes "Build ${{ github.run_number }} of $GITHUB_SHA."
-
-  azure-upload:
-    name: Upload to Azure
-    # Skipped until the repository variables are set, so main stays green before Azure is wired up.
-    if: github.ref == 'refs/heads/main' && vars.AZURE_CLIENT_ID != ''
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: azure-upload
-
-      # Prints only the subject claim of the token Azure will check (never the token), so a credential mismatch is
-      # easy to compare against azure-infra's federated credential.
-      - name: Show the OIDC subject
-        shell: bash
-        run: |
-          set -euo pipefail
-          token=$(curl -sSf -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
-            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=api://AzureADTokenExchange" | jq -r .value)
-          echo "$token" | python3 -c 'import sys, json, base64; p = sys.stdin.read().split(".")[1]; print("OIDC subject:", json.loads(base64.urlsafe_b64decode(p + "=" * (-len(p) % 4)))["sub"])'
-
-      - uses: azure/login@v2
-        with:
-          client-id: ${{ vars.AZURE_CLIENT_ID }}
-          tenant-id: ${{ vars.AZURE_TENANT_ID }}
-          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
-
-      - name: Upload the build to Azure Blob Storage
-        shell: bash
-        env:
-          STORAGE_ACCOUNT: ${{ vars.AZURE_STORAGE_ACCOUNT }}
-          DEBUG_CONTAINER: ${{ vars.AZURE_DEBUG_CONTAINER }}
-          ZIP: RimshiSkeletons-${{ needs.build.outputs.version }}.zip
-        run: |
-          set -euo pipefail
-          blob="${GITHUB_RUN_ID}/${GITHUB_RUN_ATTEMPT}/${ZIP}"
-          az storage blob upload --auth-mode login --only-show-errors \
-            --account-name "$STORAGE_ACCOUNT" \
-            --container-name "$DEBUG_CONTAINER" \
-            --name "$blob" \
-            --file "$ZIP" \
-            --content-type application/zip
-          echo "Uploaded $ZIP to $STORAGE_ACCOUNT/$DEBUG_CONTAINER/$blob"
 
   docs:
     name: Fold docs
