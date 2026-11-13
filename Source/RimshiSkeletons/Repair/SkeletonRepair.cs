@@ -319,4 +319,37 @@ namespace RimshiSkeletons
             }
         }
     }
+
+    /// <summary>
+    /// A skeleton never heals on its own (InjuryHealingFactor 0), but vanilla's health tick (Pawn_HealthTracker, every
+    /// 600 ticks) still runs its natural and tended healing steps whenever HediffSet says an injury is healing, heals it
+    /// by 0, and then, because nothing on a skeleton is tendable and it has no reason to rest, posts "X is fully healed"
+    /// every 10 seconds for as long as the skeleton stays damaged. For a skeleton no injury counts as healing, so both
+    /// steps and the message are skipped. The repair job and bed heal injuries directly and are unaffected. Patched on
+    /// HediffSet rather than the tiny CanHealNaturally/CanHealFromTending extension methods, which the JIT may inline.
+    /// </summary>
+    [HarmonyPatch(typeof(HediffSet), nameof(HediffSet.HasNaturallyHealingInjury))]
+    public static class Patch_SkeletonNoNaturalHealing
+    {
+        public static void Postfix(HediffSet __instance, ref bool __result)
+        {
+            if (__result && SkeletonUtility.HasFrame(__instance.pawn))
+            {
+                __result = false;
+            }
+        }
+    }
+
+    /// <summary>See Patch_SkeletonNoNaturalHealing: tended skeleton injuries do not heal over time either.</summary>
+    [HarmonyPatch(typeof(HediffSet), nameof(HediffSet.HasTendedAndHealingInjury))]
+    public static class Patch_SkeletonNoTendedHealing
+    {
+        public static void Postfix(HediffSet __instance, ref bool __result)
+        {
+            if (__result && SkeletonUtility.HasFrame(__instance.pawn))
+            {
+                __result = false;
+            }
+        }
+    }
 }

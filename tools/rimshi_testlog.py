@@ -16,6 +16,10 @@ import argparse, json, os, re, sys
 
 LINE = re.compile(r"\[Rimshi\]\[T\] (?P<area>[^|]+?) \| (?P<key>[^|]+?) \| ?(?P<detail>.*)$")
 BUILD = re.compile(r"build (\d+)")
+# RimWorld 1.7 (Waylith) logs put a stack trace under every entry, INFO included, and frames can name a parameter
+# such as diffException, so only an exception message or an entry above INFO counts as an error.
+FRAME = re.compile(r"^\s+at ")
+WAYLITH_QUIET = re.compile(r"^\d{4}-\d\d-\d\d [\d:.]+ +(INFO|DEBUG|TRACE) ")
 
 # (area, key, label). Keep in the same order as docs/project/test-checklist.md.
 CHECKLIST = [
@@ -32,6 +36,8 @@ CHECKLIST = [
     ("gene", "frame", "Skeleton frame gives a male, thin or hulk body and a skeleton head"),
     ("cores", "screen", "A skeleton's genetics screen opened, reading cores and chips"),
     ("gene", "no relations", "Skeletons generated without family"),
+    ("age", "ancient", "New skeleton made ancient (biological 120 or more, chronological 400 to 1200)"),
+    ("age", "no old age", "Skeleton skipped the human old age conditions (frail, bad back, cataract, dementia)"),
     ("gene", "gender restored", "Removing the null chromosome gives a gender back"),
     ("gene", "relations cleared", "Relations a new genderless pawn got another way were removed (names them)"),
     ("gene", "core restored", "A skeleton got back core genes its xenotype lists but it had lost (names them)"),
@@ -59,6 +65,7 @@ CHECKLIST = [
     ("maintenance", "need label", "Need bar and tooltips relabel needs (this line only appears when a patch target is missing)"),
     ("maintenance", "food policies", "Components allowed in the save's food policies and Skeletons policy added (once per save)"),
     ("maintenance", "packed", "Skeleton picking up a component to carry"),
+    ("maintenance", "wear", "Skeleton a full day out of maintenance wore a random part that is not the brain or the waist"),
     ("softcycle", "start", "Skeleton went to soft cycle in a repair bed (gives the cycle's power draw)"),
     ("softcycle", "cycling", "Skeleton soft cycling in a powered repair bed (48 hours, power draw, integrity)"),
     ("softcycle", "held", "Soft cycle held outside a repair bed (carried, in a rib cage, older save)"),
@@ -70,6 +77,17 @@ CHECKLIST = [
     ("softcycle", "cancelled standing", "Soft reset cancelled: woken, downed or a mental break (integrity 0%)"),
     ("softcycle", "order refused", "A skeleton in a standing soft cycle refused a player order (names the job)"),
     ("softcycle", "draft refused", "A skeleton in a standing soft cycle was not drafted"),
+    ("softcycle", "mending", "Soft cycle mending its injuries toward getting up, legs first (gives the amount needed and time left)"),
+    ("softcycle", "mended", "Soft cycle finished and mended just enough to get up"),
+    ("softcycle", "mend skipped", "Soft cycle mends nothing: no legs left, or could not get up even fully mended"),
+    ("softcycle", "rose", "Skeleton that began a soft reset downed got up and carries on with it standing"),
+    ("softcycle", "wait ignored", "A soft cycling skeleton kept cycling while worked on (repaired, tended) instead of stopping to wait"),
+    ("softcycle", "gravship launched", "A skeleton left on a launching grav ship in the middle of a soft cycle (bed, standing or lying)"),
+    ("softcycle", "gravship held", "A launching grav ship carried off a skeleton mid standing soft reset; the reset was held instead of cancelled"),
+    ("softcycle", "gravship landed", "A skeleton came down on a landing grav ship still in its soft cycle (gives the bed or cell)"),
+    ("softcycle", "gravship resumed", "A skeleton held aboard a grav ship took its standing (or rib cage, or lying) soft reset back after landing"),
+    ("softcycle", "gravship power wait", "A repair bed had no power yet just after a grav ship landing; its soft cycle was held, not cancelled"),
+    ("softcycle", "auto lying", "A downed skeleton with no CPU integrity left began a soft reset where it lies"),
     ("softcycle", "migrated", "Skeletons with deathrest exhaustion from an older save got CPU overload instead"),
     ("facility", "engaged", "A soft cycle facility joined a soft cycle in a linked repair bed (a tuning fork burnt an advanced component, gives the cycle length factor)"),
     ("facility", "released", "A soft cycle facility let go of a skeleton when its soft cycle ended (finished or cut short)"),
@@ -94,9 +112,13 @@ CHECKLIST = [
     ("horde", "array used", "Colonist broadcast the recall codes; array burned out"),
     ("horde", "arrived", "Skeleton horde dropped in (counts, kinds, weapons, shield belts, failsafe cores)"),
     ("horde", "cancelled", "Horde called to a map that is gone was dropped"),
-    ("horde", "berserk", "Horde skeleton went berserk"),
+    ("horde", "legion added", "Recalled legion faction created for a save from before it existed"),
+    ("horde", "migrated", "Factionless horde skeletons from an older save joined the recalled legion"),
     ("horde", "failsafe", "Failsafe core set the death on downed chance"),
     ("horde", "failsafe died", "A failsafe skeleton died anyway (says how; not a failure)"),
+    ("horde", "infighting", "Half the colonists downed: the horde turned on itself (counts)"),
+    ("horde", "frenzy", "Frenzied horde skeleton went berserk (FAILED if the game refused)"),
+    ("horde", "infight", "Frenzied horde skeleton attacked another legion skeleton (shooting, moving to shoot or charging)"),
     ("reprogram", "captured", "Captured horde skeleton set to interrogate and reprogram"),
     ("reprogram", "session", "Warden reprogramming session lowered the corruption"),
     ("reprogram", "joined", "Reprogrammed skeleton joined the colony"),
@@ -115,6 +137,7 @@ CHECKLIST = [
     ("parts", "damage reduced", "A KLR or industrial part took reduced damage (first hit each session)"),
     ("parts", "disarm", "A steady arm knocked a weapon out of an enemy's hands in melee"),
     ("parts", "ai core repaired", "A second AI core repaired a damaged one (names what it removed)"),
+    ("parts", "self installed", "A skeleton fitted a limb to itself from the item, no surgery (names the limb, the part and whether the side was picked)"),
     ("anatomy", "organs fitted", "A skeleton got its machine organs (generation, gene added or older save; names the organs)"),
     ("anatomy", "save migrated", "Skeletons in an older save were given machine organs on load"),
     ("powerdown", "powered down", "A temporarily power down operation finished on a skeleton (says if it is in maintenance mode)"),
@@ -126,16 +149,24 @@ CHECKLIST = [
     ("blood", "bite refused", "A sanguophage bit a skeleton and got no hemogen (bloodfeed ability or another mod)"),
     ("wounds", "mech wound drawn", "A wounded skeleton on the map showed grey and black wound marks instead of red ones"),
     ("drugs", "refused", "A skeleton was refused a drug (ingest menu, drug policy, recreation, AI job, binge or generation; one line per route)"),
+    ("addiction", "refused", "An addiction or chemical dependency was refused on a skeleton (one line per hediff)"),
+    ("addiction", "cleared", "A skeleton lost an addiction it already had (older save or gene added)"),
+    ("addiction", "save migrated", "Loading a save removed addictions from skeletons (only appears when there were some)"),
     ("drugs", "ingest blocked", "No drug reached a skeleton past the checks (this line only appears when one did; the drug did nothing)"),
     ("remains", "scrapped", "A skeleton corpse was scrapped for steel, plasteel, uranium and at most one component (names the yield)"),
     ("remains", "butchery refused", "A butchery bill skipped a skeleton corpse (butcher spot, butcher table or another mod's)"),
     ("remains", "eating refused", "A pawn or animal that went to eat a skeleton corpse (a predator after a hunt) stopped instead"),
     ("remains", "ingest blocked", "No skeleton corpse was eaten past the checks (this line only appears when one got that far; nothing was eaten)"),
+    ("remains", "rot cleared", "A skeleton corpse that had rotted or desiccated before rot was disabled became fresh again (on load or spawn)"),
+    ("remains", "scrap skipped", "A scrap skeleton remains bill found nothing while a skeleton corpse lay on the map; names why (forbidden, filter, radius, reserved, unreachable)"),
     ("selftest", "summary", "Self-tests: all passed (summary line)"),
     ("selftest", "generate", "Self-test: skeleton and baseliner generate"),
     ("selftest", "no exceptions", "Self-test: no exceptions while testing"),
     ("selftest", "xenotype", "Self-test: skeleton has the Skeleton xenotype"),
     ("selftest", "genderless", "Self-test: skeleton is genderless"),
+    ("selftest", "ancient age", "Self-test: skeleton is biologically 120 or more and chronologically 400 to 1200"),
+    ("selftest", "human age unchanged", "Self-test: baseliner age left alone"),
+    ("selftest", "no old age", "Self-test: skeleton gets no human old age conditions"),
     ("selftest", "asexual", "Self-test: skeleton is Asexual"),
     ("selftest", "body type", "Self-test: skeleton body is male, thin or hulk"),
     ("selftest", "head", "Self-test: skeleton has a skeleton head"),
@@ -169,6 +200,9 @@ CHECKLIST = [
     ("selftest", "cycle needs held", "Self-test: needs other than CPU integrity are frozen during a soft cycle"),
     ("selftest", "no exhaustion thought", "Self-test: a skeleton at 0% CPU integrity gets no vanilla deathrest exhaustion thought"),
     ("selftest", "cpu gizmo", "Self-test: skeleton shows the CPU integrity gizmo and one soft cycle button instead of vanilla's deathrest gizmo"),
+    ("selftest", "cycle undisturbed", "Self-test: waits forced by other pawns' work are ignored during a soft cycle (StartJob patched)"),
+    ("selftest", "cycle gravship", "Self-test: soft cycles survive grav ship launch and landing (patches, landing power grace, reset held aboard)"),
+    ("selftest", "auto lying gate", "Self-test: a skeleton on its feet does not begin an automatic lying soft reset"),
     ("selftest", "wake only", "Self-test: orders, drafting and the draft button are guarded during a standing soft cycle"),
     ("selftest", "cpu tip", "Self-test: the CPU integrity tooltip is skeleton lore with no vanilla deathrest text"),
     ("selftest", "rib cage draw", "Self-test: the rib cage texture is drawn unrotated and without the medical sheet tint"),
@@ -198,6 +232,7 @@ CHECKLIST = [
     ("selftest", "repair work", "Self-test: skeleton repair is a Smith job using Crafting"),
     ("selftest", "needs repair", "Self-test: a cut skeleton needs repair, a cut human does not"),
     ("selftest", "no tending", "Self-test: nothing on a skeleton is tendable with medicine; a human cut still is"),
+    ("selftest", "no self healing", "Self-test: a cut skeleton does not count as healing on its own (no fully healed message spam); a cut human does"),
     ("selftest", "bed users", "Self-test: only skeletons can use a repair bed; skeletons can still use hospital beds"),
     ("selftest", "gene removal", "Self-test: removing the null chromosome restores a gender"),
     ("selftest", "gene set flag", "Self-test: no skeleton gene can roll in gene sets"),
@@ -218,10 +253,14 @@ CHECKLIST = [
     ("selftest", "cannot reproduce", "Self-test: skeleton cannot have children or be implanted"),
     ("selftest", "pregnancy refused", "Self-test: pregnancy cannot be added to a skeleton"),
     ("selftest", "recall array", "Self-test: recall array and its research loaded (2000, after basic mechtech, no mechanitor needed)"),
-    ("selftest", "horde factionless", "Self-test: horde skeletons have no faction"),
+    ("selftest", "horde faction", "Self-test: horde skeletons are in the hidden recalled legion, hostile to the player"),
+    ("selftest", "horde recruitable", "Self-test: horde skeletons without a corrupted protocol can be recruited the normal way"),
     ("selftest", "horde protocol", "Self-test: horde skeletons have the corrupted protocol and cannot be recruited"),
     ("selftest", "horde gear", "Self-test: horde gunners carry spacer guns, bladeguards melee weapons and shield belts"),
     ("selftest", "horde peace", "Self-test: horde skeletons are not hostile to each other"),
+    ("selftest", "horde size", "Self-test: hordes are a fifth smaller (points x0.8, 5 to 32 skeletons)"),
+    ("selftest", "colony losing", "Self-test: the losing rule (at least half the free colonists downed, at least one)"),
+    ("selftest", "horde frenzy", "Self-test: recall frenzy hediff applies and the berserk job patch is on"),
     ("selftest", "failsafe", "Self-test: failsafe core sets the death on downed chance"),
     ("selftest", "reprogram session", "Self-test: a reprogramming session lowers the corruption"),
     ("selftest", "no spawn bionics", "Self-test: a bionics-rolling kind gives the skeleton none and the baseliner some"),
@@ -230,6 +269,7 @@ CHECKLIST = [
     ("selftest", "self implants", "Self-test: mechlink allowed and psylink neuroformer refused for skeletons"),
     ("selftest", "no psylink", "Self-test: giving a skeleton a psylink adds none and no psycast, a baseliner gets one (Royalty only)"),
     ("selftest", "prosthetics patched", "Self-test: the prosthetics lock patches are applied"),
+    ("selftest", "bench work givers", "Self-test: every Rimshi bench with bills (skeleton workbench, cable fissure) has a work giver that takes its bills"),
     ("selftest", "part bills", "Self-test: every skeleton part install is offered on a skeleton and not on a baseliner"),
     ("selftest", "organs fitted", "Self-test: a new skeleton has a machine part on all 8 organ types"),
     ("selftest", "organ labels", "Self-test: a skeleton's organs are named after their machine parts (left lung reads left cooling fan), a baseliner's are not"),
@@ -238,6 +278,8 @@ CHECKLIST = [
     ("selftest", "organ replace", "Self-test: a cooling fan install is offered only once the lung is gone, and puts the cooling fan back"),
     ("selftest", "organ harvest", "Self-test: a fitted lung can be removed (as its cooling fan), a bare one cannot, and a restored one gets its cooling fan"),
     ("selftest", "part install", "Self-test: a KLR arm installs on a skeleton's shoulder"),
+    ("selftest", "limb self install comps", "Self-test: all 10 skeleton limbs install themselves from the item, organs and the AI core do not"),
+    ("selftest", "limb self install", "Self-test: a skeleton leg is refused for a baseliner, goes on the skeleton's missing leg first, and takes"),
     ("selftest", "part armour", "Self-test: a KLR arm takes 20% off the damage that reaches it"),
     ("selftest", "ai core repair", "Self-test: an AI core installs, and a second one repairs a damaged core"),
     ("selftest", "no bleeding", "Self-test: skeleton cannot bleed, baseliner can"),
@@ -250,6 +292,10 @@ CHECKLIST = [
     ("selftest", "no administer bills", "Self-test: no administer drug bill is offered on a skeleton, some are on a baseliner"),
     ("selftest", "no drug binge", "Self-test: no drug binge mental state can start on a skeleton"),
     ("selftest", "drugs patched", "Self-test: the drug lock patches are applied"),
+    ("selftest", "addiction refused", "Self-test: an addiction cannot be added to a skeleton, it can to a baseliner"),
+    ("selftest", "dependency refused", "Self-test: a chemical dependency gene on a skeleton adds no dependency hediff"),
+    ("selftest", "addiction cleared", "Self-test: an addiction already on a skeleton is removed"),
+    ("selftest", "addiction patched", "Self-test: the addiction lock patches are applied"),
     ("selftest", "convert parts", "Self-test: every old skeleton body part maps to its own human part (old mod loaded)"),
     ("selftest", "convert race", "Self-test: converted old skeleton is race Human with the human body"),
     ("selftest", "convert xenotype", "Self-test: converted old skeleton has the Skeleton xenotype and no gender"),
@@ -257,13 +303,21 @@ CHECKLIST = [
     ("selftest", "convert kind", "Self-test: converted old skeleton has our pawn kind"),
     ("selftest", "convert health", "Self-test: converted old skeleton has no old hediff and only human body parts"),
     ("selftest", "convert again", "Self-test: a converted skeleton is not converted again"),
+    ("selftest", "convert age", "Self-test: a converted skeleton is biologically 120 or more"),
     ("selftest", "corpse inedible", "Self-test: a skeleton corpse cannot be eaten, a baseliner corpse can"),
     ("selftest", "no butchering", "Self-test: a butchery bill refuses a skeleton corpse and takes a baseliner corpse"),
     ("selftest", "scrap recipe", "Self-test: the scrap skeleton remains bill takes only skeleton corpses, at the crafting spot and machining bench"),
+    ("selftest", "corpse no rot", "Self-test: a skeleton corpse's rot is inactive and stays fresh when told to desiccate; a baseliner corpse still rots"),
     ("selftest", "scrap yield", "Self-test: a skeleton corpse yields 1-5 each of steel, plasteel and uranium and at most one component"),
     ("selftest", "remains patched", "Self-test: the remains patches are applied"),
     ("selftest", "gene restore", "Self-test: a skeleton that lost mechanical nature gets it back from its xenotype"),
     ("selftest", "power down", "Self-test: temporarily power down is offered on skeletons only, Anesthetize on baseliners only, and anesthetic becomes maintenance mode"),
+    ("selftest", "wear patch", "Self-test: the maintenance wear patch is applied"),
+    ("selftest", "wear clock", "Self-test: the wear clock holds while frozen, resets once maintained, and waits a full day"),
+    ("selftest", "maintenance wear", "Self-test: a full day out of maintenance wears one random part that is not the brain or the waist"),
+    ("selftest", "soft cycle mending", "Self-test: soft cycle mending is paced over the time left and leaves the skeleton able to get up"),
+    ("selftest", "mending legs first", "Self-test: soft cycle mending starts with the legs and leaves the torso when the legs are enough"),
+    ("selftest", "mending no legs", "Self-test: soft cycle mending does nothing for a skeleton with no legs"),
 ]
 
 
@@ -291,7 +345,8 @@ def read(logs):
                     b = BUILD.search(detail)
                     build = int(b.group(1)) if b else build
                 lines.append((area, key, detail, build, os.path.basename(path)))
-            elif ("Exception" in raw or "Error" in raw) and any("RimshiSkeletons" in t or "Rimshi_" in t for t in text[i:i + 12]):
+            elif (("Exception" in raw or "Error" in raw) and not FRAME.match(raw) and not WAYLITH_QUIET.match(raw)
+                  and any("RimshiSkeletons" in t or "Rimshi_" in t for t in text[i:i + 12])):
                 trace = " / ".join(t.strip() for t in text[i:i + 6] if "Rimshi" in t or t is raw)
                 errors.append((os.path.basename(path), i + 1, trace[:300]))
     return lines, errors

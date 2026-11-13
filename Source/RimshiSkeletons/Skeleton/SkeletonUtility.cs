@@ -17,6 +17,7 @@ namespace RimshiSkeletons
 
         public static FactionDef Rimshi_SkeletalImperium;
         public static FactionDef Rimshi_PlayerSkeletons;
+        public static FactionDef Rimshi_RecallLegion;
 
         public static ThingDef Rimshi_RepairKit;
         public static ThingDef Rimshi_SkeletonRepairBed;
@@ -27,6 +28,7 @@ namespace RimshiSkeletons
         public static ResearchProjectDef Rimshi_SkeletonRecall;
         public static HediffDef Rimshi_CorruptedProtocol;
         public static HediffDef Rimshi_FailsafeCore;
+        public static HediffDef Rimshi_HordeFrenzy;
         public static PrisonerInteractionModeDef Rimshi_Reprogram;
         public static JobDef Rimshi_ReprogramSkeleton;
         public static ThingDef Rimshi_Filth_AncientOil;
@@ -48,6 +50,8 @@ namespace RimshiSkeletons
         public static ThoughtDef Rimshi_SoftCycleHoned;
         public static ThoughtDef Rimshi_SoftResetForeign;
         public static RecipeDef Rimshi_ScrapSkeletonRemains;
+        public static DamageDef Rimshi_MaintenanceWear;
+        public static HediffDef Rimshi_WornPart;
 
         static RimshiDefOf()
         {

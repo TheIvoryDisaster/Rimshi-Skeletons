@@ -17,6 +17,8 @@
       <drawSize>(2.4,2.4)</drawSize>
     </graphicData>
     <castEdgeShadows>True</castEdgeShadows>
+    <!-- Every skeleton building sits in the Biotech architect tab (BedWithQualityBase would put it in Furniture). -->
+    <designationCategory>Biotech</designationCategory>
     <tickerType>Rare</tickerType>
     <statBases>
       <MaxHitPoints>200</MaxHitPoints>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!-- Wear from going without maintenance (SkeletonWear.cs). Dealt with armour ignored, no propagation and no filth, to
+       one part chosen in code. Not violence: no interrupted jobs, no fleeing animals, no impact. -->
+  <DamageDef>
+    <defName>Rimshi_MaintenanceWear</defName>
+    <label>wear</label>
+    <workerClass>DamageWorker_AddInjury</workerClass>
+    <externalViolence>false</externalViolence>
+    <hasForcefulImpact>false</hasForcefulImpact>
+    <makesBlood>false</makesBlood>
+    <canInterruptJobs>false</canInterruptJobs>
+    <makesAnimalsFlee>false</makesAnimalsFlee>
+    <harmsHealth>true</harmsHealth>
+    <defaultDamage>2</defaultDamage>
+    <deathMessage>{0} has fallen apart.</deathMessage>
+    <hediff>Rimshi_WornPart</hediff>
+  </DamageDef>
+
+</Defs>

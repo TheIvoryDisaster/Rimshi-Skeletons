@@ -61,6 +61,15 @@ namespace RimshiSkeletons
     /// </summary>
     public class Gene_FuelReactor : Gene
     {
+        /// <summary>Ticks spent out of maintenance (starving, need not frozen) since the last wear hit; see SkeletonWear.</summary>
+        public int wearTicks;
+
+        public override void ExposeData()
+        {
+            base.ExposeData();
+            Scribe_Values.Look(ref wearTicks, "rimshiWearTicks", 0);
+        }
+
         public override void Notify_IngestedThing(Thing thing, int numTaken)
         {
             base.Notify_IngestedThing(thing, numTaken);

@@ -186,7 +186,7 @@ class DefTests(unittest.TestCase):
         things = {el.findtext("defName"): el for _, el in concrete("ThingDef")}
         hediffs = def_names("HediffDef")
         installs = {el.findtext("addsHediff") for _, el in concrete("RecipeDef") if el.findtext("addsHediff")}
-        parts = [n for n, el in things.items() if el.get("ParentName") == "Rimshi_SkeletonPartBase"]
+        parts = [n for n, el in things.items() if el.get("ParentName") in ("Rimshi_SkeletonPartBase", "Rimshi_SkeletonLimbBase")]
         self.assertEqual(len(parts), 19)
         for name in parts:
             with self.subTest(part=name):
@@ -195,6 +195,44 @@ class DefTests(unittest.TestCase):
                 self.assertEqual(things[name].findtext("recipeMaker/researchPrerequisite") is not None, True)
         self.assertIn("Rimshi_SkeletonRepairBeds", [li.text for li in things["Rimshi_SkeletonRepairBed"].find("researchPrerequisites")])
 
+
+    def test_benches_have_bill_work_givers(self):
+        """Every bench of ours that takes bills is named by a work giver's fixedBillGiverDefs, or pawns never work at it."""
+        givers = {li.text for _, g in concrete("WorkGiverDef") for li in (g.find("fixedBillGiverDefs") or [])}
+        benches = [el.findtext("defName") for _, el in concrete("ThingDef")
+                   if el.findtext("thingClass") == "Building_WorkTable" or "ITab_Bills" in [li.text for li in (el.find("inspectorTabs") or [])]]
+        self.assertIn("Rimshi_SkeletonWorkbench", benches)
+        for name in benches:
+            with self.subTest(bench=name):
+                self.assertIn(name, givers, "add a WorkGiverDef (WorkGiver_DoBill) with this bench in fixedBillGiverDefs")
+
+    def test_buildings_in_biotech_tab(self):
+        """Every skeleton building we add is built from the Biotech architect tab, so the Furniture and Production
+        tabs stay uncluttered (Matthew, 2026-11-02). Each def names it itself, since vanilla building bases set others."""
+        bases = {"BuildingBase", "BenchBase", "BedWithQualityBase", "FurnitureBase", "FurnitureWithQualityBase", "ArtableFurnitureBase"}
+        for _, el in concrete("ThingDef"):
+            if el.get("ParentName") in bases or el.find("designationCategory") is not None:
+                self.assertEqual(el.findtext("designationCategory"), "Biotech", el.findtext("defName"))
+
+    def test_skeleton_limbs_self_install(self):
+        """Arms and legs install themselves (use comps on Rimshi_SkeletonLimbBase); organs and the AI core keep surgery only."""
+        named = {el.get("Name"): el for _, el in defs() if el.tag == "ThingDef" and el.get("Name")}
+        base = named["Rimshi_SkeletonLimbBase"]
+        comps = [li.get("Class") for li in base.find("comps")]
+        for cls in ("CompProperties_Usable", "RimshiSkeletons.CompProperties_UseEffectInstallSkeletonLimb", "CompProperties_UseEffectDestroySelf"):
+            self.assertIn(cls, comps)
+        self.assertEqual(base.findtext("comps/li/useJob"), "UseItem")
+        things = {el.findtext("defName"): el for _, el in concrete("ThingDef")}
+        limbs = sorted(n for n, el in things.items() if el.get("ParentName") == "Rimshi_SkeletonLimbBase")
+        self.assertEqual(len(limbs), 10)
+        for name in limbs:
+            with self.subTest(limb=name):
+                self.assertRegex(name, r"(Arm|Leg)$")
+        for name, el in things.items():
+            if el.get("ParentName") == "Rimshi_SkeletonPartBase":
+                with self.subTest(part=name):
+                    self.assertNotRegex(name, r"(Arm|Leg)$", "limbs belong on Rimshi_SkeletonLimbBase")
+                    self.assertIsNone(el.find("comps"), "organs and the AI core install by surgery only")
 
     def test_skeleton_item_categories(self):
         """Skeleton parts are stored under Skeleton Parts (inside prosthetics) and crafting components under Skeleton

@@ -54,6 +54,7 @@ namespace RimshiSkeletons
                 pawns.Add(skeleton);
                 pawns.Add(human);
                 SkeletonChecks(skeleton, human);
+                AgeChecks(skeleton, human);
                 HumanChecks(human);
                 RepairChecks(skeleton, human);
                 GeneProofChecks(skeleton, human);
@@ -62,6 +63,7 @@ namespace RimshiSkeletons
                 PartsChecks(skeleton, human);
                 BloodChecks(skeleton, human);
                 DrugChecks(skeleton, human);
+                AddictionChecks(skeleton, human);
                 CoreTermsChecks(skeleton, human);
                 ModuleChecks(skeleton, human);
                 FactionChecks(pawns);
@@ -74,6 +76,8 @@ namespace RimshiSkeletons
                 RemainsChecks(skeleton, human);
                 GeneRestoreCheck(skeleton);
                 PowerDownChecks(skeleton, human);
+                WearChecks(skeleton);
+                MendingChecks(pawns);
                 // Last: it takes the null chromosome off the skeleton, and every check above needs it.
                 GeneRemovalCheck(skeleton);
             }
@@ -176,6 +180,30 @@ namespace RimshiSkeletons
         /// cancelling, the overload stages and the rib cage. Changes the skeleton's memories, skills and hediffs, so it runs
         /// after the other skeleton checks.
         /// </summary>
+        /// <summary>Soft cycles ride through grav ship launches and landings (Repair/SoftCycleGravship.cs).</summary>
+        private static void GravshipChecks(Pawn s)
+        {
+            MethodBase launch = AccessTools.Method(typeof(GravshipUtility), nameof(GravshipUtility.GenerateGravship));
+            MethodBase landing = AccessTools.Method(typeof(GravshipPlacementUtility), nameof(GravshipPlacementUtility.PlaceGravshipInMap));
+            bool patched = new[] { launch, landing }.All(m => m != null && (Harmony.GetPatchInfo(m)?.Owners.Contains(RimshiMod.HarmonyId) ?? false));
+            bool grace = SoftCycleGravship.WithinGrace(1000, 1000 + SoftCycleGravship.LandingGraceTicks) && !SoftCycleGravship.WithinGrace(1000, 1001 + SoftCycleGravship.LandingGraceTicks)
+                && !SoftCycleGravship.WithinGrace(1000, 999) && !SoftCycleGravship.WithinGrace(-1, 10);
+            // A skeleton on the ground is not held for a flight; one whose reset is flagged aboard stays held while unspawned.
+            Hediff_Rimshi_SoftReset reset = s.health.AddHediff(RimshiDefOf.Rimshi_SoftResetting) as Hediff_Rimshi_SoftReset;
+            bool groundCancels = reset != null && !SoftCycleGravship.HoldForFlight(s) && !reset.aboardGravship;
+            bool held = false;
+            if (reset != null)
+            {
+                reset.aboardGravship = true;
+                int before = reset.resetTicks;
+                reset.PostTickInterval(400);
+                held = reset.aboardGravship && !reset.done && reset.resetTicks == before;
+                s.health.RemoveHediff(reset);
+            }
+            Check("cycle gravship", patched && grace && groundCancels && held, "launch and landing patched " + patched + ", landing power grace " + grace
+                + ", a reset on the ground still cancels " + groundCancels + ", a reset aboard is held in flight " + held);
+        }
+
         private static void SoftCycleChecks(Pawn s, Pawn human)
         {
             ThingDef bed = RimshiDefOf.Rimshi_SkeletonRepairBed;
@@ -234,7 +262,7 @@ namespace RimshiSkeletons
             ThingDef blocks = DefDatabase<ThingDef>.GetNamedSilentFail("BlocksGranite");
             bool stoneCost = fissure.MadeFromStuff && fissure.costStuffCount == 60 && fissure.CostList.Any(c => c.thingDef == ThingDefOf.Plasteel && c.count == 100)
                 && fissure.CostList.Any(c => c.thingDef == ThingDefOf.ComponentSpacer && c.count == 2) && blocks != null && fissure.stuffCategories.Any(c => blocks.stuffProps?.categories?.Contains(c) ?? false);
-            Thing uft = tune?.unfinishedThingDef == null ? null : ThingMaker.MakeThing(tune.unfinishedThingDef);
+            Thing uft = tune?.unfinishedThingDef == null ? null : ThingMaker.MakeThing(tune.unfinishedThingDef, GenStuff.DefaultStuffFor(tune.unfinishedThingDef));
             string uftLabel = uft?.LabelNoCount;
             bool tuneOk = tune != null && ingredient(ThingDefOf.ComponentIndustrial) == 4f && ingredient(ThingDefOf.Steel) == 100f && blocks != null && ingredient(blocks) == 40f
                 && tune.workSpeedStat == StatDefOf.ResearchSpeed && Mathf.Abs(tune.workAmount * 0.00825f - 250f) < 1f && tune.recipeUsers.Contains(fissure)
@@ -297,11 +325,23 @@ namespace RimshiSkeletons
             Check("cpu gizmo", gizmos.OfType<GeneGizmo_Rimshi_CpuIntegrity>().Count() == 1 && !gizmos.Any(g => g.GetType() == typeof(GeneGizmo_DeathrestCapacity)),
                 "gizmos " + string.Join(", ", gizmos.Select(g => g.GetType().Name)));
             string tip = need?.GetTipString() ?? "";
-            Check("cpu tip", tip.Contains("CPU integrity") && tip.IndexOf("deathrest", System.StringComparison.OrdinalIgnoreCase) < 0,
-                "integrity tooltip: " + tip.Replace("\n", " / "));
+            bool tipOk = tip.Contains("CPU integrity") && tip.IndexOf("deathrest", System.StringComparison.OrdinalIgnoreCase) < 0;
+            string tipOwners = tipOk ? "" : "; patches on Need_Deathrest.GetTipString: " + PatchOwners(AccessTools.DeclaredMethod(typeof(Need_Deathrest), nameof(Need.GetTipString)))
+                + "; on Need.GetTipString: " + PatchOwners(AccessTools.Method(typeof(Need), nameof(Need.GetTipString)));
+            Check("cpu tip", tipOk, "integrity tooltip: " + tip.Replace("\n", " / ") + tipOwners);
             MethodBase[] wakeOnly = { AccessTools.Method(typeof(Pawn_JobTracker), nameof(Pawn_JobTracker.TryTakeOrderedJob)), AccessTools.PropertySetter(typeof(Pawn_DraftController), nameof(Pawn_DraftController.Drafted)), AccessTools.Method(typeof(Pawn_DraftController), "GetGizmos") };
             List<string> unguarded = wakeOnly.Where(m => m == null || !(Harmony.GetPatchInfo(m)?.Owners.Contains(RimshiMod.HarmonyId) ?? false)).Select(m => m == null ? "missing method" : m.DeclaringType.Name + "." + m.Name).ToList();
             Check("wake only", unguarded.Count == 0, unguarded.Count == 0 ? "orders, drafting and the draft button are guarded during a standing soft cycle" : "not patched: " + string.Join(", ", unguarded));
+            MethodBase startJob = AccessTools.Method(typeof(Pawn_JobTracker), nameof(Pawn_JobTracker.StartJob));
+            bool waitsPatched = startJob != null && (Harmony.GetPatchInfo(startJob)?.Owners.Contains(RimshiMod.HarmonyId) ?? false);
+            bool waitsSpotted = SoftCycleUndisturbed.IsForcedWait(JobMaker.MakeJob(JobDefOf.Wait)) && SoftCycleUndisturbed.IsForcedWait(JobMaker.MakeJob(JobDefOf.Wait_MaintainPosture))
+                && !SoftCycleUndisturbed.IsForcedWait(JobMaker.MakeJob(JobDefOf.Goto, s.Position));
+            bool idleTakesWaits = !SoftCycleUndisturbed.Ignore(s, JobMaker.MakeJob(JobDefOf.Wait));
+            Check("cycle undisturbed", waitsPatched && waitsSpotted && idleTakesWaits, "StartJob patched " + waitsPatched + ", forced waits recognised " + waitsSpotted
+                + ", a skeleton not cycling still takes waits " + idleTakesWaits);
+            GravshipChecks(s);
+            bool autoRefused = !StandingReset.TryAutoLying(s) && !StandingReset.InProgress(s);
+            Check("auto lying gate", autoRefused, "an unspawned skeleton on its feet at integrity " + need?.CurLevelPercentage.ToStringPercent() + " began no lying reset " + autoRefused);
             ThingDef ribCage = DefDatabase<ThingDef>.GetNamedSilentFail("Rimshi_RibCage");
             Check("rib cage draw", ribCage != null && !ribCage.graphicData.drawRotated && !ribCage.building.bed_UseSheetColor,
                 "rib cage drawRotated " + ribCage?.graphicData.drawRotated + ", sheet colour " + ribCage?.building.bed_UseSheetColor);
@@ -416,19 +456,41 @@ namespace RimshiSkeletons
                 array.defName + " needs " + research.defName + " (" + research.baseCost + ", after " + string.Join(", ", research.prerequisites?.ConvertAll(r => r.defName) ?? new List<string>())
                 + ", needs mechanitor " + research.requiresMechanitor + ")");
 
+            Faction legion = SkeletonHorde.LegionFaction();
             var horde = new List<Pawn>();
             foreach (PawnKindDef kind in SkeletonHorde.AllKinds)
             {
-                horde.Add(SkeletonHorde.GeneratePawn(kind));
+                horde.Add(SkeletonHorde.GeneratePawn(kind, legion, corrupted: true));
             }
+            Pawn loose = SkeletonHorde.GeneratePawn(SkeletonHorde.AllKinds.First(), legion, corrupted: false);
             pawns.AddRange(horde);
-            Check("horde factionless", horde.TrueForAll(p => p.Faction == null && p.genes.Xenotype == RimshiDefOf.Rimshi_Skeleton),
-                string.Join(", ", horde.ConvertAll(p => p.kindDef.defName + " faction " + (p.Faction?.Name ?? "none") + " " + p.genes.XenotypeLabel)));
+            pawns.Add(loose);
+            Check("horde faction", horde.TrueForAll(p => p.Faction == legion && p.genes.Xenotype == RimshiDefOf.Rimshi_Skeleton) && legion.Hidden && legion.HostileTo(Faction.OfPlayer),
+                legion.Name + " hidden " + legion.Hidden + " hostile to player " + legion.HostileTo(Faction.OfPlayer) + "; "
+                + string.Join(", ", horde.ConvertAll(p => p.kindDef.defName + " faction " + (p.Faction?.Name ?? "none") + " " + p.genes.XenotypeLabel)));
             Check("horde protocol", horde.TrueForAll(p => ReprogramUtility.IsCorrupted(p) && !p.guest.Recruitable),
                 string.Join(", ", horde.ConvertAll(p => p.LabelShort + " corrupted " + ReprogramUtility.IsCorrupted(p) + " recruitable " + p.guest.Recruitable)));
+            Check("horde recruitable", !ReprogramUtility.IsCorrupted(loose) && loose.guest.Recruitable && SkeletonHorde.RecruitableChance >= 1f / 3f,
+                loose.LabelShort + " corrupted " + ReprogramUtility.IsCorrupted(loose) + " recruitable " + loose.guest.Recruitable + ", chance " + SkeletonHorde.RecruitableChance.ToStringPercent());
             Check("horde gear", horde.TrueForAll(HordeGearOk), string.Join(", ", horde.ConvertAll(p => p.kindDef.defName + ": " + (p.equipment?.Primary?.def.defName ?? "no weapon")
                 + (SkeletonHorde.HasShieldBelt(p) ? " + shield belt" : ""))));
             Check("horde peace", !horde[0].HostileTo(horde[1]) && !horde[1].HostileTo(horde[2]), "horde skeletons not hostile to each other");
+
+            Map map = Find.CurrentMap ?? Find.AnyPlayerHomeMap;
+            float threat = map != null ? Mathf.Max(SkeletonHorde.MinPoints, StorytellerUtility.DefaultThreatPointsNow(map)) : 0f;
+            float points = map != null ? SkeletonHorde.PointsFor(map, 0) : 0f;
+            Check("horde size", (map == null || Mathf.Approximately(points, threat * SkeletonHorde.SizeFactor)) && SkeletonHorde.SizeFactor == 0.8f
+                && SkeletonHorde.MinPawns == 5 && SkeletonHorde.MaxPawns == 32,
+                "first horde " + points.ToString("0") + " points from " + threat.ToString("0") + " threat (x" + SkeletonHorde.SizeFactor + "), " + SkeletonHorde.MinPawns + " to " + SkeletonHorde.MaxPawns + " skeletons");
+            Check("colony losing", HordeInfighting.ColonyLosing(1, 2) && HordeInfighting.ColonyLosing(1, 1) && HordeInfighting.ColonyLosing(3, 5)
+                && !HordeInfighting.ColonyLosing(1, 3) && !HordeInfighting.ColonyLosing(0, 0) && !HordeInfighting.ColonyLosing(0, 4),
+                "losing at 1 of 2, 1 of 1, 3 of 5; not at 1 of 3, 0 of 0, 0 of 4");
+            Pawn frenzied = horde[2];
+            frenzied.health.AddHediff(RimshiDefOf.Rimshi_HordeFrenzy);
+            MethodBase berserkJob = AccessTools.Method(typeof(JobGiver_Berserk), "TryGiveJob");
+            bool patched = berserkJob != null && (Harmony.GetPatchInfo(berserkJob)?.Owners.Contains(RimshiMod.HarmonyId) ?? false);
+            Check("horde frenzy", HordeInfighting.IsFrenzied(frenzied) && !HordeInfighting.IsFrenzied(horde[0]) && patched,
+                frenzied.LabelShort + " frenzied " + HordeInfighting.IsFrenzied(frenzied) + ", " + horde[0].LabelShort + " frenzied " + HordeInfighting.IsFrenzied(horde[0]) + ", berserk job patched " + patched);
 
             Pawn failsafe = horde[0];
             failsafe.health.AddHediff(RimshiDefOf.Rimshi_FailsafeCore);
@@ -496,7 +558,42 @@ namespace RimshiSkeletons
             Check("convert health", !old.health.hediffSet.hediffs.Any(h => h.def.defName == OldSkeletonConversion.OldHediffName)
                 && old.health.hediffSet.hediffs.All(h => h.Part == null || h.Part.body == human) && lost.Count == 0,
                 old.health.hediffSet.hediffs.Count + " health conditions, lost " + lost.Count);
+            Check("convert age", old.ageTracker.AgeBiologicalYears >= SkeletonAge.MinBiologicalYears,
+                "biological " + old.ageTracker.AgeBiologicalYears + ", chronological " + old.ageTracker.AgeChronologicalYears);
             Check("convert again", !OldSkeletonConversion.IsOldSkeleton(old, oldRace), "converted pawn no longer matches");
+        }
+
+        private static void AgeChecks(Pawn s, Pawn h)
+        {
+            Pawn_AgeTracker age = s.ageTracker;
+            Check("ancient age", age.AgeBiologicalYearsFloat >= SkeletonAge.MinBiologicalYears
+                && age.AgeChronologicalYearsFloat >= SkeletonAge.MinChronologicalYears && age.AgeChronologicalYearsFloat <= SkeletonAge.MaxChronologicalYears + 1f
+                && age.AgeChronologicalTicks >= age.AgeBiologicalTicks && age.Adult,
+                "biological " + age.AgeBiologicalYears + ", chronological " + age.AgeChronologicalYears + ", life stage " + age.CurLifeStage?.defName);
+            Check("human age unchanged", h.ageTracker.AgeBiologicalYearsFloat < SkeletonAge.MinBiologicalYears,
+                "baseliner biological " + h.ageTracker.AgeBiologicalYears + ", chronological " + h.ageTracker.AgeChronologicalYears);
+
+            // The birthday conditions humans can get (frail, bad back, cataract, dementia...), from the race's giver sets.
+            var birthdayDefs = new HashSet<HediffDef>();
+            foreach (HediffGiverSetDef set in ThingDefOf.Human.race.hediffGiverSets ?? new List<HediffGiverSetDef>())
+            {
+                foreach (HediffGiver giver in set.hediffGivers)
+                {
+                    if (giver is HediffGiver_Birthday && giver.hediff != null)
+                    {
+                        birthdayDefs.Add(giver.hediff);
+                    }
+                }
+            }
+            var rolled = new List<string>();
+            for (int year = 100; year <= 1200; year += 100)
+            {
+                rolled.AddRange(AgeInjuryUtility.RandomHediffsToGainOnBirthday(s, year).Select(g => g.hediff?.defName + " at " + year));
+            }
+            var has = s.health.hediffSet.hediffs.Where(x => birthdayDefs.Contains(x.def)).Select(x => x.def.defName).ToList();
+            Check("no old age", birthdayDefs.Count > 0 && rolled.Count == 0 && has.Count == 0,
+                birthdayDefs.Count + " birthday conditions checked; rolled: " + (rolled.Count == 0 ? "none" : string.Join(", ", rolled))
+                + "; has: " + (has.Count == 0 ? "none" : string.Join(", ", has)));
         }
 
         private static void HumanChecks(Pawn h)
@@ -541,6 +638,9 @@ namespace RimshiSkeletons
                 "cut skeleton needs repair " + SkeletonRepair.NeedsRepair(s) + " (" + SkeletonRepair.KitsFor(s) + " kit), cut human " + SkeletonRepair.NeedsRepair(h));
             Check("no tending", !cut.TendableNow() && !s.health.HasHediffsNeedingTend() && humanCut.TendableNow(),
                 "skeleton cut tendable " + cut.TendableNow() + ", skeleton needs tending " + s.health.HasHediffsNeedingTend() + ", human cut tendable " + humanCut.TendableNow());
+            Check("no self healing", !s.health.hediffSet.HasNaturallyHealingInjury() && h.health.hediffSet.HasNaturallyHealingInjury(),
+                "skeleton cut heals naturally " + s.health.hediffSet.HasNaturallyHealingInjury() + ", human cut " + h.health.hediffSet.HasNaturallyHealingInjury()
+                + " (a skeleton that counts as healing gets a \"fully healed\" message every 10 s)");
             FleshTypeDef.ResolvedWound skeletonWound = s.RaceProps.FleshType.ChooseWoundOverlay(cut);
             FleshTypeDef.ResolvedWound humanWound = h.RaceProps.FleshType.ChooseWoundOverlay(humanCut);
             bool mechTextures = SkeletonWounds.MechWoundTextures.All(t => ContentFinder<Texture2D>.Get(t, false) != null);
@@ -743,11 +843,19 @@ namespace RimshiSkeletons
 
                 RecipeDef scrap = RimshiDefOf.Rimshi_ScrapSkeletonRemains;
                 Bill scrapBill = scrap.MakeNewBill();
-                bool scrapSkeleton = scrapBill.IsFixedOrAllowedIngredient(skeletonCorpse);
-                bool scrapHuman = scrapBill.IsFixedOrAllowedIngredient(humanCorpse);
+                // As the bill search does (WorkGiver_DoBill.IsUsableIngredient): the bill and an ingredient filter must both allow it.
+                bool scrapSkeleton = scrapBill.IsFixedOrAllowedIngredient(skeletonCorpse) && scrap.ingredients.Any(i => i.filter.Allows(skeletonCorpse));
+                bool scrapHuman = scrapBill.IsFixedOrAllowedIngredient(humanCorpse) && scrap.ingredients.Any(i => i.filter.Allows(humanCorpse));
                 List<string> users = scrap.AllRecipeUsers.Select(u => u.defName).ToList();
                 Check("scrap recipe", scrapSkeleton && !scrapHuman && users.Contains("CraftingSpot") && users.Contains("TableMachining"),
                     "scrap bill takes: skeleton corpse " + scrapSkeleton + ", baseliner corpse " + scrapHuman + "; benches " + string.Join(", ", users));
+
+                CompRottable skeletonRot = skeletonCorpse.GetComp<CompRottable>();
+                CompRottable humanRot = humanCorpse.GetComp<CompRottable>();
+                skeletonRot?.RotImmediately(RotStage.Dessicated);
+                Check("corpse no rot", skeletonRot != null && !skeletonRot.Active && skeletonRot.Stage == RotStage.Fresh && skeletonRot.RotProgress == 0f
+                        && humanRot != null && humanRot.Active,
+                    "rot active: skeleton corpse " + skeletonRot?.Active + " (stage " + skeletonRot?.Stage + " after a desiccate attempt), baseliner corpse " + humanRot?.Active);
 
                 List<Thing> products = skeletonCorpse.ButcherProducts(null, 1f).ToList();
                 var wanted = new[] { ThingDefOf.Steel, ThingDefOf.Plasteel, ThingDefOf.Uranium };
@@ -790,6 +898,11 @@ namespace RimshiSkeletons
             AccessTools.PropertyGetter(typeof(Corpse), nameof(Corpse.IngestibleNow)),
             AccessTools.Method(typeof(Toils_Ingest), nameof(Toils_Ingest.ChewIngestible), new[] { typeof(Pawn), typeof(float), typeof(TargetIndex), typeof(TargetIndex) }),
             AccessTools.Method(typeof(Thing), nameof(Thing.Ingested)),
+            AccessTools.PropertyGetter(typeof(CompRottable), nameof(CompRottable.Active)),
+            AccessTools.PropertySetter(typeof(CompRottable), nameof(CompRottable.RotProgress)),
+            AccessTools.Method(typeof(CompRottable), nameof(CompRottable.PostExposeData)),
+            AccessTools.Method(typeof(Corpse), nameof(Corpse.SpawnSetup), new[] { typeof(Map), typeof(bool) }),
+            AccessTools.Method(typeof(WorkGiver_DoBill), "TryFindBestBillIngredients"),
         };
 
         private static void DrugChecks(Pawn s, Pawn h)
@@ -832,6 +945,74 @@ namespace RimshiSkeletons
             }
             Check("drugs patched", unpatched.Count == 0, unpatched.Count == 0 ? DrugTargets.Length + " drug lock patches applied" : "not patched: " + string.Join(", ", unpatched));
         }
+
+        private static void AddictionChecks(Pawn s, Pawn h)
+        {
+            HediffDef addiction = DefDatabase<HediffDef>.AllDefsListForReading.FirstOrDefault(d => d.hediffClass != null
+                && typeof(Hediff_Addiction).IsAssignableFrom(d.hediffClass) && d.chemicalNeed != null && !d.defName.StartsWith("Rimshi_", StringComparison.Ordinal));
+            if (addiction == null)
+            {
+                Check("addiction refused", false, "no addiction hediff def found");
+                return;
+            }
+            s.health.AddHediff(addiction);
+            h.health.AddHediff(addiction);
+            bool skeletonHas = s.health.hediffSet.HasHediff(addiction);
+            bool humanHas = h.health.hediffSet.HasHediff(addiction);
+            Check("addiction refused", !skeletonHas && humanHas, addiction.defName + ": skeleton " + skeletonHas + ", baseliner " + humanHas);
+            Hediff humanAddiction = h.health.hediffSet.GetFirstHediffOfDef(addiction);
+            if (humanAddiction != null)
+            {
+                h.health.RemoveHediff(humanAddiction);
+            }
+
+            // A chemical dependency gene added to a skeleton (custom xenotype): the gene stays, its deficiency hediff never appears.
+            GeneDef dependency = DefDatabase<GeneDef>.AllDefsListForReading.FirstOrDefault(g => g.geneClass != null && typeof(Gene_ChemicalDependency).IsAssignableFrom(g.geneClass));
+            if (dependency != null)
+            {
+                Gene gene = s.genes.AddGene(dependency, true);
+                bool hediff = s.health.hediffSet.hediffs.Any(x => x is Hediff_ChemicalDependency);
+                Check("dependency refused", gene != null && !hediff, dependency.defName + ": gene added " + (gene != null) + ", dependency hediff " + hediff);
+                if (gene != null)
+                {
+                    s.genes.RemoveGene(gene);
+                }
+            }
+            else
+            {
+                Check("dependency refused", true, "no chemical dependency gene loaded, nothing to test");
+            }
+
+            // An addiction already on a skeleton (older save): slipped in past the patch, then cleared the way loading does.
+            Hediff old = HediffMaker.MakeHediff(addiction, s);
+            s.health.hediffSet.hediffs.Add(old);
+            int removed = AddictionLock.Clear(s, "self-test");
+            bool left = s.health.hediffSet.hediffs.Contains(old);
+            if (left)
+            {
+                s.health.hediffSet.hediffs.Remove(old);
+            }
+            Check("addiction cleared", removed == 1 && !left, "removed " + removed + ", still there " + left);
+
+            var unpatched = new List<string>();
+            foreach (MethodBase method in AddictionTargets)
+            {
+                Patches info = method == null ? null : Harmony.GetPatchInfo(method);
+                bool ours = info != null && info.Owners.Contains(RimshiMod.HarmonyId);
+                if (!ours)
+                {
+                    unpatched.Add(method == null ? "missing method" : method.DeclaringType.Name + "." + method.Name);
+                }
+            }
+            Check("addiction patched", unpatched.Count == 0, unpatched.Count == 0 ? AddictionTargets.Length + " addiction lock patches applied" : "not patched: " + string.Join(", ", unpatched));
+        }
+
+        private static readonly MethodBase[] AddictionTargets =
+        {
+            AccessTools.Method(typeof(PawnAddictionHediffsGenerator), nameof(PawnAddictionHediffsGenerator.GenerateAddictionsAndTolerancesFor)),
+            AccessTools.Method(typeof(Gene_ChemicalDependency), nameof(Gene_ChemicalDependency.Reset)),
+            AccessTools.Method(typeof(Gene_ChemicalDependency), nameof(Gene_ChemicalDependency.Notify_IngestedThing)),
+        };
 
         private static readonly MethodBase[] DrugTargets =
         {
@@ -935,10 +1116,9 @@ namespace RimshiSkeletons
 
             string skeletonTip = "ViewGenesDesc".Translate(s.Named("PAWN"));
             string humanTip = "ViewGenesDesc".Translate(human.Named("PAWN"));
-            MethodBase translate = AccessTools.Method(typeof(Translator), nameof(Translator.TryTranslate));
             MethodBase info = AccessTools.Method(typeof(GeneUIUtility), nameof(GeneUIUtility.DrawGenesInfo));
             MethodBase dialog = AccessTools.Method(typeof(Dialog_ViewGenes), nameof(Dialog_ViewGenes.DoWindowContents), new[] { typeof(Rect) });
-            bool patched = new[] { translate, info, dialog }.All(m => m != null && (Harmony.GetPatchInfo(m)?.Owners.Contains(RimshiMod.HarmonyId) ?? false));
+            bool patched = new[] { info, dialog }.All(m => m != null && (Harmony.GetPatchInfo(m)?.Owners.Contains(RimshiMod.HarmonyId) ?? false));
             Check("core terms tip", patched && skeletonTip.Contains("cores") && !humanTip.Contains("cores"),
                 "skeleton: " + skeletonTip + " | baseliner: " + humanTip + (patched ? "" : " | a core terms patch is missing"));
         }
@@ -1025,8 +1205,11 @@ namespace RimshiSkeletons
             int distance = Overclock.Distance(s);
             s.health.RemoveHediff(s.health.hediffSet.GetFirstHediffOfDef(overclocked));
             bool abilityGone = s.abilities.GetAbility(heave) == null;
-            Check("overclock", Mathf.Approximately(during - before, 20f) && hasAbility && abilityGone && distance == Mathf.FloorToInt(during / 10f),
-                "carrying capacity " + before.ToString("0.#") + " -> " + during.ToString("0.#") + ", heave ability " + hasAbility + " (gone after " + abilityGone + "), heave distance " + distance + " cells");
+            // Other mods can scale carrying capacity after offsets (Matthew's list gave +20.4), so check the hediff's own
+            // offset is 20 and that the stat rose by about that much.
+            float offset = overclocked.stages?.FirstOrDefault()?.statOffsets?.FirstOrDefault(m => m.stat == StatDefOf.CarryingCapacity)?.value ?? 0f;
+            Check("overclock", Mathf.Approximately(offset, 20f) && during - before >= 15f && during - before <= 25f && hasAbility && abilityGone && distance == Mathf.FloorToInt(during / 10f),
+                "offset " + offset.ToString("0.#") + ", carrying capacity " + before.ToString("0.#") + " -> " + during.ToString("0.#") + ", heave ability " + hasAbility + " (gone after " + abilityGone + "), heave distance " + distance + " cells");
         }
 
         private static void GeneRemovalCheck(Pawn s)
@@ -1037,6 +1220,117 @@ namespace RimshiSkeletons
                 s.genes.RemoveGene(gene);
             }
             Check("gene removal", gene != null && s.gender != Gender.None, "gender after removing null chromosome " + s.gender);
+        }
+
+        /// <summary>
+        /// Maintenance wear (Skeleton/SkeletonWear.cs): the clock only runs while out of maintenance and not frozen, resets once
+        /// maintained, and a full day out wears one random part that is not the brain. Damages the throwaway skeleton.
+        /// </summary>
+        private static void WearChecks(Pawn s)
+        {
+            MethodBase interval = AccessTools.Method(typeof(Need_Food), nameof(Need_Food.NeedInterval));
+            Patches info = interval == null ? null : Harmony.GetPatchInfo(interval);
+            Check("wear patch", info != null && info.Owners.Contains(RimshiMod.HarmonyId), "Need_Food.NeedInterval: " + PatchOwners(interval));
+            Gene_FuelReactor gene = s.genes.GetGene(RimshiDefOf.Rimshi_FuelReactor) as Gene_FuelReactor;
+            BodyPartRecord brain = s.health.hediffSet.GetBrain();
+            if (gene == null || brain == null)
+            {
+                Check("maintenance wear", false, "maintenance gene " + (gene != null) + ", brain " + (brain != null));
+                return;
+            }
+            int almost = SkeletonWear.WearIntervalTicks - SkeletonWear.IntervalTicks;
+            gene.wearTicks = almost;
+            bool frozenHeld = SkeletonWear.Advance(s, gene, starving: true, frozen: true) == null && gene.wearTicks == almost;
+            SkeletonWear.Advance(s, gene, starving: false, frozen: false);
+            bool reset = gene.wearTicks == 0;
+            bool early = SkeletonWear.Advance(s, gene, starving: true, frozen: false) == null && gene.wearTicks == SkeletonWear.IntervalTicks;
+            Check("wear clock", frozenHeld && reset && early, "frozen holds the clock " + frozenHeld + ", maintained resets it " + reset + ", no wear before a full day " + early
+                + " (a day is " + SkeletonWear.WearIntervalTicks + " ticks)");
+
+            List<BodyPartRecord> wearable = SkeletonWear.WearableParts(s);
+            bool brainExcluded = !wearable.Contains(brain);
+            bool hasWaist = s.RaceProps.body.AllParts.Any(p => p.def.defName == "Waist");
+            bool waistExcluded = !wearable.Any(p => p.def.defName == "Waist");
+            gene.wearTicks = almost;
+            BodyPartRecord part = SkeletonWear.Advance(s, gene, starving: true, frozen: false);
+            float severity = part == null ? 0f : s.health.hediffSet.hediffs.Where(h => h.def == RimshiDefOf.Rimshi_WornPart && h.Part == part).Sum(h => h.Severity);
+            bool worn = part != null && (severity > 0f || s.health.hediffSet.PartIsMissing(part));
+            Check("maintenance wear", worn && part != brain && brainExcluded && waistExcluded && part?.def.defName != "Waist" && gene.wearTicks == 0 && !s.Dead, "a full day out wore " + (part?.Label ?? "nothing")
+                + " (worn " + severity.ToString("0.##") + ", dealt " + SkeletonWear.WearDamage + "), brain never chosen " + brainExcluded + ", waist never chosen " + waistExcluded
+                + (hasWaist ? "" : " (body has no waist)") + ", clock restarted " + (gene.wearTicks == 0)
+                + ", alive " + !s.Dead);
+        }
+
+        /// <summary>
+        /// Soft cycle mending on a fresh skeleton: two badly cut legs and a cut torso. Half the time left mends about half
+        /// of what is needed, the finish leaves it able to get up, legs mend before the torso, and with no legs nothing mends.
+        /// </summary>
+        private static void MendingChecks(List<Pawn> pawns)
+        {
+            Pawn m = Generate(RimshiDefOf.Rimshi_Skeleton);
+            if (m == null)
+            {
+                Check("soft cycle mending", false, "could not generate a skeleton");
+                return;
+            }
+            pawns.Add(m);
+            List<BodyPartRecord> legs = m.RaceProps.body.GetPartsWithTag(BodyPartTagDefOf.MovingLimbCore);
+            BodyPartRecord torso = m.RaceProps.body.corePart;
+            if (legs.Count < 2)
+            {
+                Check("soft cycle mending", false, "body has " + legs.Count + " legs");
+                return;
+            }
+            foreach (BodyPartRecord leg in legs.Take(2))
+            {
+                Hediff cut = HediffMaker.MakeHediff(HediffDefOf.Cut, m, leg);
+                cut.Severity = leg.def.GetMaxHealth(m) * 0.85f;
+                m.health.AddHediff(cut, leg);
+            }
+            Hediff torsoCut = HediffMaker.MakeHediff(HediffDefOf.Cut, m, torso);
+            torsoCut.Severity = 8f;
+            m.health.AddHediff(torsoCut, torso);
+            // Make sure it cannot get up yet: more cuts on the legs' lower parts until it is stuck (a modlist's pain factors vary).
+            List<Hediff_Injury> order = SoftCycleMending.Order(m);
+            float needed = SoftCycleMending.Needed(m, order);
+            for (int extra = 0; needed == 0f && extra < 4; extra++)
+            {
+                BodyPartRecord lower = legs[extra % 2].GetDirectChildParts().FirstOrDefault() ?? legs[extra % 2];
+                Hediff more = HediffMaker.MakeHediff(HediffDefOf.Cut, m, lower);
+                more.Severity = lower.def.GetMaxHealth(m) * 0.6f;
+                m.health.AddHediff(more, lower);
+                order = SoftCycleMending.Order(m);
+                needed = SoftCycleMending.Needed(m, order);
+            }
+            float Total() => SoftCycleMending.Order(m).Sum(i => i.Severity);
+            bool legFirst = order.Count > 0 && SoftCycleMending.Group(order[0].Part) == 0;
+            float before = Total();
+            float step = SoftCycleMending.Step(m, 2 * SoftCycleMending.Interval);
+            float half = before - Total();
+            SoftCycleMending.Finish(m);
+            float after = SoftCycleMending.Needed(m, SoftCycleMending.Order(m));
+            float torsoLeft = m.health.hediffSet.hediffs.Contains(torsoCut) ? torsoCut.Severity : 0f;
+            Check("soft cycle mending", needed > 0f && Mathf.Abs(half - needed / 2f) < 0.05f + needed * 0.02f && Mathf.Approximately(step, half) && after == 0f && !m.Dead,
+                "needed " + needed.ToString("0.##") + " to get up, half the time left mended " + half.ToString("0.##") + ", after the finish still needed " + after.ToString("0.##")
+                + ", injuries " + before.ToString("0.#") + " -> " + Total().ToString("0.#"));
+            bool legsCovered = needed <= before - 8f;
+            Check("mending legs first", legFirst && (!legsCovered || Mathf.Approximately(torsoLeft, 8f)),
+                "first mended " + (order.Count > 0 ? order[0].Part?.Label : "nothing") + ", torso cut " + torsoLeft.ToString("0.##") + " of 8 left");
+
+            foreach (BodyPartRecord leg in legs)
+            {
+                if (!m.health.hediffSet.PartIsMissing(leg))
+                {
+                    m.health.AddHediff(HediffMaker.MakeHediff(HediffDefOf.MissingBodyPart, m, leg), leg);
+                }
+            }
+            Hediff neck = HediffMaker.MakeHediff(HediffDefOf.Cut, m, torso);
+            neck.Severity = 10f;
+            m.health.AddHediff(neck, torso);
+            float legless = Total();
+            float mended = m.Dead ? -1f : SoftCycleMending.Step(m, 0);
+            Check("mending no legs", SoftCycleMending.HasNoLegs(m) && mended == 0f && Mathf.Approximately(Total(), legless),
+                "no legs " + SoftCycleMending.HasNoLegs(m) + ", mended " + mended.ToString("0.##") + (m.Dead ? " (died)" : ""));
         }
 
         private static Pawn Generate(XenotypeDef xenotype)
@@ -1167,11 +1461,22 @@ namespace RimshiSkeletons
 
         private static void PartsChecks(Pawn s, Pawn human)
         {
+            // A bench whose bills no work giver offers just collects bills nobody takes (the skeleton workbench shipped like that).
+            List<ThingDef> benches = DefDatabase<ThingDef>.AllDefsListForReading.Where(d => d.defName.StartsWith("Rimshi_")
+                && (typeof(Building_WorkTable).IsAssignableFrom(d.thingClass) || (d.inspectorTabs?.Contains(typeof(ITab_Bills)) ?? false))).ToList();
+            List<string> orphanBenches = benches.Where(b => !DefDatabase<WorkGiverDef>.AllDefsListForReading.Any(g =>
+                typeof(WorkGiver_DoBill).IsAssignableFrom(g.giverClass) && g.workType != null && (g.fixedBillGiverDefs?.Contains(b) ?? false)))
+                .Select(b => b.defName).ToList();
+            Check("bench work givers", benches.Count >= 2 && orphanBenches.Count == 0, benches.Count + " Rimshi benches with bills"
+                + (orphanBenches.Count > 0 ? "; no work giver takes bills at: " + string.Join(", ", orphanBenches) : ", every one has a bill work giver"));
+
             List<RecipeDef> installs = DefDatabase<RecipeDef>.AllDefsListForReading.Where(r => r.Worker is Recipe_Rimshi_InstallSkeletonPart).ToList();
             // Organ installs are only offered once the organ is gone (OrganChecks); the rest have a part to go on now.
             List<string> wrong = installs.Where(r => !r.Worker.AvailableOnNow(s) || r.Worker.AvailableOnNow(human)
                 || (!(r.addsHediff?.hediffClass == typeof(Hediff_Rimshi_SkeletonOrgan)) && !r.Worker.GetPartsToApplyOn(s, r).Any())).Select(r => r.defName).ToList();
             Check("part bills", installs.Count >= 19 && wrong.Count == 0, installs.Count + " skeleton part installs, skeleton only" + (wrong.Count > 0 ? "; wrong: " + string.Join(", ", wrong) : ""));
+
+            SelfInstallChecks(s, human);
 
             RecipeDef klr = DefDatabase<RecipeDef>.GetNamed("Rimshi_Install_KLRArm");
             BodyPartRecord shoulder = klr.Worker.GetPartsToApplyOn(s, klr).FirstOrDefault();
@@ -1205,6 +1510,58 @@ namespace RimshiSkeletons
             core.Worker.ApplyOnPawn(s, brain, null, new List<Thing>(), null);
             int left = s.health.hediffSet.hediffs.Count(h => h.Part == brain && h is Hediff_Injury);
             Check("ai core repair", hasCore && offered && left == 0 && !s.Dead, "core installed " + hasCore + ", repair offered when damaged " + offered + ", injuries left " + left + ", alive " + !s.Dead);
+        }
+
+        private static string PatchOwners(MethodBase method)
+        {
+            Patches info = method == null ? null : Harmony.GetPatchInfo(method);
+            if (info == null)
+            {
+                return method == null ? "method missing" : "none";
+            }
+            string list(IEnumerable<Patch> patches) => string.Join(", ", patches.Select(p => p.owner + " " + p.PatchMethod.DeclaringType?.Name + " (" + p.priority + ")"));
+            return "prefixes [" + list(info.Prefixes) + "], postfixes [" + list(info.Postfixes) + "], transpilers [" + list(info.Transpilers) + "]";
+        }
+
+        /// <summary>
+        /// Limbs install themselves (Parts/SkeletonLimbSelfInstall.cs): every limb has the use comps and an install recipe,
+        /// organs and the AI core have none; a skeleton leg is refused for a baseliner, goes on the missing leg first, and
+        /// takes. The colonist check is not tested: the throwaway skeleton is not a colonist.
+        /// </summary>
+        private static void SelfInstallChecks(Pawn s, Pawn human)
+        {
+            ThingCategoryDef category = DefDatabase<ThingCategoryDef>.GetNamed("Rimshi_SkeletonParts");
+            List<ThingDef> parts = DefDatabase<ThingDef>.AllDefsListForReading.Where(d => d.defName.StartsWith("Rimshi_", System.StringComparison.Ordinal)
+                && d.thingCategories != null && d.thingCategories.Contains(category)).ToList();
+            List<ThingDef> limbs = parts.Where(d => d.HasComp(typeof(CompUseEffect_InstallSkeletonLimb))).ToList();
+            List<string> broken = limbs.Where(d => !d.HasComp(typeof(CompUsable)) || !d.HasComp(typeof(CompUseEffect_DestroySelf))
+                || CompUseEffect_InstallSkeletonLimb.RecipeFor(DefDatabase<HediffDef>.GetNamedSilentFail(d.defName)) == null).Select(d => d.defName).ToList();
+            List<string> surgeryOnly = parts.Where(d => !limbs.Contains(d)).Select(d => d.defName).ToList();
+            Check("limb self install comps", limbs.Count == 10 && broken.Count == 0 && surgeryOnly.Contains("Rimshi_AICore") && surgeryOnly.Contains("Rimshi_CoolingFan"),
+                limbs.Count + " self-installed limbs, surgery only: " + string.Join(", ", surgeryOnly) + (broken.Count > 0 ? "; broken: " + string.Join(", ", broken) : ""));
+
+            ThingWithComps leg = ThingMaker.MakeThing(DefDatabase<ThingDef>.GetNamed("Rimshi_StandardLeg")) as ThingWithComps;
+            CompUseEffect_InstallSkeletonLimb comp = leg?.GetComp<CompUseEffect_InstallSkeletonLimb>();
+            if (comp == null)
+            {
+                Check("limb self install", false, "skeleton leg has no install comp");
+                return;
+            }
+            AcceptanceReport onHuman = comp.CanBeUsedBy(human);
+            List<BodyPartRecord> legs = s.RaceProps.body.GetPartsWithDef(BodyPartDefOf.Leg).ToList();
+            BodyPartRecord gone = legs.LastOrDefault();
+            if (gone == null)
+            {
+                Check("limb self install", false, "no leg on the skeleton");
+                return;
+            }
+            s.health.AddHediff(HediffMaker.MakeHediff(HediffDefOf.MissingBodyPart, s, gone), gone);
+            List<BodyPartRecord> offered = comp.PartsFor(s);
+            comp.DoEffect(s);
+            bool installed = s.health.hediffSet.hediffs.Any(h => h.def == comp.Hediff && h.Part == gone) && !s.health.hediffSet.PartIsMissing(gone);
+            Check("limb self install", !onHuman.Accepted && offered.FirstOrDefault() == gone && installed && !s.Dead,
+                "baseliner refused " + !onHuman.Accepted + " (" + onHuman.Reason + "), offered " + string.Join(", ", offered.Select(p => p.Label))
+                + ", missing " + gone.Label + " first " + (offered.FirstOrDefault() == gone) + ", installed there " + installed);
         }
 
         private static void Check(string name, bool ok, string detail)
@@ -1254,6 +1611,10 @@ namespace RimshiSkeletons
 
         public override void GameComponentTick()
         {
+            if (Find.TickManager.TicksGame % HordeInfighting.CheckInterval == 0)
+            {
+                HordeInfighting.CheckMaps();
+            }
             if (pendingHordes.Count == 0 || Find.TickManager.TicksGame % 60 != 0)
             {
                 return;
@@ -1303,6 +1664,8 @@ namespace RimshiSkeletons
             LongEventHandler.ExecuteWhenFinished(SkeletonGeneRestore.MigrateSave);
             LongEventHandler.ExecuteWhenFinished(SkeletonAnatomy.MigrateSave);
             LongEventHandler.ExecuteWhenFinished(SkeletonModules.MigrateSave);
+            LongEventHandler.ExecuteWhenFinished(AddictionLock.MigrateSave);
+            LongEventHandler.ExecuteWhenFinished(SkeletonHorde.MigrateSave);
             LongEventHandler.ExecuteWhenFinished(SetFoodPoliciesOnce);
             LongEventHandler.ExecuteWhenFinished(SelfTests.RunIfDevMode);
         }

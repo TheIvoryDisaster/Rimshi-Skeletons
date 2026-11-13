@@ -34,7 +34,7 @@
     <staticSunShadowHeight>0.3</staticSunShadowHeight>
     <canOverlapZones>false</canOverlapZones>
     <drawGUIOverlay>true</drawGUIOverlay>
-    <designationCategory>Furniture</designationCategory>
+    <designationCategory>Biotech</designationCategory>
     <uiOrder>2030</uiOrder>
     <uiIconScale>0.9</uiIconScale>
     <statBases>

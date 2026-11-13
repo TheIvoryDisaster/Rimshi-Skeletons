@@ -13,6 +13,18 @@
 # "Fold docs" job folds changelog fragments (docs/project/changelog/) into the changelog table and commits that to
 # main, so pull requests open at the same time never conflict over the table. It then brings beta up to date with
 # main. A push made with the workflow's own token starts no new run, so neither push uses up a version.
+#
+# Azure debug upload (main and beta): steps in the build job copy the packaged zip of each build to the
+# repository's private container in the gutenhub storage account (managed in Matthew's azure-infra repo, where blobs
+# expire after three days). It signs in with GitHub OIDC as the rimshi-skeletons-debug-upload managed identity, whose
+# federated credentials must trust refs/heads/main and refs/heads/beta (immutable-ID subjects, see azure-infra). Builds
+# are no longer kept as GitHub artifacts (that filled the account's Actions storage); main still attaches its zip to
+# the GitHub release, and feature branches only compile and test. The blob path is <run id>/<run attempt>/<zip name>,
+# so a rerun
+# never overwrites an earlier upload. It reads five repository variables (Settings > Secrets and variables > Actions >
+# Variables): AZURE_CLIENT_ID, AZURE_TENANT_ID, AZURE_SUBSCRIPTION_ID, AZURE_STORAGE_ACCOUNT, AZURE_DEBUG_CONTAINER.
+# They are skipped until AZURE_CLIENT_ID is set, and marked continue-on-error so an Azure problem shows as a failed
+# step (with the OIDC subject printed for comparison) but never stops the main tag and release.
 
 name: Build
 
@@ -32,6 +44,11 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # contents: write for the main tag and release; id-token: write for the Azure upload's OIDC sign-in. Branch builds
+    # can mint a token too, but Azure's federated credentials only trust main and beta, so it gets them nothing.
+    permissions:
+      contents: write
+      id-token: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -103,10 +120,45 @@ jobs:
           [ "$(grep -c '<modVersion>' "$out/About/About.xml")" = 1 ]
           (cd package && zip -qr "../RimshiSkeletons-${{ steps.version.outputs.version }}.zip" RimshiSkeletons)
 
-      - uses: actions/upload-artifact@v4
+      # Azure debug upload (main and beta, skipped until the AZURE_* repository variables are set). This replaces the
+      # old GitHub artifact upload, which filled the account's Actions storage quota.
+      - name: Show the OIDC subject
+        if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/beta') && vars.AZURE_CLIENT_ID != ''
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Prints only the subject claim Azure checks (never the token), to compare with azure-infra's credential.
+          token=$(curl -sSf -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=api://AzureADTokenExchange" | jq -r .value)
+          echo "$token" | python3 -c 'import sys, json, base64; p = sys.stdin.read().split(".")[1]; print("OIDC subject:", json.loads(base64.urlsafe_b64decode(p + "=" * (-len(p) % 4)))["sub"])'
+
+      - uses: azure/login@v2
+        if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/beta') && vars.AZURE_CLIENT_ID != ''
+        continue-on-error: true
         with:
-          name: RimshiSkeletons-${{ steps.version.outputs.version }}
-          path: package/
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Upload the build to Azure Blob Storage
+        if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/beta') && vars.AZURE_CLIENT_ID != ''
+        continue-on-error: true
+        shell: bash
+        env:
+          STORAGE_ACCOUNT: ${{ vars.AZURE_STORAGE_ACCOUNT }}
+          DEBUG_CONTAINER: ${{ vars.AZURE_DEBUG_CONTAINER }}
+          ZIP: RimshiSkeletons-${{ steps.version.outputs.version }}.zip
+        run: |
+          set -euo pipefail
+          blob="${GITHUB_RUN_ID}/${GITHUB_RUN_ATTEMPT}/${ZIP}"
+          az storage blob upload --auth-mode login --only-show-errors \
+            --account-name "$STORAGE_ACCOUNT" \
+            --container-name "$DEBUG_CONTAINER" \
+            --name "$blob" \
+            --file "$ZIP" \
+            --content-type application/zip
+          echo "Uploaded $ZIP to $STORAGE_ACCOUNT/$DEBUG_CONTAINER/$blob"
 
       - name: Tag and release (main only)
         if: github.ref == 'refs/heads/main'

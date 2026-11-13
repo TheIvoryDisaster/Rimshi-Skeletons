@@ -16,7 +16,7 @@ Matthew's spec, 2026-10-25. Skeletons replace lost or worn parts with skeleton p
 
 ## Intermediates
 
-Made at the workbench with Crafting. While being made, they show as vanilla's unfinished component. The work shown in game is ticks / 60.
+Made at the workbench with Crafting. Bills at the workbench are Smithing work (Rimshi_DoBillsSkeletonWorkbench, priority 60, between vanilla's fabrication bench at 50 and machining table at 75). While being made, they show as vanilla's unfinished component. The work shown in game is ticks / 60.
 
 | Item | Cost | Work | Crafting |
 | --- | --- | --- | --- |
@@ -48,6 +48,17 @@ Notes:
 - Disarm: a postfix on Verb_MeleeAttackDamage.ApplyMeleeDamageToTarget. After a hit that does damage, each steady arm has a 10% chance (combined, about 19% for a pair) to make the target drop its primary weapon.
 - AI core: an added part on the brain. Destroying it still kills, as vanilla does for the brain. Permanent brain damage for skeletons is planned for later. The repair already removes every injury, scar and other harmful condition on the core, and the old core stays in place.
 - Skeletons are already 0% flammable (Flammability factor 0 on the metal chassis gene). The workbench, intermediates, parts and repair kits are now 0% too.
+
+## Self-installed limbs
+
+Matthew, 2026-11-03: skeleton limbs install like mechanitor implants, no surgery; organ replacements (machine organs, the AI core) still need surgery. Code: Parts/SkeletonLimbSelfInstall.cs; the comps sit on Rimshi_SkeletonLimbBase (the 10 arms and legs), so a future limb gets them by inheriting it.
+
+- A skeleton colonist right-clicks the limb item: "Install economy skeleton arm" (vanilla CompUsable and the UseItem job, 10 seconds, the mechlink install sound, item used up). With more than one place to fit it, a second menu asks which (left or right shoulder or leg). The use gizmo route and a reload mid-job pick on their own: a missing limb first, then the most worn one.
+- Where it fits is the install surgery's own rule (the matching Rimshi_Install_ recipe's GetPartsToApplyOn), and the recipe worker does the install, so both routes behave the same: the old skeleton part drops as an item, a missing limb comes back.
+- Only the skeleton itself, only a free colonist (vanilla's rule for self-installed implants), and it needs Manipulation like any item use. Not a skeleton: "only fits a skeleton"; nothing to replace: "nowhere to fit it".
+- No repair kit: the mechlink costs only itself (Claude's call).
+- The install surgeries are kept as a second route (Claude's call): a skeleton with no working arms cannot use an item, and prisoners, downed skeletons and non-colonists can only be fitted by someone else. That route still takes a repair kit and a doctor.
+- The prosthetics lock is not involved: it patches CompUseEffect_InstallImplant (only the mechlink passes) and exempts Rimshi_ recipes.
 
 ## Storage categories
 

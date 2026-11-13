@@ -18,9 +18,9 @@ namespace RimshiSkeletons
     }
 
     /// <summary>
-    /// Corrupted recall protocol. While the skeleton is free (spawned, up, not the colony's prisoner, not in the player
-    /// faction) it is kept berserk. While it has the protocol it cannot be recruited by talking; captured, it is switched
-    /// to the Reprogram interaction once (the player can change it). Reprogramming (ReprogramUtility) lowers the severity.
+    /// Corrupted recall protocol (about two in three horde skeletons). While it has the protocol the skeleton cannot be
+    /// recruited by talking; captured, it is switched to the Reprogram interaction once (the player can change it).
+    /// Reprogramming (ReprogramUtility) lowers the severity. Hostility comes from the recalled legion faction, not from here.
     /// </summary>
     public class HediffComp_CorruptedProtocol : HediffComp
     {
@@ -64,12 +64,6 @@ namespace RimshiSkeletons
                     pawn.guest.SetExclusiveInteraction(RimshiDefOf.Rimshi_Reprogram);
                     RimshiLog.Test("reprogram", "captured", pawn.LabelShort + ": corruption " + parent.Severity.ToStringPercent() + ", interaction set to reprogram");
                 }
-                return;
-            }
-            if (pawn.Spawned && !pawn.Downed && !pawn.InMentalState
-                && pawn.mindState.mentalStateHandler.TryStartMentalState(MentalStateDefOf.Berserk, "corrupted recall protocol", forced: true, forceWake: true, transitionSilently: true))
-            {
-                RimshiLog.Test("horde", "berserk", pawn.LabelShort + " (" + pawn.kindDef.defName + ") went berserk at " + pawn.Position);
             }
         }
 

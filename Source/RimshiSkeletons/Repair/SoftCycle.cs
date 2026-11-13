@@ -212,6 +212,8 @@ namespace RimshiSkeletons
         /// <summary>A finished cycle: full integrity, overload cleared, short-term memories gone, some skill lost, and the cycle's thought.</summary>
         public static void Complete(Pawn pawn, SoftCycleKind kind)
         {
+            // Whatever is still needed to get up mends now (SoftCycleMending.cs).
+            SoftCycleMending.Finish(pawn);
             Need_Deathrest need = Integrity(pawn);
             if (need != null)
             {
@@ -250,6 +252,7 @@ namespace RimshiSkeletons
         /// </summary>
         public static void Cancel(Pawn pawn, SoftCycleKind kind, string reason)
         {
+            SoftCycleMending.Forget(pawn);
             Need_Deathrest need = Integrity(pawn);
             if (kind == SoftCycleKind.RepairBed)
             {
@@ -402,7 +405,8 @@ namespace RimshiSkeletons
                     yield return new Command_Action
                     {
                         defaultLabel = "Wake up",
-                        defaultDesc = WakeWarning + " Nothing else will disturb " + pawn.LabelShort + " while it stands here: it ignores orders and cannot be drafted until it wakes.",
+                        defaultDesc = WakeWarning + (StandingReset.Of(pawn)?.lying == true ? ""
+                            : " Nothing else will disturb " + pawn.LabelShort + " while it stands here: it ignores orders and cannot be drafted until it wakes."),
                         icon = StopTex.Texture,
                         action = delegate
                         {
@@ -413,7 +417,7 @@ namespace RimshiSkeletons
             }
             else if (pawn.IsColonistPlayerControlled && pawn.Spawned)
             {
-                yield return CycleGizmo(pawn);
+                yield return pawn.Downed ? LyingCycleGizmo(pawn) : CycleGizmo(pawn);
             }
             if (DebugSettings.ShowDevGizmos)
             {
@@ -466,6 +470,31 @@ namespace RimshiSkeletons
                 action = target => OrderCycle(pawn, target)
             };
             if (pawn.Downed || pawn.InMentalState)
+            {
+                command.Disable(pawn.LabelShort + " cannot start a soft cycle now.");
+            }
+            return command;
+        }
+
+        /// <summary>
+        /// The "Soft cycle" button on a downed skeleton: it soft resets where it lies, on the ground, in a rib cage or in any
+        /// bed it was carried to (StandingReset.BeginLying). Not in a powered repair bed, which is already seeing to it.
+        /// </summary>
+        public static Command LyingCycleGizmo(Pawn pawn)
+        {
+            var command = new Command_Action
+            {
+                defaultLabel = "Soft cycle",
+                defaultDesc = "Have " + pawn.LabelShort + " reset its CPU and memory buffer where it lies. Without a repair bed, a soft reset is slow and rough. It is best not interrupted.",
+                icon = CycleTex.Texture,
+                action = delegate { StandingReset.BeginLying(pawn); }
+            };
+            CompRimshi_RepairBed bed = RepairBedOf(pawn.CurrentBed());
+            if (bed != null && bed.Powered)
+            {
+                command.Disable(pawn.LabelShort + " is lying in a powered repair bed.");
+            }
+            else if (pawn.InMentalState)
             {
                 command.Disable(pawn.LabelShort + " cannot start a soft cycle now.");
             }
@@ -629,6 +658,7 @@ namespace RimshiSkeletons
     {
         private static readonly HashSet<int> loggedCycle = new HashSet<int>();
         private static readonly HashSet<int> loggedHeld = new HashSet<int>();
+        private static readonly HashSet<int> loggedGraceHeld = new HashSet<int>();
         private static readonly Dictionary<int, float> remainder = new Dictionary<int, float>();
 
         public static void Prefix(Gene_Deathrest __instance, ref bool paused, int delta)
@@ -651,6 +681,17 @@ namespace RimshiSkeletons
                 return;
             }
             loggedHeld.Remove(pawn.thingIDNumber);
+            if (!bed.Powered && SoftCycleGravship.HoldsUnpoweredBed(pawn, bed.parent))
+            {
+                // Just landed (or still aboard): the ship's power nets come back a moment after the bed does.
+                paused = true;
+                if (loggedGraceHeld.Add(pawn.thingIDNumber))
+                {
+                    RimshiLog.Test("softcycle", "gravship power wait", pawn.LabelShort + "'s " + bed.parent.LabelShort + " has no power yet after a grav ship landing, cycle held");
+                }
+                return;
+            }
+            loggedGraceHeld.Remove(pawn.thingIDNumber);
             if (!bed.Powered)
             {
                 paused = true;
@@ -671,6 +712,10 @@ namespace RimshiSkeletons
             __instance.deathrestTicks += extra;
             float after = Mathf.Clamp01((float)(__instance.deathrestTicks + delta) / total);
             SoftCycle.Raise(pawn, before, after);
+            if (pawn.IsHashIntervalTick(SoftCycleMending.Interval, delta))
+            {
+                SoftCycleMending.Step(pawn, SoftCycle.BedTicksLeft(__instance));
+            }
             if (loggedCycle.Add(pawn.thingIDNumber))
             {
                 RimshiLog.Test("softcycle", "cycling", pawn.LabelShort + " soft cycling in " + bed.parent.LabelShort + ", " + SoftCycle.BedTicksTotal(__instance).ToStringTicksToPeriod() + ", drawing "
@@ -716,7 +761,8 @@ namespace RimshiSkeletons
 
     /// <summary>
     /// CPU integrity for skeletons: falls 1/30 a day like vanilla deathrest, holds while frozen, cycling or suspended in a
-    /// rib cage (cycles raise it themselves), and at 0% overloads the CPU instead of vanilla's deathrest exhaustion.
+    /// rib cage (cycles raise it themselves), and at 0% overloads the CPU instead of vanilla's deathrest exhaustion. A downed
+    /// skeleton at 0% begins a lying soft reset (StandingReset.TryAutoLying).
     /// </summary>
     [HarmonyPatch(typeof(Need_Deathrest), nameof(Need_Deathrest.NeedInterval))]
     public static class Patch_CpuIntegrity
@@ -739,6 +785,7 @@ namespace RimshiSkeletons
             if (__instance.CurLevel <= 0f)
             {
                 CpuOverload.Begin(pawn, "CPU integrity ran out");
+                StandingReset.TryAutoLying(pawn);
             }
             return false;
         }
@@ -756,6 +803,13 @@ namespace RimshiSkeletons
         public static MethodBase TargetMethod() => AccessTools.DeclaredMethod(typeof(Need_Deathrest), nameof(Need.GetTipString));
 
         public static bool Prefix(Need __instance, ref string __result) => Swap(__instance, ref __result);
+
+        /// <summary>
+        /// Runs after every other mod's prefix and postfix: one that rebuilds the tooltip after ours (the 2026-11-01
+        /// self-test still read vanilla's deathrest text) would otherwise put the deathrest text back.
+        /// </summary>
+        [HarmonyPriority(Priority.Last)]
+        public static void Postfix(Need __instance, ref string __result) => Swap(__instance, ref __result);
 
         internal static bool Swap(Need need, ref string result)
         {
@@ -777,6 +831,9 @@ namespace RimshiSkeletons
     public static class Patch_CpuIntegrityTipBase
     {
         public static bool Prefix(Need __instance, ref string __result) => Patch_CpuIntegrityTip.Swap(__instance, ref __result);
+
+        [HarmonyPriority(Priority.Last)]
+        public static void Postfix(Need __instance, ref string __result) => Patch_CpuIntegrityTip.Swap(__instance, ref __result);
     }
 
     /// <summary>

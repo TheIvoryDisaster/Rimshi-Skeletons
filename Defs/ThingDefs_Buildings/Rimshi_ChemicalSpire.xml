@@ -20,9 +20,6 @@
       <drawSize>(3.4,5.6)</drawSize>
       <drawOffset>(0,0,1.25)</drawOffset>
       <drawRotated>false</drawRotated>
-      <shadowData>
-        <volume>(2.4, 1.2, 2.4)</volume>
-      </shadowData>
       <damageData>
         <rect>(0.3,0.3,2.4,2.4)</rect>
       </damageData>
@@ -35,11 +32,12 @@
     <rotatable>false</rotatable>
     <defaultPlacingRot>South</defaultPlacingRot>
     <passability>Impassable</passability>
+    <disableImpassableShotOverConfigError>true</disableImpassableShotOverConfigError>
     <fillPercent>0.9</fillPercent>
     <blockWind>true</blockWind>
     <canOverlapZones>false</canOverlapZones>
     <drawerType>MapMeshAndRealTime</drawerType>
-    <designationCategory>Furniture</designationCategory>
+    <designationCategory>Biotech</designationCategory>
     <uiOrder>2026</uiOrder>
     <statBases>
       <MaxHitPoints>400</MaxHitPoints>
