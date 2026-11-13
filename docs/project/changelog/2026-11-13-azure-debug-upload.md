@@ -1,0 +1,1 @@
+Main builds now also upload their packaged zip to the project's private Azure Blob Storage container for debugging (kept three days), under the run ID and attempt so reruns never overwrite each other. The upload is skipped until the Azure repository variables are set.
