@@ -202,6 +202,20 @@ namespace RimshiSkeletons
             }
             Check("cycle gravship", patched && grace && groundCancels && held, "launch and landing patched " + patched + ", landing power grace " + grace
                 + ", a reset on the ground still cancels " + groundCancels + ", a reset aboard is held in flight " + held);
+            MethodBase spectate = AccessTools.Method(typeof(RitualRoleAssignments), nameof(RitualRoleAssignments.CanEverSpectate));
+            MethodBase assignable = AccessTools.Method(typeof(RitualRoleAssignments), nameof(RitualRoleAssignments.PawnNotAssignableReason),
+                new[] { typeof(Pawn), typeof(RitualRole), typeof(Precept_Ritual), typeof(RitualRoleAssignments), typeof(TargetInfo), typeof(bool).MakeByRefType() });
+            bool ritualPatched = new[] { spectate, assignable }.All(m => m != null && (Harmony.GetPatchInfo(m)?.Owners.Contains(RimshiMod.HarmonyId) ?? false));
+            bool idleFree = !SoftCycleRituals.KeptOut(s);
+            Hediff_Rimshi_SoftReset cycling = s.health.AddHediff(RimshiDefOf.Rimshi_SoftResetting) as Hediff_Rimshi_SoftReset;
+            string refused = RitualRoleAssignments.PawnNotAssignableReason(s, null, null, null, TargetInfo.Invalid, out bool _);
+            bool cyclingKept = SoftCycleRituals.KeptOut(s) && refused != null;
+            if (cycling != null)
+            {
+                s.health.RemoveHediff(cycling);
+            }
+            Check("cycle no rituals", ritualPatched && idleFree && cyclingKept, "spectate and assign patched " + ritualPatched + ", an idle skeleton can attend " + idleFree
+                + ", a soft cycling one is refused " + cyclingKept + " (" + refused + ")");
         }
 
         private static void SoftCycleChecks(Pawn s, Pawn human)
