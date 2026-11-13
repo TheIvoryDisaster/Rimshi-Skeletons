@@ -82,6 +82,8 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | softcycle | A skeleton came down on a landing grav ship still in its soft cycle (gives the bed or cell) | not seen |  |  |
 | softcycle | A skeleton held aboard a grav ship took its standing (or rib cage, or lying) soft reset back after landing | not seen |  |  |
 | softcycle | A repair bed had no power yet just after a grav ship landing; its soft cycle was held, not cancelled | not seen |  |  |
+| softcycle | Soft cycle button or right-click on a repair bed that can't take the skeleton now (gives the reason) | not seen |  |  |
+| softcycle | Skeleton ordered to soft cycle in a repair bed from the button or the bed's right-click menu | not seen |  |  |
 | softcycle | A soft cycling skeleton was left out of a ritual (a grav ship launch makes everyone a spectator by default) | not seen |  |  |
 | softcycle | A downed skeleton with no CPU integrity left began a soft reset where it lies | not seen |  |  |
 | softcycle | Skeletons with deathrest exhaustion from an older save got CPU overload instead | not seen |  |  |

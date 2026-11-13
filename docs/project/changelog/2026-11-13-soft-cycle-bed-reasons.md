@@ -1,0 +1,1 @@
+A skeleton repair bed that can't take a soft cycle now says why: the Soft cycle button accepts any repair bed and explains a refusal (for example, a grid without enough spare power or battery charge for the 48 hour cycle), the bed's right-click menu has a Soft cycle option, and the bed notes when its grid is running down its batteries.
