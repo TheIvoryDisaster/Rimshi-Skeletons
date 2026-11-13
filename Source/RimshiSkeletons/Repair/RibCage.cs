@@ -165,7 +165,10 @@ namespace RimshiSkeletons
         }
     }
 
-    /// <summary>Right-click a rib cage with a skeleton selected: hang in it, or soft reset in it. Vanilla's "use medical bed" is dropped.</summary>
+    /// <summary>
+    /// Right-click a rib cage with a skeleton selected: hang in it, or soft reset in it. Vanilla's "use medical bed" is dropped.
+    /// Right-click a repair bed: soft cycle in it (greyed out with the reason when it can't take the skeleton now).
+    /// </summary>
     [HarmonyPatch(typeof(Building_Bed), nameof(Building_Bed.GetFloatMenuOptions))]
     public static class Patch_RibCageFloatMenu
     {
@@ -176,6 +179,11 @@ namespace RimshiSkeletons
                 foreach (FloatMenuOption option in __result)
                 {
                     yield return option;
+                }
+                FloatMenuOption cycle = SoftCycle.RepairBedFloatOption(myPawn, __instance);
+                if (cycle != null)
+                {
+                    yield return cycle;
                 }
                 yield break;
             }
