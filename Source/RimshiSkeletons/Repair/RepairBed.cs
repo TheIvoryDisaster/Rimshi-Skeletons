@@ -76,8 +76,12 @@ namespace RimshiSkeletons
         /// The bed's grid can carry the skeleton's cycle: its spare generation covers the extra draw, or its batteries hold
         /// enough to make up the shortfall for the full 48 hours (less with fuelled tuning forks linked).
         /// </summary>
-        public bool CanPowerCycle(Pawn pawn)
+        public bool CanPowerCycle(Pawn pawn) => CanPowerCycle(pawn, out _);
+
+        /// <summary>CanPowerCycle, with a player-facing reason when the grid can't carry the cycle.</summary>
+        public bool CanPowerCycle(Pawn pawn, out string reason)
         {
+            reason = null;
             CompPowerTrader trader = PowerTrader;
             if (trader == null)
             {
@@ -86,6 +90,7 @@ namespace RimshiSkeletons
             PowerNet net = trader.PowerNet;
             if (net == null)
             {
+                reason = "not connected to a power grid";
                 return false;
             }
             // The cycle's draw plus the tuning forks that would ring for it, counted against the bed's grid (a fork on
@@ -100,7 +105,16 @@ namespace RimshiSkeletons
             {
                 return true;
             }
-            return net.CurrentStoredEnergy() >= (extra - spare) * SoftCycle.BedCycleTicks * SoftCycleFacilities.TimeFactor(this, pawn, readyOnly: true) / GenDate.TicksPerDay;
+            float stored = net.CurrentStoredEnergy();
+            float needed = (extra - spare) * SoftCycle.BedCycleTicks * SoftCycleFacilities.TimeFactor(this, pawn, readyOnly: true) / GenDate.TicksPerDay;
+            if (stored >= needed)
+            {
+                return true;
+            }
+            reason = "not enough power: the cycle draws " + extra.ToString("F0") + " W, the bed's grid "
+                + (spare > 0f ? "has only " + spare.ToString("F0") + " W spare" : "has no spare power (" + spare.ToString("F0") + " W)")
+                + " and its batteries hold " + stored.ToString("F0") + " of the " + needed.ToString("F0") + " Wd needed to make up the rest";
+            return false;
         }
 
         public override void CompTickRare()
@@ -195,6 +209,11 @@ namespace RimshiSkeletons
                 return "Unpowered: not repairing or soft cycling.";
             }
             var lines = new List<string>();
+            PowerNet net = PowerTrader?.PowerNet;
+            if (net != null && net.CurrentEnergyGainRate() < 0f)
+            {
+                lines.Add("Its power grid is running down its batteries.");
+            }
             List<string> repairing = Bed?.CurOccupants.Where(p => SkeletonUtility.HasFrame(p) && WorstInjury(p) != null).Select(p => p.LabelShort).ToList();
             if (repairing != null && repairing.Count > 0)
             {

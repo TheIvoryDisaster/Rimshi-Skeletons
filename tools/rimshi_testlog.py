@@ -87,6 +87,8 @@ CHECKLIST = [
     ("softcycle", "gravship landed", "A skeleton came down on a landing grav ship still in its soft cycle (gives the bed or cell)"),
     ("softcycle", "gravship resumed", "A skeleton held aboard a grav ship took its standing (or rib cage, or lying) soft reset back after landing"),
     ("softcycle", "gravship power wait", "A repair bed had no power yet just after a grav ship landing; its soft cycle was held, not cancelled"),
+    ("softcycle", "bed refused", "Soft cycle button or right-click on a repair bed that can't take the skeleton now (gives the reason)"),
+    ("softcycle", "bed ordered", "Skeleton ordered to soft cycle in a repair bed from the button or the bed's right-click menu"),
     ("softcycle", "ritual skipped", "A soft cycling skeleton was left out of a ritual (a grav ship launch makes everyone a spectator by default)"),
     ("softcycle", "auto lying", "A downed skeleton with no CPU integrity left began a soft reset where it lies"),
     ("softcycle", "migrated", "Skeletons with deathrest exhaustion from an older save got CPU overload instead"),
