@@ -1,1 +1,0 @@
-Skeleton buildings moved to the Biotech architect tab: the repair bed, tuning fork, tempest reliquary, cable fissure, rib cage and skeleton workbench now sit there beside the recall array, out of the Furniture and Production tabs. A unit test keeps new skeleton buildings there.

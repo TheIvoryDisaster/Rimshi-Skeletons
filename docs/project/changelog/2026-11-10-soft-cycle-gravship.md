@@ -1,1 +1,0 @@
-Soft cycles now carry on through a grav ship launch and landing, like a sanguophage's deathrest. A skeleton in a standing or rib cage soft reset anywhere on the ship is no longer interrupted: its reset is held during the flight and picks up again where it lands. A repair bed cycle is no longer cancelled if the bed has not got its power back in the first moments after landing.

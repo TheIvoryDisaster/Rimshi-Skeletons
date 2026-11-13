@@ -1,1 +1,0 @@
-Pawns now work at the skeleton workbench. It had no work giver, so its bills were never taken; it now sits in Smithing between the fabrication bench and the machining table, and a self-test and a unit test check that every bench of ours with bills has one.

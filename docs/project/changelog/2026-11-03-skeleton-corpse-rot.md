@@ -1,1 +1,0 @@
-Skeleton corpses no longer rot or desiccate into organic skeletons (they still deteriorate outdoors), and ones that already rotted turn fresh on load. The scrap skeleton remains bill now logs why it passed over a skeleton corpse (forbidden, out of range, unreachable), and its self-test checks the full ingredient check.

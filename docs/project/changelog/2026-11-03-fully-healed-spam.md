@@ -1,1 +1,0 @@
-Fixed damaged skeletons getting an "is fully healed" message every 10 seconds while they waited for repair: their injuries no longer count as healing on their own, so the vanilla healing step (and its message) is skipped for them.

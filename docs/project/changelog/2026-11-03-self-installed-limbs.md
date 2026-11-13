@@ -1,1 +1,0 @@
-Skeleton arms and legs now install themselves like a mechlink: a skeleton colonist right-clicks the limb, picks a side and fits it to itself, with no surgery, doctor or repair kit. Machine organs and the AI core still need surgery, and the limb install surgeries stay as a second route.

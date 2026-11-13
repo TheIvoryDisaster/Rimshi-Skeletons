@@ -1,1 +1,0 @@
-Recall array hordes are a fifth smaller. Once at least half the colonists on the map are downed, the skeleton legion loses its grip and turns on itself: every skeleton still standing goes berserk and goes for the others first.

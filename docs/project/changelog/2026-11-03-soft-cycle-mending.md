@@ -1,1 +1,0 @@
-A CPU soft cycle now mends a skeleton just enough to get up by the time it finishes, legs first (nothing if both legs are gone). A downed skeleton can start a soft reset where it lies from its Soft cycle button.
