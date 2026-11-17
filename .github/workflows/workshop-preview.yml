@@ -1,0 +1,37 @@
+name: Preview Steam Workshop update (no login)
+on:
+  workflow_dispatch:
+    inputs:
+      release-tag:
+        description: Existing stable release tag
+        default: v19
+        required: true
+      asset-id:
+        description: GitHub release ZIP asset ID
+        default: '758368415'
+        required: true
+      sha256:
+        description: Approved release ZIP SHA-256
+        default: 0837b425606bd19020dc113da4c2ea9c852a765222091e3e3c194585a1396f98
+        required: true
+  pull_request:
+    branches: [beta, main]
+    paths:
+      - .github/workflows/workshop-preview.yml
+      - docs/project/workshop-publishing.md
+permissions:
+  contents: read
+concurrency:
+  group: workshop-preview-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  prepare:
+    # Beta test pin: promote reviewed GutenStructure code before production adoption.
+    uses: TheIvoryDisaster/GutenStructure/.github/workflows/rimworld-workshop-preview.yml@333815e1eb470e918c13101f57c1dd1add633872
+    with:
+      release-tag: ${{ inputs.release-tag || 'v19' }}
+      asset-id: ${{ inputs.asset-id || '758368415' }}
+      expected-sha256: ${{ inputs.sha256 || '0837b425606bd19020dc113da4c2ea9c852a765222091e3e3c194585a1396f98' }}
+      package-id: Matthew.RimshiSkeletons
+      workshop-item-id: '3841311958'
+    # No Steam secrets, Azure access or cross-repository PAT.
