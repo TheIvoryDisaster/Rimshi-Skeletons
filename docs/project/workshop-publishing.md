@@ -10,11 +10,11 @@ The `Preview Steam Workshop update (no login)` workflow calls a pinned GutenStru
 
 The initial PR runs automatically against release v19. Manual dispatch becomes available in Actions once the caller workflow is on the default branch. Its defaults are v19, asset 758368415 and SHA-256 `0837b425606bd19020dc113da4c2ea9c852a765222091e3e3c194585a1396f98`. They are an explicit tested snapshot, not a moving latest release; update all three together for later tests.
 
-A passing run produces `rimworld-workshop-preview`, retained for one day in this private repository. Download it from the Actions run to inspect:
+A passing run writes its validation report and VDF directly in the private Actions run summary. This avoids the account's full artifact-storage quota. The optional central `save-preview-artifact` setting defaults to false; enable it only when quota is available, to retain the staged folder for one day. Inspect:
 
 - `plan.json`: existing item ID, app 294100, package ID, source commit, digest and supported versions; `uploaded` remains false.
 - `workshop-preview.vdf`: proposed update target and runner staging path. No visibility/title/description overrides are requested.
-- The validated staged mod folder. The v19 release has a 1.6 DLL and advertises 1.6 only; no 1.7 assembly is fabricated.
+- The validated staged mod folder is ephemeral unless optional artifact saving is enabled. The v19 release has a 1.6 DLL and advertises 1.6 only; no 1.7 assembly is fabricated.
 
 The VDF's absolute runner path will not exist on your computer. Regenerate it with the central helper against a local output path before any future separately approved upload. Do not treat this artifact as an executable upload instruction. Check the mod still matches your tested in-game version; staging checks do not prove gameplay behavior.
 

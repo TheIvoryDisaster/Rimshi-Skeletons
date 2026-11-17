@@ -27,7 +27,7 @@ concurrency:
 jobs:
   prepare:
     # Beta test pin: promote reviewed GutenStructure code before production adoption.
-    uses: TheIvoryDisaster/GutenStructure/.github/workflows/rimworld-workshop-preview.yml@c6c51e25e1df6c52095e8a3f6690bb4265c5e0d7
+    uses: TheIvoryDisaster/GutenStructure/.github/workflows/rimworld-workshop-preview.yml@333815e1eb470e918c13101f57c1dd1add633872
     with:
       release-tag: ${{ inputs.release-tag || 'v19' }}
       asset-id: ${{ inputs.asset-id || '758368415' }}
