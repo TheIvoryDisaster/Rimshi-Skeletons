@@ -1,1 +1,0 @@
-Skeletons in a soft cycle are left out of rituals, like a deathresting sanguophage. A grav ship launch made every colonist a spectator by default and walked them onto the ship, which cut a standing soft reset short before the ship left; now the cycling skeleton stays where it is and carries on through the flight.
