@@ -157,9 +157,9 @@ namespace RimshiSkeletons
                 reason = "unpowered";
                 return false;
             }
-            if (!comp.CanPowerCycle(pawn))
+            if (!comp.CanPowerCycle(pawn, out string powerReason))
             {
-                reason = "not enough power (needs " + comp.CycleWatts(pawn).ToString("F0") + " W more)";
+                reason = powerReason;
                 return false;
             }
             if (!pawn.CanReach(bed, PathEndMode.OnCell, Danger.Some) || !(pawn.HasReserved(bed) || pawn.CanReserve(bed, bed.SleepingSlotsCount)))
@@ -465,7 +465,9 @@ namespace RimshiSkeletons
                     canTargetLocations = true,
                     canTargetBuildings = true,
                     canTargetPawns = false,
-                    validator = t => ValidTarget(pawn, t.Cell, out _)
+                    // Any repair bed can be clicked: if it can't take the skeleton now, OrderCycle says why instead
+                    // of the click silently doing nothing.
+                    validator = t => RepairBedAt(t.Cell, pawn.Map) != null || ValidTarget(pawn, t.Cell, out _)
                 },
                 action = target => OrderCycle(pawn, target)
             };
@@ -501,6 +503,23 @@ namespace RimshiSkeletons
             return command;
         }
 
+        /// <summary>
+        /// The right-click "Soft cycle" option on a repair bed for a selected skeleton, greyed out with the reason when the
+        /// bed can't take it now. Null when the option doesn't apply (not a repair bed, not a player's skeleton, already cycling).
+        /// </summary>
+        public static FloatMenuOption RepairBedFloatOption(Pawn pawn, Building_Bed bed)
+        {
+            if (RepairBedOf(bed) == null || pawn == null || !IsSkeletonCycler(pawn) || !pawn.IsColonistPlayerControlled || pawn.Downed || Cycling(pawn))
+            {
+                return null;
+            }
+            if (!CanCycleIn(pawn, bed, out string reason))
+            {
+                return new FloatMenuOption("Soft cycle (" + reason + ")", null);
+            }
+            return FloatMenuUtility.DecoratePrioritizedTask(new FloatMenuOption("Soft cycle", delegate { OrderCycle(pawn, bed); }), pawn, bed);
+        }
+
         /// <summary>A repair bed on the cell, if any.</summary>
         public static Building_Bed RepairBedAt(IntVec3 cell, Map map)
         {
@@ -532,10 +551,12 @@ namespace RimshiSkeletons
             }
             if (!CanCycleIn(pawn, bed, out string reason))
             {
-                Messages.Message("Cannot soft cycle there: " + reason + ".", MessageTypeDefOf.RejectInput, false);
+                Messages.Message("Cannot soft cycle there: " + reason + ".", bed, MessageTypeDefOf.RejectInput, false);
+                RimshiLog.Test("softcycle", "bed refused", pawn.LabelShort + " can't soft cycle in " + bed.LabelShort + " at " + bed.Position + ": " + reason);
                 return;
             }
             pawn.jobs.TryTakeOrderedJob(JobMaker.MakeJob(JobDefOf.Deathrest, bed), JobTag.Misc);
+            RimshiLog.Test("softcycle", "bed ordered", pawn.LabelShort + " ordered to soft cycle in " + bed.LabelShort + " at " + bed.Position);
         }
 
         /// <summary>

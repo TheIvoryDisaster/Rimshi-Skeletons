@@ -129,6 +129,63 @@ namespace RimshiSkeletons
         }
     }
 
+    /// <summary>
+    /// A skeleton in a soft cycle takes no part in rituals (Matthew, 2026-11-13). A grav ship launch is a ritual, and its
+    /// dialog makes every colonist who can attend a spectator by default; spectators must walk onto the ship, so the
+    /// launch's ritual ended a standing soft reset before the ship ever left (build 56 log: "cancelled standing | Sciff:
+    /// interrupted" with no gravship lines). Vanilla keeps a deathresting sanguophage out because it is downed, and
+    /// RitualRoleAssignments.PawnNotAssignableReason refuses downed pawns; a standing reset is not downed, so the same
+    /// gates refuse it here. Patched on CanEverSpectate and the static PawnNotAssignableReason, not on the tiny
+    /// GatheringsUtility checks that 1.7's JIT may inline.
+    /// </summary>
+    public static class SoftCycleRituals
+    {
+        public const string Reason = "is in a soft cycle";
+
+        private static readonly Dictionary<int, int> lastLogged = new Dictionary<int, int>();
+
+        public static bool KeptOut(Pawn pawn) => pawn != null && SkeletonUtility.HasFrame(pawn) && (StandingReset.InProgress(pawn) || pawn.Deathresting);
+
+        public static void Log(Pawn pawn)
+        {
+            int now = Find.TickManager?.TicksGame ?? 0;
+            if (lastLogged.TryGetValue(pawn.thingIDNumber, out int last) && now >= last && now - last < GenDate.TicksPerHour)
+            {
+                return;
+            }
+            lastLogged[pawn.thingIDNumber] = now;
+            RimshiLog.Test("softcycle", "ritual skipped", pawn.LabelShort + " is soft cycling and was left out of a ritual (" + (StandingReset.InProgress(pawn) ? "standing soft reset" : "repair bed soft cycle") + ")");
+        }
+    }
+
+    [HarmonyPatch(typeof(RitualRoleAssignments), nameof(RitualRoleAssignments.CanEverSpectate))]
+    public static class Patch_SoftCycleNoSpectating
+    {
+        public static void Postfix(Pawn pawn, ref bool __result)
+        {
+            if (__result && SoftCycleRituals.KeptOut(pawn))
+            {
+                __result = false;
+                SoftCycleRituals.Log(pawn);
+            }
+        }
+    }
+
+    [HarmonyPatch(typeof(RitualRoleAssignments), nameof(RitualRoleAssignments.PawnNotAssignableReason),
+        new[] { typeof(Pawn), typeof(RitualRole), typeof(Precept_Ritual), typeof(RitualRoleAssignments), typeof(TargetInfo), typeof(bool) },
+        new[] { ArgumentType.Normal, ArgumentType.Normal, ArgumentType.Normal, ArgumentType.Normal, ArgumentType.Normal, ArgumentType.Out })]
+    public static class Patch_SoftCycleNotAssignable
+    {
+        public static void Postfix(Pawn p, ref string __result)
+        {
+            if (__result == null && SoftCycleRituals.KeptOut(p))
+            {
+                __result = p.LabelShort + " " + SoftCycleRituals.Reason + ".";
+                SoftCycleRituals.Log(p);
+            }
+        }
+    }
+
     /// <summary>Logs the skeletons that leave mid-cycle when a grav ship launches.</summary>
     [HarmonyPatch(typeof(GravshipUtility), nameof(GravshipUtility.GenerateGravship))]
     public static class Patch_SoftCycleGravshipLaunch

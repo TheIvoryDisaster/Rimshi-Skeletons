@@ -82,6 +82,9 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | softcycle | A skeleton came down on a landing grav ship still in its soft cycle (gives the bed or cell) | not seen |  |  |
 | softcycle | A skeleton held aboard a grav ship took its standing (or rib cage, or lying) soft reset back after landing | not seen |  |  |
 | softcycle | A repair bed had no power yet just after a grav ship landing; its soft cycle was held, not cancelled | not seen |  |  |
+| softcycle | Soft cycle button or right-click on a repair bed that can't take the skeleton now (gives the reason) | not seen |  |  |
+| softcycle | Skeleton ordered to soft cycle in a repair bed from the button or the bed's right-click menu | not seen |  |  |
+| softcycle | A soft cycling skeleton was left out of a ritual (a grav ship launch makes everyone a spectator by default) | not seen |  |  |
 | softcycle | A downed skeleton with no CPU integrity left began a soft reset where it lies | not seen |  |  |
 | softcycle | Skeletons with deathrest exhaustion from an older save got CPU overload instead | not seen |  |  |
 | facility | A soft cycle facility joined a soft cycle in a linked repair bed (a tuning fork burnt an advanced component, gives the cycle length factor) | not seen |  |  |
@@ -197,6 +200,7 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | selftest | Self-test: skeleton shows the CPU integrity gizmo and one soft cycle button instead of vanilla's deathrest gizmo | passed | 52 | gizmos GeneGizmo_Rimshi_CpuIntegrity |
 | selftest | Self-test: waits forced by other pawns' work are ignored during a soft cycle (StartJob patched) | not seen |  |  |
 | selftest | Self-test: soft cycles survive grav ship launch and landing (patches, landing power grace, reset held aboard) | not seen |  |  |
+| selftest | Self-test: a soft cycling skeleton cannot be assigned to or spectate a ritual | not seen |  |  |
 | selftest | Self-test: a skeleton on its feet does not begin an automatic lying soft reset | not seen |  |  |
 | selftest | Self-test: orders, drafting and the draft button are guarded during a standing soft cycle | passed | 52 | orders, drafting and the draft button are guarded during a standing soft cycle |
 | selftest | Self-test: the CPU integrity tooltip is skeleton lore with no vanilla deathrest text | passed after fail | 52 | integrity tooltip: <color=#E6E64CFF>CPU integrity: 0%</color> / <color=#FF3333FF>Overloaded.</color> /  / A skeleton's mind runs on a CPU and a memory buffer th |
