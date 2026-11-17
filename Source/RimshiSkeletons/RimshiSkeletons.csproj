@@ -36,13 +36,16 @@
     <RimWorldVersion Condition="'$(RimWorldVersion)' == '' And '$(TargetFramework)' == 'net472'">1.6</RimWorldVersion>
   </PropertyGroup>
 
-  <!-- No version asked for: build every version there are game DLLs for. -->
+  <!--
+    No version asked for: always list both frameworks, whatever is installed, so the project evaluates the same way on
+    every machine and at every moment. Visual Studio caches the first evaluation (and its NuGet restore) and does not
+    notice when game files or snapshots appear or vanish; if the framework list depended on them, a later build would
+    disagree with that cache and fail with "The target ResolveProjectReferences does not exist" and "The targeting
+    pack Microsoft.NETCore.App is not installed" (2026-11-17). A version with no game DLLs is skipped at build time
+    instead, by RimshiSkipMissingVersions below.
+  -->
   <PropertyGroup Condition="'$(RimWorldVersion)' == ''">
-    <TargetFrameworks Condition="'$(RimshiCan16)' == 'true'">net472</TargetFrameworks>
-    <TargetFrameworks Condition="'$(RimshiCan17)' == 'true' And '$(TargetFrameworks)' != ''">$(TargetFrameworks);net10.0</TargetFrameworks>
-    <TargetFrameworks Condition="'$(RimshiCan17)' == 'true' And '$(TargetFrameworks)' == ''">net10.0</TargetFrameworks>
-    <!-- No game DLLs found at all: fall back to 1.6 so the build fails with missing references instead of doing nothing. -->
-    <RimWorldVersion Condition="'$(TargetFrameworks)' == ''">1.6</RimWorldVersion>
+    <TargetFrameworks>net472;net10.0</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -137,6 +140,17 @@
            Text="0Harmony.dll not found in $(HarmonyDir). Subscribe to Harmony on the Workshop, or build with -p:HarmonyDir=&lt;folder holding 0Harmony.dll&gt;." />
     <Error Condition="!Exists('$(RimWorldManaged)\Assembly-CSharp.dll')"
            Text="Assembly-CSharp.dll not found in $(RimWorldManaged). Keep the repo at RimWorld\Mods\Rimshi-Skeletons, or build with -p:RimWorldManaged=&lt;folder holding Assembly-CSharp.dll&gt; (RimWorldWin64_Data\Managed on 1.6, the game folder on 1.7)." />
+  </Target>
+
+  <!-- Multi-version build: drop the inner build of a version this machine has no game DLLs for (installed or
+       snapshotted). With neither available, 1.6 still runs so RimshiCheckReferences explains what is missing. -->
+  <Target Name="RimshiSkipMissingVersions" AfterTargets="_ComputeTargetFrameworkItems" Condition="'$(RimshiCI)' != 'true'">
+    <ItemGroup>
+      <_InnerBuildProjects Remove="@(_InnerBuildProjects)" Condition="'%(_InnerBuildProjects.AdditionalProperties)' == 'TargetFramework=net10.0' And '$(RimshiCan17)' != 'true'" />
+      <_InnerBuildProjects Remove="@(_InnerBuildProjects)" Condition="'%(_InnerBuildProjects.AdditionalProperties)' == 'TargetFramework=net472' And '$(RimshiCan16)' != 'true' And '$(RimshiCan17)' == 'true'" />
+    </ItemGroup>
+    <Message Importance="high" Condition="'$(RimshiCan17)' != 'true'" Text="Rimshi: skipped 1.7, this RimWorld install is not on 1.7 and no build has snapshotted it yet." />
+    <Message Importance="high" Condition="'$(RimshiCan16)' != 'true' And '$(RimshiCan17)' == 'true'" Text="Rimshi: skipped 1.6, this RimWorld install is not on 1.6 and no build has snapshotted it yet." />
   </Target>
 
   <!-- The mod ships only its own DLL. Without this, a local build copies the game's mscorlib and System*.dll (pulled in
