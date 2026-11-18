@@ -31,7 +31,7 @@ jobs:
       github.ref == 'refs/heads/main' &&
       inputs.confirm-item == '3841311958'
     environment: steam-publish
-    runs-on: [self-hosted, Windows, X64, rimshi-steam-publisher]
+    runs-on: windows-latest
     timeout-minutes: 20
     env:
       WORKSHOP_STAGE: ${{ github.workspace }}/.workshop-stage
@@ -57,11 +57,20 @@ jobs:
           if (Test-Path $env:WORKSHOP_STAGE) { Remove-Item $env:WORKSHOP_STAGE -Recurse -Force }
           python trusted-stage/scripts/rimworld_workshop.py --release-tag $env:RELEASE_TAG --asset-id $env:ASSET_ID --sha256 $env:EXPECTED_SHA256 --package-id Matthew.RimshiSkeletons --item-id 3841311958 --output $env:WORKSHOP_STAGE
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-      - name: Update the existing Workshop item using the local Steam session
+      - name: Install Valve SteamCMD in temporary storage
+        shell: pwsh
+        run: |
+          $install = Join-Path $env:RUNNER_TEMP 'steamcmd'
+          New-Item -ItemType Directory -Path $install -Force | Out-Null
+          Invoke-WebRequest 'https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip' -OutFile "$install.zip"
+          Expand-Archive "$install.zip" -DestinationPath $install
+          "STEAMCMD_PATH=$install/steamcmd.exe" >> $env:GITHUB_ENV
+      - name: Update the existing Workshop item using environment secrets
         shell: pwsh
         env:
-          STEAM_USERNAME: ${{ vars.STEAM_USERNAME }}
-          STEAMCMD_PATH: ${{ vars.STEAMCMD_PATH }}
+          STEAM_USERNAME: ${{ secrets.STEAM_USERNAME }}
+          STEAM_PASSWORD: ${{ secrets.STEAM_PASSWORD }}
+          STEAM_GUARD_CODE: ${{ secrets.STEAM_GUARD_CODE }}
           CONFIRM_ITEM: ${{ inputs.confirm-item }}
         run: |
           python publisher/scripts/steam_workshop_upload.py
@@ -72,3 +81,5 @@ jobs:
         shell: pwsh
         run: |
           if (Test-Path $env:WORKSHOP_STAGE) { Remove-Item $env:WORKSHOP_STAGE -Recurse -Force }
+          $steam = Join-Path $env:RUNNER_TEMP 'steamcmd'
+          if (Test-Path $steam) { Remove-Item $steam -Recurse -Force }

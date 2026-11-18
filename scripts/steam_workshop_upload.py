@@ -1,4 +1,4 @@
-"""Owner-run SteamCMD adapter. Reuses a locally authorized session; no password collection."""
+"""Owner-run SteamCMD adapter on an ephemeral GitHub-hosted Windows runner."""
 import json
 import os
 from pathlib import Path
@@ -34,18 +34,31 @@ def main():
     # The central validator generates this file. Windows paths need VDF-safe slashes.
     vdf.write_text(vdf.read_text().replace('\\', '/'), encoding='utf-8')
     executable = Path(os.environ['STEAMCMD_PATH'])
-    args = command(executable, os.environ['STEAM_USERNAME'], vdf)
-    # Raw Steam output may contain account/session information. Never publish or cache it.
-    with tempfile.TemporaryFile(mode='w+b') as log:
-        process = subprocess.Popen(args, cwd=executable.parent, stdin=subprocess.DEVNULL,
-                                   stdout=log, stderr=subprocess.STDOUT)
-        try:
-            result = process.wait(timeout=600)
-        except subprocess.TimeoutExpired:
-            subprocess.run(['taskkill', '/PID', str(process.pid), '/T', '/F'], capture_output=True)
-            raise RuntimeError('SteamCMD timed out; reauthorize Steam Guard locally and retry') from None
-        log.seek(0)
-        text = log.read(8 * 1024 * 1024).decode('utf-8', errors='replace')
+    username = os.environ['STEAM_USERNAME']
+    command(executable, username, vdf)  # Validate account/path without exposing credentials.
+    password = os.environ['STEAM_PASSWORD']
+    guard = os.environ.get('STEAM_GUARD_CODE', '')
+    if not password or any(c in password for c in ('"', chr(92), '\r', '\n')) or (guard and not re.fullmatch(r'[A-Za-z0-9]{5,8}', guard)):
+        raise ValueError('Missing password or unsupported credential characters')
+    # Run-script keeps secrets out of command-line arguments and GitHub output.
+    # Both this file and raw output are ephemeral, never uploaded or cached.
+    with tempfile.TemporaryDirectory() as temporary:
+        script = Path(temporary) / 'upload.txt'
+        vdf_path = str(vdf).replace(chr(92), '/')
+        script.write_text('@ShutdownOnFailedCommand 1\n@NoPromptForPassword 1\n'
+            + f'login "{username}" "{password}"' + (f' "{guard}"' if guard else '')
+            + f'\nworkshop_build_item "{vdf_path}"\nquit\n', encoding='utf-8')
+        with tempfile.TemporaryFile(mode='w+b') as log:
+            child_env = {k:v for k,v in os.environ.items() if k not in ('STEAM_PASSWORD', 'STEAM_GUARD_CODE', 'GH_TOKEN', 'GITHUB_TOKEN')}
+            process = subprocess.Popen([str(executable), '+runscript', str(script)], cwd=executable.parent,
+                                       env=child_env, stdin=subprocess.DEVNULL, stdout=log, stderr=subprocess.STDOUT)
+            try:
+                result = process.wait(timeout=600)
+            except subprocess.TimeoutExpired:
+                subprocess.run(['taskkill', '/PID', str(process.pid), '/T', '/F'], capture_output=True)
+                raise RuntimeError('SteamCMD timed out; refresh Steam Guard authorization and retry') from None
+            log.seek(0)
+            text = log.read(8 * 1024 * 1024).decode('utf-8', errors='replace')
     if result != 0 or not re.search(r'Success\.\s*Published item\s+' + ITEM + r'\b', text, re.I):
         raise RuntimeError('SteamCMD did not confirm the expected item update. Check login locally; raw output was withheld.')
     print('SteamCMD confirmed update of Workshop item ' + ITEM)
