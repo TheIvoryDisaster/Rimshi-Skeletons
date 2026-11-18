@@ -1,0 +1,74 @@
+name: Upload verified release to Steam Workshop
+on:
+  workflow_dispatch:
+    inputs:
+      release-tag:
+        description: Tested stable GitHub release tag
+        required: true
+        default: v20
+      asset-id:
+        description: Exact release ZIP asset ID
+        required: true
+        default: '764119811'
+      sha256:
+        description: Approved ZIP SHA-256
+        required: true
+        default: 3899d98904f7e63ad2cea3e45e66949284998ea51d2070316030f87aee7e275c
+      confirm-item:
+        description: Type 3841311958 to authorize updating the existing Workshop item
+        required: true
+permissions:
+  contents: read
+concurrency:
+  group: rimshi-steam-publish
+  cancel-in-progress: false
+jobs:
+  upload:
+    if: >-
+      github.repository == 'TheIvoryDisaster/Rimshi-Skeletons' &&
+      github.actor_id == '17211998' &&
+      github.triggering_actor == 'TheIvoryDisaster' &&
+      github.ref == 'refs/heads/main' &&
+      inputs.confirm-item == '3841311958'
+    environment: steam-publish
+    runs-on: [self-hosted, Windows, X64, rimshi-steam-publisher]
+    timeout-minutes: 20
+    env:
+      WORKSHOP_STAGE: ${{ github.workspace }}/.workshop-stage
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+          path: publisher
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          repository: TheIvoryDisaster/GutenStructure
+          ref: 00fa7847ffa9e0d9453abceb28204ec70d0e675c
+          persist-credentials: false
+          path: trusted-stage
+      - name: Download, hash-check and stage the release (never build it)
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.release-tag }}
+          ASSET_ID: ${{ inputs.asset-id }}
+          EXPECTED_SHA256: ${{ inputs.sha256 }}
+        run: |
+          if (Test-Path $env:WORKSHOP_STAGE) { Remove-Item $env:WORKSHOP_STAGE -Recurse -Force }
+          python trusted-stage/scripts/rimworld_workshop.py --release-tag $env:RELEASE_TAG --asset-id $env:ASSET_ID --sha256 $env:EXPECTED_SHA256 --package-id Matthew.RimshiSkeletons --item-id 3841311958 --output $env:WORKSHOP_STAGE
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Update the existing Workshop item using the local Steam session
+        shell: pwsh
+        env:
+          STEAM_USERNAME: ${{ vars.STEAM_USERNAME }}
+          STEAMCMD_PATH: ${{ vars.STEAMCMD_PATH }}
+          CONFIRM_ITEM: ${{ inputs.confirm-item }}
+        run: |
+          python publisher/scripts/steam_workshop_upload.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          "Updated Workshop item 3841311958 from the verified release. Check subscriber installation and visibility." >> $env:GITHUB_STEP_SUMMARY
+      - name: Remove staged mod files
+        if: always()
+        shell: pwsh
+        run: |
+          if (Test-Path $env:WORKSHOP_STAGE) { Remove-Item $env:WORKSHOP_STAGE -Recurse -Force }
