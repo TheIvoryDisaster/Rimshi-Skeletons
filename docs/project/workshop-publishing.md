@@ -52,3 +52,9 @@ The owner verified a local SteamCMD update of item 3841311958 and subscriber gam
 7. Expect an item-update confirmation in the run summary. Verify Workshop visibility and subscriber installation. A failed login requires refreshed owner authorization; no automatic retry loop or disabled Guard. No raw Steam output, session files or secret run-script is cached/uploaded. Temporary files are removed and the hosted runner is discarded. Each new run authenticates again. Repeated dispatch can repeat an upload; durable replay receipts remain future work.
 
 SteamCMD is downloaded from Valve's official installer endpoint and self-updates; it is not an immutable third-party action. Credentials are passed in an ephemeral run-script, not process arguments; raw output is withheld because Steam may echo login details. No session export is required. Credentials are not risk-free against administrators or trusted runtime code. Confirm permitted platform use before expanding this pilot into unattended automatic publishing.
+
+### First hosted credential test
+
+Choose **mode: login-test** (the default) on main, leaving the v20 snapshot fields unchanged and entering item confirmation. This stages/validates the package but the Steam run-script contains only login and quit: no Workshop command. Observe whether Steam confirms login or requests Guard authorization. Do not add a rapidly rotating code until we know the challenge type. Choose **upload** only after successful authentication testing. No session is persisted between hosted jobs.
+
+The first hosted attempt (run 44352362892) failed before Steam: the pinned central validator rejected Windows staging backslashes. The local validator copy in this PR preserves the reviewed checks from GutenStructure 00fa7847 and normalizes VDF paths with `Path.as_posix()`. No credentials were used in that attempt. Consolidate this platform fix back into the central helper before wider reuse.
