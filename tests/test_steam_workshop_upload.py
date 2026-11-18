@@ -20,3 +20,11 @@ class UploadTests(unittest.TestCase):
     def test_untrusted_environment_cannot_upload(self):
         from unittest.mock import patch
         with patch.dict(m.os.environ, {}, clear=True), self.assertRaises(ValueError): m.main()
+
+    def test_login_mode_has_no_workshop_operation(self):
+        script = m.run_script('user', 'example', '', 'C:/stage/file.vdf', 'login-test')
+        self.assertNotIn('workshop_build_item', script)
+        self.assertTrue(script.endswith('\nquit\n'))
+    def test_upload_mode_includes_only_selected_vdf(self):
+        script = m.run_script('user', 'example', '', 'C:/stage/file.vdf', 'upload')
+        self.assertIn('workshop_build_item "C:/stage/file.vdf"', script)
