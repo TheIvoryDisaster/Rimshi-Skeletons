@@ -13,6 +13,7 @@ generated, picked or not, is in [prompt-log.md](prompt-log.md).
 | A shape the models cannot draw from text (rib cage cross, gibbet) | Recipe B: code-drawn line art, painted by SDXL img2img at denoise 0.5 to 0.55 | Text-to-image never produced usable ribs; the line art fixes the shape and the perspective. |
 | A complex machine that needs exact matching rotations | Recipe C: three.js model, toon shading, fixed RimWorld camera, outline pass | All four rotations come from one model, so they always agree. No ComfyUI needed. |
 | A placeholder | Recipe D: recolour a vanilla texture | Fast and always in style. |
+| Art Matthew supplies on a plain background | Recipe E: cut-out script | Keeps his drawing as is; only the background, crop and padding change. |
 
 ## The target: what RimWorld art looks like
 
@@ -226,6 +227,17 @@ hand painted.
 - Skeleton wound overlays reuse vanilla's grey and black mechanoid wound textures in code (PR #36); no new art.
 - Skeleton heads and bodies are the original Rim-Skeletons (Continued) art by VexedTrees and Zaljerem, used with credit.
 
+## Recipe E: supplied art, cut out
+
+For a finished drawing Matthew hands over (no ComfyUI run of ours):
+
+- `tools/art/recallarray/cutout.py SOURCE.png OUT.png [PREVIEW.png]` (numpy, scipy, Pillow). Background is near-white
+  connected to the border, plus enclosed near-white pockets of 150 px or more (gaps seen through railings). The
+  anti-aliased rim beside the background is un-mixed from white, so the dark outline keeps a soft edge and no halo.
+- It crops to the content, pads to the footprint's ratio with a 3% margin and the base on the bottom edge, and scales to
+  128 px per cell. The preview draws the result over the footprint grid to check the base sits on it.
+- Change `CELLS` for another footprint.
+
 ## Asset catalog
 
 | Asset | Shipped file(s) | Recipe | Picked | Workflow file(s) | Notes |
@@ -240,6 +252,7 @@ hand painted.
 | Brass tuning fork | `Buildings/TuningFork_*.png` (4) | C | Upright fork in a speaker cone on a stereo stack with a tape deck at each end and a tape band, ring gears on both tines | `tools/art/tuningfork/` | First version lay on its side; Matthew wanted it upright. |
 | Chemical spire | `Buildings/ChemicalSpire.png`, `UI/LooseTheTempest.png` | C | Single design | `tools/art/spire/` | Not rotatable, one view. |
 | Cable fissure | `Buildings/CableFissure_*.png` (4 views + 4 masks), `UI/Heave.png` | C | Single design (first version, not yet reviewed by Matthew) | `tools/art/fissure/` | Black bricks of uneven height, tall block north, low block south (worker side), a bundle of seven coloured cables bound with bronze bands runs along a sunk channel between collars with glowing seams; hot seams cracked across the tops. Bricks take the stone's tint through the mask, cables keep their colours. Light from (-0.4, 1.0, 0.3), ambient 0.6, so tops read lighter than fronts. |
+| Recall array | `Buildings/RecallArray.png` | E | Matthew's own painting of a rusted bell-shaped relay tower (antenna cross, two dishes, gear collar, torn red pennant), supplied 2026-11-18 | `tools/art/recallarray/cutout.py` | Source 1024x1536 on white, kept in the project's shared `art-proposals/recall-array/`. Cut out, cropped, padded to 3:5 with the base on the bottom edge, 384x640 (128 px per cell). Not rotatable, one view. |
 | Placeholders | `Items/Placeholder_Intermediate.png`, `Placeholder_Part.png` | D | | | Limbs, sensors and the AI core still use the part placeholder. |
 
 Proposal images for every round are in `docs/art/proposals/` (round 1 at the top level, `round2/`, `workbench/`,
@@ -254,6 +267,7 @@ Proposal images for every round are in `docs/art/proposals/` (round 1 at the top
 - Describe the per-view layout in words in the prompt even though the blockout shows it; Kontext follows both.
 - Say "hand-painted 2D game sprite, not a 3D render" for items, or Flux renders them in 3D.
 - Read every proposal at in-game size before offering it: thin antennas, rods and outlines vanish at 64 px.
+- `ImageDraw.floodfill` is pure Python and takes minutes on a 1.5 MP image; label with `scipy.ndimage` instead.
 - Save the blockout and post-processing scripts in `tools/art/` with the workflow. The Remote Control rounds did not,
   so their blockouts exist only as files in ComfyUI's input folder on the PC.
 

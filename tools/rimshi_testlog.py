@@ -109,7 +109,7 @@ CHECKLIST = [
     ("overload", "end", "CPU overload cleared by a finished soft cycle"),
     ("ribcage", "hang", "Skeleton hanging in a rib cage (needs frozen)"),
     ("reproduction", "pregnancy blocked", "A pregnancy added to a skeleton was refused"),
-    ("horde", "array graphic", "Recall array inherited the mechband antenna graphic"),
+    ("horde", "array graphic", "Recall array is the 3x5 non-rotatable tower with its own graphic"),
     ("horde", "research", "Recall research on the research tab, overlapping nothing (gives its position)"),
     ("horde", "melee", "Bladeguard melee weapon tags (adds medieval weapons without Royalty)"),
     ("horde", "array used", "Colonist broadcast the recall codes; array burned out"),

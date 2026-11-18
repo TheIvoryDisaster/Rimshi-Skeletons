@@ -104,7 +104,7 @@ A failure writes the same line as a warning with `FAILED:` at the start of the d
 | overload | CPU overload cleared by a finished soft cycle | passed | 52 | Aranita cleared after 5.5 days |
 | ribcage | Skeleton hanging in a rib cage (needs frozen) | not seen |  |  |
 | reproduction | A pregnancy added to a skeleton was refused | passed | 52 | Aranita: PregnantHuman refused |
-| horde | Recall array inherited the mechband antenna graphic | passed | 52 | Rimshi_RecallArray uses Things/Building/Misc/MechbandAntenna, size (2, 1), research Rimshi_SkeletonRecall |
+| horde | Recall array is the 3x5 non-rotatable tower with its own graphic | not seen |  |  |
 | horde | Recall research on the research tab, overlapping nothing (gives its position) | failed | 52 | FAILED: Rimshi_SkeletonRecall at (12, 5.3) on Main, cost 2000, needs BasicMechtech at (9, 5.4) on Main; overlaps Seg_AutoWeapons |
 | horde | Bladeguard melee weapon tags (adds medieval weapons without Royalty) | passed | 52 | bladeguard weapon tags UltratechMelee |
 | horde | Colonist broadcast the recall codes; array burned out | not seen |  |  |
