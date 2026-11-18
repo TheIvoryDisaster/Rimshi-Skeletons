@@ -8,12 +8,12 @@ Requested by Matthew on 2026-10-24. Values below are first-pass numbers for play
 
 | Def | Value |
 | --- | --- |
-| `Rimshi_SkeletonRecall` "skeleton recall codes" | 2000 base cost, Industrial (no tech-level multiplier for Industrial colonies), after Biotech's `BasicMechtech`. No mechanitor needed: the array only reuses the antenna's art (Matthew, 2026-10-25). |
+| `Rimshi_SkeletonRecall` "skeleton recall codes" | 2000 base cost, Industrial (no tech-level multiplier for Industrial colonies), after Biotech's `BasicMechtech`. No mechanitor needed: the array is not the antenna's boss call (Matthew, 2026-10-25). |
 | Position | (12, 5.3) on the Main tab, a first guess. Startup logs its position, Basic mechtech's, and any project it overlaps (`horde | research`), so it can be moved after one log scan. |
 
 ## Recall array
 
-- `Rimshi_RecallArray` copies the vanilla mechband antenna (defName `BurnoutMechlinkBooster`, label "mechband antenna"): its graphic, size, build work and placement, with its own comps, cost (120 steel, 6 components, 25 plasteel) and research. It used to inherit from the antenna through a Name patch, but the patch named the wrong defName, the array lost its thingClass, and saves stopped loading (2026-10-25), so it no longer depends on any patch. Startup checks the graphic still matches the antenna (`horde | array graphic`).
+- `Rimshi_RecallArray` is a rusted relay tower built around the vanilla mechband antenna (defName `BurnoutMechlinkBooster`, label "mechband antenna"), with its own comps, cost (120 steel, 6 components, 25 plasteel) and research. It used to inherit from the antenna through a Name patch, but the patch named the wrong defName, the array lost its thingClass, and saves stopped loading (2026-10-25), so it no longer depends on any patch. Until 2026-11-18 it copied the antenna's graphic and 2x1 size; it now has Matthew's tower art (`Rimshi/Buildings/RecallArray`, one view): 3x5 cells, not rotatable, impassable, the drawing filling the footprint (drawSize (3,5)). Startup checks the graphic, size, rotation and passability (`horde | array graphic`). The horde still lands around the array's centre cell; the array is gone by then.
 - Use: `CompUsable` (the vanilla `UseItem` job, 10 seconds) plus `CompUseEffect_RecallArray`. Any colonist can use it (no mechanitor needed, unlike the antenna's boss call), but not while a horde is already on its way.
 - Effect: plays the antenna's own call effecter (read from its `CompProperties_Useable_CallBossgroup`), sends a small threat letter, burns out into 2 steel slag, and queues a horde on `RimshiGameComponent` for 1 to 6 in-game hours later. The queue is saved with the game.
 

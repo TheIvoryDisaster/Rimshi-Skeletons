@@ -5,7 +5,7 @@ using Verse;
 namespace RimshiSkeletons
 {
     /// <summary>
-    /// Startup checks and fallbacks for the recall horde: the array really did inherit the mechband antenna's graphic,
+    /// Startup checks and fallbacks for the recall horde: the array has its own tower graphic at its 3x5 footprint,
     /// where the research sits on its tab (and whether it overlaps anything), and the bladeguards' melee fallback when
     /// Royalty (plasmaswords, monoswords, zeushammers) is not loaded.
     /// </summary>
@@ -13,21 +13,26 @@ namespace RimshiSkeletons
     public static class HordeDefs
     {
         public const string AntennaDefName = "BurnoutMechlinkBooster";
+        public const string ArrayTexPath = "Rimshi/Buildings/RecallArray";
         public const string RoyaltyMeleeTag = "UltratechMelee";
         public const string FallbackMeleeTag = "MedievalMeleeAdvanced";
 
         static HordeDefs()
         {
-            ThingDef antenna = DefDatabase<ThingDef>.GetNamedSilentFail(AntennaDefName);
             ThingDef array = RimshiDefOf.Rimshi_RecallArray;
             string arrayPath = array.graphicData?.texPath;
-            if (antenna != null && arrayPath != null && arrayPath == antenna.graphicData?.texPath)
+            bool tower = arrayPath == ArrayTexPath && array.size == new IntVec2(3, 5) && !array.rotatable
+                && array.graphicData.drawSize == new UnityEngine.Vector2(3f, 5f) && array.passability == Traversability.Impassable;
+            string detail = array.defName + " uses " + (arrayPath ?? "no graphic") + ", size " + array.size + ", draw size " + array.graphicData?.drawSize
+                + ", rotatable " + array.rotatable + ", " + array.passability + ", research "
+                + string.Join(", ", array.researchPrerequisites?.Select(r => r.defName) ?? Enumerable.Empty<string>());
+            if (tower)
             {
-                RimshiLog.Test("horde", "array graphic", array.defName + " uses " + arrayPath + ", size " + array.size + ", research " + string.Join(", ", array.researchPrerequisites?.Select(r => r.defName) ?? Enumerable.Empty<string>()));
+                RimshiLog.Test("horde", "array graphic", detail);
             }
             else
             {
-                RimshiLog.Fail("horde", "array graphic", array.defName + " graphic " + (arrayPath ?? "none") + ", antenna " + (antenna == null ? "not found" : antenna.graphicData?.texPath));
+                RimshiLog.Fail("horde", "array graphic", detail);
             }
 
             ResearchProjectDef research = RimshiDefOf.Rimshi_SkeletonRecall;

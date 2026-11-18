@@ -244,3 +244,10 @@ prompt: the whole design lives in `tools/art/fissure/scene.js` (deterministic, n
 1. Bricks painted near black (0x34343a): tops and fronts merged into one flat black, and the stone tint would only darken them further.
 2. Bricks 0x8c8c94: read as grey stone under marble and limestone, not black.
 3. Shipped: bricks 0x5c5c64, tops 0x8e8e98, plinth 0x4a4a50, light moved to (-0.4, 1.0, 0.3); bands shrunk to radius 0.1.
+
+## Recipe E: supplied art
+
+### Recall array (2026-11-18)
+
+- No generation: Matthew supplied `recall_array.png` (1024x1536, white background), kept in the project's shared
+  `art-proposals/recall-array/`. Shipped through `tools/art/recallarray/cutout.py` with its defaults.

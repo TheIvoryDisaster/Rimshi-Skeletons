@@ -16,7 +16,7 @@ namespace RimshiSkeletons
 
     /// <summary>
     /// The recall array's use effect. Any colonist can broadcast the recall codes (unlike Biotech's mechband antenna,
-    /// the array only reuses its art, not its mechanitor requirement); the array burns out, and the horde is queued on RimshiGameComponent to drop in around it after
+    /// the array has no mechanitor requirement); the array burns out, and the horde is queued on RimshiGameComponent to drop in around it after
     /// a delay. Only one horde can be on its way at a time.
     /// </summary>
     public class CompUseEffect_RecallArray : CompUseEffect
@@ -52,11 +52,12 @@ namespace RimshiSkeletons
                 LetterDefOf.ThreatSmall, new TargetInfo(cell, map));
             RimshiLog.Test("horde", "array used", usedBy.LabelShort + " at " + cell + "; horde due in " + delay.ToStringTicksToPeriod() + ", broadcast " + (RimshiGameComponent.Instance.Summons + 1) + " in this game");
 
+            // Destroy first: the tower is impassable, so slag placed while it stands would land outside its 3x5 footprint.
+            parent.Destroy(DestroyMode.Vanish);
             for (int i = 0; i < 2; i++)
             {
                 GenPlace.TryPlaceThing(ThingMaker.MakeThing(ThingDefOf.ChunkSlagSteel), cell, map, ThingPlaceMode.Near);
             }
-            parent.Destroy(DestroyMode.Vanish);
         }
     }
 }
