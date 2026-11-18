@@ -45,12 +45,6 @@ jobs:
         with:
           persist-credentials: false
           path: publisher
-      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
-        with:
-          repository: TheIvoryDisaster/GutenStructure
-          ref: 00fa7847ffa9e0d9453abceb28204ec70d0e675c
-          persist-credentials: false
-          path: trusted-stage
       - name: Download, hash-check and stage the release (never build it)
         shell: pwsh
         env:
@@ -60,7 +54,7 @@ jobs:
           EXPECTED_SHA256: ${{ inputs.sha256 }}
         run: |
           if (Test-Path $env:WORKSHOP_STAGE) { Remove-Item $env:WORKSHOP_STAGE -Recurse -Force }
-          python trusted-stage/scripts/rimworld_workshop.py --release-tag $env:RELEASE_TAG --asset-id $env:ASSET_ID --sha256 $env:EXPECTED_SHA256 --package-id Matthew.RimshiSkeletons --item-id 3841311958 --output $env:WORKSHOP_STAGE
+          python publisher/scripts/rimworld_workshop_stage.py --release-tag $env:RELEASE_TAG --asset-id $env:ASSET_ID --sha256 $env:EXPECTED_SHA256 --package-id Matthew.RimshiSkeletons --item-id 3841311958 --output $env:WORKSHOP_STAGE
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Install Valve SteamCMD in temporary storage
         shell: pwsh

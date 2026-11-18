@@ -56,3 +56,5 @@ SteamCMD is downloaded from Valve's official installer endpoint and self-updates
 ### First hosted credential test
 
 Choose **mode: login-test** (the default) on main, leaving the v20 snapshot fields unchanged and entering item confirmation. This stages/validates the package but the Steam run-script contains only login and quit: no Workshop command. Observe whether Steam confirms login or requests Guard authorization. Do not add a rapidly rotating code until we know the challenge type. Choose **upload** only after successful authentication testing. No session is persisted between hosted jobs.
+
+The first hosted attempt (run 44352362892) failed before Steam: the pinned central validator rejected Windows staging backslashes. The local validator copy in this PR preserves the reviewed checks from GutenStructure 00fa7847 and normalizes VDF paths with `Path.as_posix()`. No credentials were used in that attempt. Consolidate this platform fix back into the central helper before wider reuse.
