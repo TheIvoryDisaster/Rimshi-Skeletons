@@ -74,11 +74,12 @@ jobs:
       - name: Check changelog fragments
         run: python3 tools/changelog_fold.py --check
 
+      # .NET 10 builds both game versions: 1.6 (net472) and 1.7 (net10.0, Waylith).
       - uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: '10.0.x'
 
-      - name: Build
+      - name: Build (1.6 and 1.7)
         run: >
           dotnet build Source/RimshiSkeletons/RimshiSkeletons.csproj -c Release -nologo
           -p:RimshiCI=true
@@ -109,8 +110,11 @@ jobs:
           for d in About Defs Patches Languages Textures Sounds LoadFolders.xml 1.6 1.7; do
             [ -e "$d" ] && cp -r "$d" "$out"/
           done
-          # CI can only compile the 1.6 DLL (there is no 1.7 reference package), so the zip does not claim 1.7 support
-          # unless a 1.7 DLL is in it. Local clones keep 1.7 in About.xml and build it with build.ps1.
+          # CI builds both DLLs (2026-11-18). Both must be in the zip, so a release never silently drops a version.
+          for v in 1.6 1.7; do
+            [ -e "$out/$v/Assemblies/RimshiSkeletons.dll" ] || { echo "::error::No $v DLL was built"; exit 1; }
+          done
+          # Kept as a safety net: never claim 1.7 support without a 1.7 DLL.
           if [ ! -e "$out/1.7/Assemblies/RimshiSkeletons.dll" ]; then
             sed -i '/<li>1\.7<\/li>/d' "$out/About/About.xml"
             sed -i '/<v1\.7>/,/<\/v1\.7>/d' "$out/LoadFolders.xml"
