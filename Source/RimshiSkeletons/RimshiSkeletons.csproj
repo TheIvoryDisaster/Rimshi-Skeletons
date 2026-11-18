@@ -11,7 +11,8 @@
     build also snapshots the installed version's game DLLs to %LOCALAPPDATA%\Rimshi\GameRefs\<version> (ported from
     Tithe PR #61, 2026-11-01). A plain build (Visual Studio, dotnet build) then builds both versions: the installed one
     from the game folder, the other from its snapshot. Build once on each branch to create both snapshots; a version
-    with no snapshot yet is skipped. -p:RimWorldVersion=1.6 or 1.7 (build.ps1, CI) builds just that version.
+    with no snapshot yet is skipped. -p:RimWorldVersion=1.6 or 1.7 (build.ps1) builds just that version.
+    CI (-p:RimshiCI=true) builds both versions from NuGet reference packages (2026-11-18).
   -->
 
   <PropertyGroup>
@@ -28,8 +29,6 @@
     <RimshiCan16 Condition="'$(RimWorldInstalled)' == '1.6' Or Exists('$(RimshiGameRefs)\1.6\Assembly-CSharp.dll')">true</RimshiCan16>
     <RimshiCan17 Condition="'$(RimWorldInstalled)' == '1.7' Or Exists('$(RimshiGameRefs)\1.7\Assembly-CSharp.dll')">true</RimshiCan17>
 
-    <!-- CI only has the 1.6 reference packages. -->
-    <RimWorldVersion Condition="'$(RimWorldVersion)' == '' And '$(RimshiCI)' == 'true'">1.6</RimWorldVersion>
     <!-- Inner build of the multi-version build: the framework says which version. -->
     <RimshiInnerBuild Condition="'$(RimWorldVersion)' == '' And '$(TargetFramework)' != ''">true</RimshiInnerBuild>
     <RimWorldVersion Condition="'$(RimWorldVersion)' == '' And '$(TargetFramework)' == 'net10.0'">1.7</RimWorldVersion>
@@ -58,6 +57,8 @@
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <IntermediateOutputPath Condition="'$(RimWorldVersion)' != ''">obj\$(Configuration)\$(RimWorldVersion)\</IntermediateOutputPath>
     <DebugType>none</DebugType>
+    <!-- The mod folder ships only the DLL; a net10.0 build would otherwise drop RimshiSkeletons.deps.json next to it. -->
+    <GenerateDependencyFile>false</GenerateDependencyFile>
     <Nullable>disable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
@@ -80,10 +81,17 @@
   <!--
     GitHub Actions has no RimWorld install, so it compiles against the community reference packages instead
     (Krafs.Rimworld.Ref for the game and Unity, Lib.Harmony.Ref for Harmony). Local builds never use these.
+    1.7's package (net10.0: Assembly-CSharp, UnityStubs, Waylith) is still tagged unstable on NuGet; bump it when a
+    newer game build ships. Lib.Harmony.Ref is netstandard2.0, so it serves both versions.
   -->
   <ItemGroup Condition="'$(RimshiCI)' == 'true'">
-    <PackageReference Include="Krafs.Rimworld.Ref" Version="1.6.4871" />
     <PackageReference Include="Lib.Harmony.Ref" Version="2.4.2" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(RimshiCI)' == 'true' And '$(TargetFramework)' == 'net472'">
+    <PackageReference Include="Krafs.Rimworld.Ref" Version="1.6.4871" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(RimshiCI)' == 'true' And '$(TargetFramework)' == 'net10.0'">
+    <PackageReference Include="Krafs.Rimworld.Ref" Version="1.7.5013-unstable" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(RimshiCI)' != 'true'">
