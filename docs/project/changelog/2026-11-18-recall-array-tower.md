@@ -1,1 +1,0 @@
-The skeleton recall array is now a rusted relay tower with its own art instead of the mechband antenna's: a 3x5 building that does not rotate and blocks movement. The slag it leaves when it burns out now lands where the tower stood.
