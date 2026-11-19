@@ -6,6 +6,11 @@ SOURCE = os.path.join(ROOT, "Source", "RimshiSkeletons")
 TEXTURES = os.path.join(ROOT, "Textures")
 
 
+def rel(path):
+    """Repo-relative path with forward slashes on every OS, so tests can key files the same way on Windows."""
+    return os.path.relpath(path, ROOT).replace(os.sep, "/")
+
+
 def xml_files(*folders):
     files = []
     for folder in folders:
@@ -18,7 +23,7 @@ def defs():
     out = []
     for path in xml_files("Defs"):
         for el in ET.parse(path).getroot():
-            out.append((os.path.relpath(path, ROOT), el))
+            out.append((rel(path), el))
     return out
 
 
@@ -50,7 +55,7 @@ def source_text():
     for path in glob.glob(os.path.join(SOURCE, "**", "*.cs"), recursive=True):
         if os.sep + "obj" + os.sep in path or os.sep + "bin" + os.sep in path:
             continue
-        texts[os.path.relpath(path, ROOT)] = open(path, encoding="utf-8").read()
+        texts[rel(path)] = open(path, encoding="utf-8").read()
     return texts
 
 
